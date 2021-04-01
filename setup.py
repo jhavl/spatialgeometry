@@ -5,7 +5,7 @@ import os
 here = path.abspath(path.dirname(__file__))
 
 req = [
-    'spatialmath-python'
+    'spatialmath-python>=9.2'
 ]
 
 collision_req = [
@@ -14,7 +14,7 @@ collision_req = [
 
 dev_req = [
     'roboticstoolbox-python',
-    'swift',
+    'swift-sim',
     'pytest',
     'pytest-cov',
     'flake8',
