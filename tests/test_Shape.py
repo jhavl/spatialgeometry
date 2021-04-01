@@ -79,7 +79,10 @@ class TestShape(unittest.TestCase):
             'color': 15892287,
             'opacity': 1.0}
 
-        self.assertEquals(s1.to_dict(), ans)
+        self.assertEquals(s1.to_dict()['stype'], ans['stype'])
+        self.assertEquals(s1.to_dict()['v'], ans['v'])
+        self.assertEquals(s1.to_dict()['color'], ans['color'])
+        nt.assert_almost_equal(s1.to_dict()['q'], ans['q'])
 
     def test_to_dict2(self):
         s1 = gm.Sphere(1)
@@ -102,7 +105,8 @@ class TestShape(unittest.TestCase):
             't': [0.0, 0.0, 0.0],
             'q': [0.7071067811865475, 0.0, 0.0, 0.7071067811865476]}
 
-        self.assertEquals(s1.fk_dict(), ans)
+        nt.assert_almost_equal(s1.fk_dict()['t'], ans['t'])
+        nt.assert_almost_equal(s1.fk_dict()['q'], ans['q'])
 
     def test_fk_dict2(self):
         s1 = gm.Sphere(1)

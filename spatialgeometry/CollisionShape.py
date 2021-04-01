@@ -22,7 +22,7 @@ def _import_pyb():
     global p
 
     try:
-        from roboticstoolbox.tools.stdout_supress import pipes
+        from spatialgeometry.tools.stdout_supress import pipes
     except Exception:  # pragma nocover
         from contextlib import contextmanager
 
