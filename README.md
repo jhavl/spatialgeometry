@@ -1,3 +1,5 @@
+# Spatial Geometry
+
 [![PyPI version](https://badge.fury.io/py/spatialgeometry.svg)](https://badge.fury.io/py/spatialgeometry)
 [![Anaconda version](https://anaconda.org/conda-forge/spatialgeometry/badges/version.svg)](https://anaconda.org/conda-forge/spatialgeometry)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/spatialgeometry.svg)
@@ -8,4 +10,16 @@
 [![Coverage](https://codecov.io/gh/jhavl/spatialgeometry/branch/master/graph/badge.svg)](https://codecov.io/gh/jhavl/spatialgeometry)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/jhavl/spatialgeometry.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jhavl/spatialgeometry/context:python)
 
-# spatialgeometry
+<table style="border:0px">
+<tr style="border:0px">
+<td style="border:0px">
+<img src="https://github.com/petercorke/robotics-toolbox-python/raw/master/docs/figs/RobToolBox_RoundLogoB.png" width="200"></td>
+<td style="border:0px">
+A Python Shape and Geometry Package
+<ul>
+<li><a href="https://github.com/jhavl/spatialgeometry">GitHub repository </a></li>
+<li><a href="https://jhavl.github.io/spatialgeometry">Documentation</a></li>
+</ul>
+</td>
+</tr>
+</table>
