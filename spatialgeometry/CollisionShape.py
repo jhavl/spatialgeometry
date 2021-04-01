@@ -61,9 +61,6 @@ class CollisionShape(Shape):
             p.resetBasePositionAndOrientation(
                 self.co, self._sT[:3, 3], rot)
 
-    def _init_pob(self):   # pragma nocover
-        pass
-
     def _check_pyb(func):   # pragma nocover
         @wraps(func)
         def wrapper_check_pyb(*args, **kwargs):
@@ -72,12 +69,15 @@ class CollisionShape(Shape):
             return func(*args, **kwargs)
         return wrapper_check_pyb
 
-    def _init_pob(self, col):
+    def _s_init_pob(self, col):
         self.co = p.createMultiBody(
             baseMass=1,
             baseInertialFramePosition=[0, 0, 0],
             baseCollisionShapeIndex=col)
         self.pinit = True
+
+    def _init_pob(self):  # pragma nocover
+        pass
 
     @property
     def wT(self):
@@ -202,7 +202,7 @@ class Mesh(CollisionShape):
                 fileName=self.filename,
                 meshScale=self.scale)
 
-            super()._init_pob(col)
+            super()._s_init_pob(col)
         else:
             raise ValueError(
                 "This shape has self.collision=False meaning it "
@@ -268,8 +268,7 @@ class Cylinder(CollisionShape):
                 shapeType=p.GEOM_CYLINDER,
                 radius=self.radius, height=self.length)
 
-            super()._init_pob(col)
-            super()._init_pob(col)
+            super()._s_init_pob(col)
         else:
             raise ValueError(
                 "This shape has self.collision=False meaning it "
@@ -327,7 +326,7 @@ class Sphere(CollisionShape):
             col = p.createCollisionShape(
                 shapeType=p.GEOM_SPHERE, radius=self.radius)
 
-            super()._init_pob(col)
+            super()._s_init_pob(col)
         else:
             raise ValueError(
                 "This shape has self.collision=False meaning it "
@@ -378,7 +377,7 @@ class Box(CollisionShape):
                 shapeType=p.GEOM_BOX,
                 halfExtents=np.array(self.scale)/2)
 
-            super()._init_pob(col)
+            super()._s_init_pob(col)
         else:
             raise ValueError(
                 "This shape has self.collision=False meaning it "
