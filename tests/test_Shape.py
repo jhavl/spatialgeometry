@@ -25,31 +25,31 @@ class TestShape(unittest.TestCase):
 
         shape.color = [0.1, 0.2, 0.3]
 
-        self.assertEqual(shape.color[0], 0.1)
-        self.assertEqual(shape.color[1], 0.2)
-        self.assertEqual(shape.color[2], 0.3)
-        self.assertEqual(shape.color[3], 1)
+        self.assertEquals(shape.color[0], 0.1)
+        self.assertEquals(shape.color[1], 0.2)
+        self.assertEquals(shape.color[2], 0.3)
+        self.assertEquals(shape.color[3], 1)
 
         shape.color = [0.1, 0.2, 0.3, 0.5]
 
-        self.assertEqual(shape.color[0], 0.1)
-        self.assertEqual(shape.color[1], 0.2)
-        self.assertEqual(shape.color[2], 0.3)
-        self.assertEqual(shape.color[3], 0.5)
+        self.assertEquals(shape.color[0], 0.1)
+        self.assertEquals(shape.color[1], 0.2)
+        self.assertEquals(shape.color[2], 0.3)
+        self.assertEquals(shape.color[3], 0.5)
 
         shape.color = (0.1, 0.2, 0.3)
 
-        self.assertEqual(shape.color[0], 0.1)
-        self.assertEqual(shape.color[1], 0.2)
-        self.assertEqual(shape.color[2], 0.3)
-        self.assertEqual(shape.color[3], 1)
+        self.assertEquals(shape.color[0], 0.1)
+        self.assertEquals(shape.color[1], 0.2)
+        self.assertEquals(shape.color[2], 0.3)
+        self.assertEquals(shape.color[3], 1)
 
         shape.color = (100, 200, 250, 100)
 
         self.assertAlmostEqual(shape.color[0], 100/255)
         self.assertAlmostEqual(shape.color[1], 200/255)
         self.assertAlmostEqual(shape.color[2], 250/255)
-        self.assertEqual(shape.color[3], 100/255)
+        self.assertEquals(shape.color[3], 100/255)
 
     def test_closest(self):
         s0 = gm.Box([1, 1, 1], base=sm.SE3(0, 0, 0))
@@ -79,7 +79,7 @@ class TestShape(unittest.TestCase):
             'color': 15892287,
             'opacity': 1.0}
 
-        self.assertEqual(s1.to_dict(), ans)
+        self.assertEquals(s1.to_dict(), ans)
 
     def test_to_dict2(self):
         s1 = gm.Sphere(1)
@@ -93,7 +93,7 @@ class TestShape(unittest.TestCase):
             'color': 15892287,
             'opacity': 1.0}
 
-        self.assertEqual(s1.to_dict(), ans)
+        self.assertEquals(s1.to_dict(), ans)
 
     def test_fk_dict(self):
         s1 = gm.Cylinder(1, 1)
@@ -102,7 +102,7 @@ class TestShape(unittest.TestCase):
             't': [0.0, 0.0, 0.0],
             'q': [0.7071067811865475, 0.0, 0.0, 0.7071067811865476]}
 
-        self.assertEqual(s1.fk_dict(), ans)
+        self.assertEquals(s1.fk_dict(), ans)
 
     def test_fk_dict2(self):
         s1 = gm.Sphere(1)
@@ -110,7 +110,7 @@ class TestShape(unittest.TestCase):
         ans = {
             't': [0.0, 0.0, 0.0], 'q': [0, 0, 0, 1]}
 
-        self.assertEqual(s1.fk_dict(), ans)
+        self.assertEquals(s1.fk_dict(), ans)
 
     def test_mesh(self):
         ur = rtb.models.UR5()
@@ -172,7 +172,7 @@ class TestShape(unittest.TestCase):
             'color': 15892287,
             'opacity': 1.0}
 
-        self.assertEqual(s0.to_dict(), ans)
+        self.assertEquals(s0.to_dict(), ans)
 
     def test_robot(self):
         r = rtb.models.UR5()
@@ -206,7 +206,7 @@ class TestShape(unittest.TestCase):
             'color': 15892287,
             'opacity': 1.0}
 
-        self.assertEqual(s0.to_dict(), ans)
+        self.assertEquals(s0.to_dict(), ans)
 
 
 if __name__ == '__main__':  # pragma nocover
