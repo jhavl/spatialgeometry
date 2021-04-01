@@ -7,7 +7,7 @@
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
 [![Build Status](https://github.com/jhavl/spatialgeometry/workflows/build/badge.svg?branch=main)](https://github.com/jhavl/spatialgeometry/actions?query=workflow%3Abuild)
-[![Coverage](https://codecov.io/gh/jhavl/spatialgeometry/branch/master/graph/badge.svg)](https://codecov.io/gh/jhavl/spatialgeometry)
+[![codecov](https://codecov.io/gh/jhavl/spatialgeometry/branch/main/graph/badge.svg?token=YPmchbQi2v)](https://codecov.io/gh/jhavl/spatialgeometry)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/jhavl/spatialgeometry.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jhavl/spatialgeometry/context:python)
 
 <table style="border:0px">
