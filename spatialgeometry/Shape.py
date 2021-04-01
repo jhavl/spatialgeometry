@@ -25,11 +25,7 @@ class Shape:
     def __init__(
             self,
             base=None,
-            # radius=0,
-            # length=0,
-            # scale=[1, 1, 1],
             color=None,
-            # filename=None,
             stype=None):
 
         self._wT = np.eye(4)
@@ -39,11 +35,6 @@ class Shape:
         self.stype = stype
         self.v = np.zeros(6)
         self.color = color
-
-        # self.scale = scale
-        # self.radius = radius
-        # self.length = length
-        # self.filename = filename
 
     def _to_hex(self, rgb):
         rgb = (np.array(rgb) * 255).astype(int)
@@ -67,9 +58,6 @@ class Shape:
 
         q = r2q(fk[:3, :3]).tolist()
         q = [q[1], q[2], q[3], q[0]]
-
-        # fk = self._wT
-        # print(self.base)
 
         shape = {
             'stype': self.stype,

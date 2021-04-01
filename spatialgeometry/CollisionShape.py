@@ -49,10 +49,10 @@ def _import_pyb():
 class CollisionShape(Shape):
 
     def __init__(self, collision=True, **kwargs):
-        super().__init__(**kwargs)
         self._collision = collision
         self.co = None
         self.pinit = False
+        super().__init__(**kwargs)
 
     def _update_pyb(self):
         if _pyb and self.co is not None:
