@@ -94,7 +94,6 @@ setup(
     extras_require={
         'collision': collision_req,
         'dev': dev_req,
-        'docs': docs_req,
-        'vpython': vp_req
+        'docs': docs_req
     }
 )
