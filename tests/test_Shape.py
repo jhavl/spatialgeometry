@@ -74,9 +74,10 @@ class TestShape(unittest.TestCase):
             'radius': 1.0,
             'length': 1.0,
             't': [0.0, 0.0, 0.0],
-            'q': [0.7071067811865476, 0.7071067811865475, 0.0, 0.0],
+            'q': [0.7071067811865475, 0.0, 0.0, 0.7071067811865476],
             'v': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            'color': [0.95, 0.5, 0.25, 1.0]}
+            'color': 15892287,
+            'opacity': 1.0}
 
         self.assertEqual(s1.to_dict(), ans)
 
@@ -85,7 +86,7 @@ class TestShape(unittest.TestCase):
 
         ans = {
             't': [0.0, 0.0, 0.0],
-            'q': [0.7071067811865476, 0.7071067811865475, 0.0, 0.0]}
+            'q': [0.7071067811865475, 0.0, 0.0, 0.7071067811865476]}
 
         self.assertEqual(s1.fk_dict(), ans)
 
@@ -93,7 +94,7 @@ class TestShape(unittest.TestCase):
         s1 = gm.Sphere(1)
 
         ans = {
-            't': [0.0, 0.0, 0.0], 'q': [1, 0, 0, 0]}
+            't': [0.0, 0.0, 0.0], 'q': [0, 0, 0, 1]}
 
         self.assertEqual(s1.fk_dict(), ans)
 
