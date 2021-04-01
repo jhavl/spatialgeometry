@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Introduction &mdash; Robotics Toolbox for Python  documentation</title>
+  <title>Introduction &mdash; Spatial Geometry  documentation</title>
   
 
   
@@ -42,8 +42,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Manipulator arms" href="arm.html" />
-    <link rel="prev" title="Robotics Toolbox for Python" href="index.html" /> 
+    <link rel="prev" title="Spatial Geometry" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -57,12 +56,9 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Robotics Toolbox for Python
+            <a href="index.html" class="icon icon-home"> Spatial Geometry
           
 
-          
-            
-            <img src="_static/RobToolBox_RoundLogoB.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -126,8 +122,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="arm.html">Manipulator arms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mobile.html">Mobile robots</a></li>
 </ul>
 
             
@@ -143,7 +137,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Robotics Toolbox for Python</a>
+          <a href="index.html">Spatial Geometry</a>
         
       </nav>
 
@@ -192,10 +186,8 @@
   
   <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
       
-        <a href="arm.html" class="btn btn-neutral float-right" title="Manipulator arms" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
       
-      
-        <a href="index.html" class="btn btn-neutral float-left" title="Robotics Toolbox for Python" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Spatial Geometry" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
       
   </div>
   
@@ -365,7 +357,7 @@ and components can be extracted such as the rotation submatrix (line 11) and tra
 <h3>Multiple values<a class="headerlink" href="#multiple-values" title="Permalink to this headline">¶</a></h3>
 <p>To support sequences of values each of these types inherits list properties from <code class="docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
 <div class="figure align-default" id="id15">
-<a class="reference internal image-reference" href="_images/pose-values.png"><img alt="Any of the SMTB-P pose classes can contain a list of values" src="_images/pose-values.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="../figs/pose-values.png"><img alt="Any of the SMTB-P pose classes can contain a list of values" src="../figs/pose-values.png" style="width: 600px;" /></a>
 <p class="caption"><span class="caption-text">Any of the SMTB-P pose classes can contain a list of values</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
 </div>
 <p>We can index the values, iterate over the values, assign to values.
@@ -382,7 +374,7 @@ for example:</p>
 Composition with a single-valued (scalar) pose instance  broadcasts the scalar
 across the sequence</p>
 <div class="figure align-default" id="id16">
-<img alt="Overloaded operators support broadcasting" src="_images/broadcasting.png" />
+<img alt="Overloaded operators support broadcasting" src="../figs/broadcasting.png" />
 <p class="caption"><span class="caption-text">Overloaded operators support broadcasting</span><a class="headerlink" href="#id16" title="Permalink to this image">¶</a></p>
 </div>
 </div>
@@ -524,60 +516,24 @@ specified using additional keyword arguments.</p>
 <span class="normal">15</span>
 <span class="normal">16</span>
 <span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">puma</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">DH</span><span class="o">.</span><span class="n">Puma560</span><span class="p">()</span>                  <span class="c1"># instantiate robot model</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">puma</span><span class="p">)</span>
-<span class="go">Puma 560 (by Unimation): 6 axes (RRRRRR), standard DH parameters</span>
-<span class="go">┏━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓</span>
-<span class="go">┃θⱼ  ┃         dⱼ         ┃   aⱼ   ┃   ⍺ⱼ   ┃   q⁻    ┃   q⁺   ┃</span>
-<span class="go">┣━━━━╋━━━━━━━━━━━━━━━━━━━━╋━━━━━━━━╋━━━━━━━━╋━━━━━━━━━╋━━━━━━━━┫</span>
-<span class="go">┃ q1 ┃ 0.6718299999999999 ┃      0 ┃  90.0° ┃ -160.0° ┃ 160.0° ┃</span>
-<span class="go">┃ q2 ┃                  0 ┃ 0.4318 ┃   0.0° ┃ -110.0° ┃ 110.0° ┃</span>
-<span class="go">┃ q3 ┃            0.15005 ┃ 0.0203 ┃ -90.0° ┃ -135.0° ┃ 135.0° ┃</span>
-<span class="go">┃ q4 ┃             0.4318 ┃      0 ┃  90.0° ┃ -266.0° ┃ 266.0° ┃</span>
-<span class="go">┃ q5 ┃                  0 ┃      0 ┃ -90.0° ┃ -100.0° ┃ 100.0° ┃</span>
-<span class="go">┃ q6 ┃                  0 ┃      0 ┃   0.0° ┃ -266.0° ┃ 266.0° ┃</span>
-<span class="go">┗━━━━┻━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━┻━━━━━━━━┻━━━━━━━━━┻━━━━━━━━┛</span>
-
-<span class="go">┌─────┬─────┬──────┬───────┬─────┬──────┬─────┐</span>
-<span class="go">│name │ q0  │ q1   │ q2    │ q3  │ q4   │ q5  │</span>
-<span class="go">├─────┼─────┼──────┼───────┼─────┼──────┼─────┤</span>
-<span class="go">│  qz │  0° │  0°  │  0°   │  0° │  0°  │  0° │</span>
-<span class="go">│  qr │  0° │  90° │ -90°  │  0° │  0°  │  0° │</span>
-<span class="go">│  qs │  0° │  0°  │ -90°  │  0° │  0°  │  0° │</span>
-<span class="go">│  qn │  0° │  45° │  180° │  0° │  45° │  0° │</span>
-<span class="go">└─────┴─────┴──────┴───────┴─────┴──────┴─────┘</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">puma</span><span class="o">.</span><span class="n">qr</span><span class="p">)</span>
-<span class="go">[ 0.      1.5708 -1.5708  0.      0.      0.    ]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="n">puma</span><span class="o">.</span><span class="n">fkine</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">])</span>  <span class="c1"># forward kinematics</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
-<span class="go">   0.121698   -0.606672   -0.785582    0.247803     </span>
-<span class="go">   0.818364    0.509197   -0.266456   -0.12594      </span>
-<span class="go">   0.561667   -0.610465    0.558446    1.14629      </span>
-<span class="go">   0           0           0           1            </span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sol</span> <span class="o">=</span> <span class="n">puma</span><span class="o">.</span><span class="n">ikine_LM</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>                          <span class="c1"># inverse kinematics</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
-<span class="go">IKsolution(q=array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6]), success=True, reason=None, iterations=12, residual=8.514893490954293e-13)</span>
+<span class="normal">18</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;T&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;sol&#39; is not defined</span>
 </pre></div>
 </td></tr></table></div>
 <p>The Toolbox supports named joint configurations and these are shown in the table
@@ -591,7 +547,7 @@ returned as part of a named tuple.</p>
 </div>
 <p>uses matplotlib to produce a “noodle robot” plot like</p>
 <div class="figure align-default" id="id18">
-<a class="reference internal image-reference" href="_images/noodle+ellipsoid.png"><img alt="Puma560, with a velocity ellipsoid, rendered using the default matplotlib visualizer" src="_images/noodle+ellipsoid.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="../figs/noodle+ellipsoid.png"><img alt="Puma560, with a velocity ellipsoid, rendered using the default matplotlib visualizer" src="../figs/noodle+ellipsoid.png" style="width: 600px;" /></a>
 <p class="caption"><span class="caption-text">Puma560, with a velocity ellipsoid, rendered using the default matplotlib visualizer.</span><a class="headerlink" href="#id18" title="Permalink to this image">¶</a></p>
 </div>
 <p>and we can use the mouse to rotate and zoom the plot.</p>
@@ -615,11 +571,12 @@ return with an error.</p>
 be derived symbolically
 and an efficient closed-form solution obtained.
 Some provided robot models have an analytical solution coded, for example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">puma</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">DH</span><span class="o">.</span><span class="n">Puma560</span><span class="p">()</span>       <span class="c1"># instantiate robot model</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="n">puma</span><span class="o">.</span><span class="n">fkine</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">puma</span><span class="o">.</span><span class="n">ikine_a</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="s2">&quot;lun&quot;</span><span class="p">)</span>        <span class="c1"># analytic inverse kinematics</span>
-<span class="go">IKsolution(q=array([ 2.1012,  1.1163,  0.3   ,  0.9528, -1.6505, -0.986 ]), success=True, reason=&#39;&#39;)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
 </pre></div>
 </div>
 <p>where we have specified a left-handed, elbow up and wrist no-flip configuration.</p>
@@ -639,34 +596,18 @@ or pure rotation – each with either a constant parameter or a free parameter w
 <span class="normal"> 9</span>
 <span class="normal">10</span>
 <span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">roboticstoolbox</span> <span class="kn">import</span> <span class="n">ETS</span> <span class="k">as</span> <span class="n">E</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">l1</span> <span class="o">=</span> <span class="mf">0.672</span><span class="p">;</span> <span class="n">l2</span> <span class="o">=</span> <span class="mf">0.2337</span><span class="p">;</span> <span class="n">l3</span> <span class="o">=</span> <span class="mf">0.4318</span><span class="p">;</span> <span class="n">l4</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.0837</span><span class="p">;</span> <span class="n">l5</span> <span class="o">=</span> <span class="mf">0.4318</span><span class="p">;</span> <span class="n">l6</span> <span class="o">=</span> <span class="mf">0.0203</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">tz</span><span class="p">(</span><span class="n">l1</span><span class="p">)</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">rz</span><span class="p">()</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">ty</span><span class="p">(</span><span class="n">l2</span><span class="p">)</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">ry</span><span class="p">()</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">tz</span><span class="p">(</span><span class="n">l3</span><span class="p">)</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="n">l6</span><span class="p">)</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">ty</span><span class="p">(</span><span class="n">l4</span><span class="p">)</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">ry</span><span class="p">()</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">tz</span><span class="p">(</span><span class="n">l5</span><span class="p">)</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">rz</span><span class="p">()</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">ry</span><span class="p">()</span> <span class="o">*</span> <span class="n">E</span><span class="o">.</span><span class="n">rz</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-<span class="go">tz(0.672) * Rz(q0) * ty(0.2337) * Ry(q1) * tz(0.4318) * tx(0.0203) * ty(-0.0837) * Ry(q2) * tz(0.4318) * Rz(q3) * Ry(q4) * Rz(q5)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">robot</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">ERobot</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
-<span class="go">noname (by ): 6 axes (RRRRRR), ETS model</span>
-<span class="go">┌───┬────────┬────────┬───────┬─────────────────────────────────────────────────────────────────────┐</span>
-<span class="go">│id │  link  │ parent │ joint │                                 ETS                                 │</span>
-<span class="go">├───┼────────┼────────┼───────┼─────────────────────────────────────────────────────────────────────┤</span>
-<span class="go">│ 0 │  link0 │    _O_ │       │ {link0} = {_O_}  * tz(0.672) * Rz(q0)                               │</span>
-<span class="go">│ 1 │  link1 │  link0 │  None │ {link1} = {link0}  * ty(0.2337) * Ry(q1)                            │</span>
-<span class="go">│ 2 │  link2 │  link1 │  None │ {link2} = {link1}  * tz(0.4318) * tx(0.0203) * ty(-0.0837) * Ry(q2) │</span>
-<span class="go">│ 3 │  link3 │  link2 │  None │ {link3} = {link2}  * tz(0.4318) * Rz(q3)                            │</span>
-<span class="go">│ 4 │  link4 │  link3 │  None │ {link4} = {link3}  * Ry(q4)                                         │</span>
-<span class="go">│ 5 │ @link5 │  link4 │  None │ {link5} = {link4}  * Rz(q5)                                         │</span>
-<span class="go">└───┴────────┴────────┴───────┴─────────────────────────────────────────────────────────────────────┘</span>
-
+<span class="normal">12</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;E&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;e&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;rtb&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;robot&#39; is not defined</span>
 </pre></div>
 </td></tr></table></div>
 <p>Line 3 defines the unique lengths of the Puma robot, and line 4 defines the kinematic chain in
@@ -682,40 +623,15 @@ can also represent more general branched mechanisms.</p>
 <p>The final approach to manipulator modeling is to an import a URDF file.  The Toolbox includes a parser with built-in xacro processor
 which makes many models from the ROS universe available.</p>
 <p>Provided models, such as for Panda or Puma, are again encapsulated as classes:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">panda</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">DH</span><span class="o">.</span><span class="n">Panda</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">panda</span><span class="p">)</span>
-<span class="go">Panda (by Franka Emika): 7 axes (RRRRRRR), modified DH parameters</span>
-<span class="go">┏━━━━━━━━┳━━━━━━━━┳━━━━━┳━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓</span>
-<span class="go">┃ aⱼ₋₁   ┃  ⍺ⱼ₋₁  ┃ θⱼ  ┃  dⱼ   ┃   q⁻    ┃   q⁺   ┃</span>
-<span class="go">┣━━━━━━━━╋━━━━━━━━╋━━━━━╋━━━━━━━╋━━━━━━━━━╋━━━━━━━━┫</span>
-<span class="go">┃    0.0 ┃   0.0° ┃  q1 ┃ 0.333 ┃ -166.0° ┃ 166.0° ┃</span>
-<span class="go">┃    0.0 ┃ -90.0° ┃  q2 ┃   0.0 ┃ -101.0° ┃ 101.0° ┃</span>
-<span class="go">┃    0.0 ┃  90.0° ┃  q3 ┃ 0.316 ┃ -166.0° ┃ 166.0° ┃</span>
-<span class="go">┃ 0.0825 ┃  90.0° ┃  q4 ┃   0.0 ┃ -176.0° ┃  -4.0° ┃</span>
-<span class="go">┃-0.0825 ┃ -90.0° ┃  q5 ┃ 0.384 ┃ -166.0° ┃ 166.0° ┃</span>
-<span class="go">┃    0.0 ┃  90.0° ┃  q6 ┃   0.0 ┃   -1.0° ┃ 215.0° ┃</span>
-<span class="go">┃  0.088 ┃  90.0° ┃  q7 ┃ 0.107 ┃ -166.0° ┃ 166.0° ┃</span>
-<span class="go">┗━━━━━━━━┻━━━━━━━━┻━━━━━┻━━━━━━━┻━━━━━━━━━┻━━━━━━━━┛</span>
-
-<span class="go">┌─────┬───────────────────────────────────────┐</span>
-<span class="go">│tool │ t = 0, 0, 0.1; rpy/xyz = -45°, 0°, 0° │</span>
-<span class="go">└─────┴───────────────────────────────────────┘</span>
-
-<span class="go">┌─────┬─────┬────────┬─────┬───────┬─────┬───────┬──────┐</span>
-<span class="go">│name │ q0  │ q1     │ q2  │ q3    │ q4  │ q5    │ q6   │</span>
-<span class="go">├─────┼─────┼────────┼─────┼───────┼─────┼───────┼──────┤</span>
-<span class="go">│  qz │  0° │  0°    │  0° │  0°   │  0° │  0°   │  0°  │</span>
-<span class="go">│  qr │  0° │ -17.2° │  0° │ -126° │  0° │  115° │  45° │</span>
-<span class="go">└─────┴─────┴────────┴─────┴───────┴─────┴───────┴──────┘</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="n">panda</span><span class="o">.</span><span class="n">fkine</span><span class="p">(</span><span class="n">panda</span><span class="o">.</span><span class="n">qz</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
-<span class="go">   0.707107    0.707107    0           0.088        </span>
-<span class="go">   0.707107   -0.707107    0           0            </span>
-<span class="go">   0           0          -1           0.823        </span>
-<span class="go">   0           0           0           1            </span>
-
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;panda&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;panda&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;T&#39; is not defined</span>
 </pre></div>
 </div>
 <p>and kinematic operations are performed using methods with the same name
@@ -723,7 +639,15 @@ as discussed above.
 For branched robots, with multiple end-effectors,  the name of the frame of interest must be provided.</p>
 <p>Some URDF models have multiple end-effectors, in which case the particular
 end-effector must be specified.</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;panda&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;panda&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;T&#39; is not defined</span>
 </pre></div>
 </div>
 <p>In the table above we see the end-effectors indicated by &#64; (determined automatically
@@ -736,7 +660,7 @@ detailed geometry and color.  This can be visualized using the Swift simulator:<
 </div>
 <p>which produces the 3-D plot</p>
 <div class="figure align-default" id="id19">
-<a class="reference internal image-reference" href="_images/swift.png"><img alt="Panda robot rendered using the Toolbox’s Swift visualizer" src="_images/swift.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="../figs/swift.png"><img alt="Panda robot rendered using the Toolbox’s Swift visualizer" src="../figs/swift.png" style="width: 600px;" /></a>
 <p class="caption"><span class="caption-text">Panda robot rendered using the Toolbox’s Swift visualizer.</span><a class="headerlink" href="#id19" title="Permalink to this image">¶</a></p>
 </div>
 <p>Swift is a web-based visualizer using three.js to provide high-quality 3D animations.
@@ -748,11 +672,12 @@ Animations can be recorded as MP4 files or animated GIF files which are useful f
 <h2>Trajectories<a class="headerlink" href="#trajectories" title="Permalink to this headline">¶</a></h2>
 <p>A joint-space trajectory for the Puma robot from its zero angle
 pose to the upright (or READY) pose in 100 steps is</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">puma</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">DH</span><span class="o">.</span><span class="n">Puma560</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">traj</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">jtraj</span><span class="p">(</span><span class="n">puma</span><span class="o">.</span><span class="n">qz</span><span class="p">,</span> <span class="n">puma</span><span class="o">.</span><span class="n">qr</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">traj</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">shape</span>
-<span class="go">(100, 6)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;rtb&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;traj&#39; is not defined</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">puma.qr</span></code> is an example of a named joint configuration.
@@ -768,7 +693,35 @@ function:</p>
 </div>
 <p>Straight line (Cartesian) paths can be generated in a similar way between
 two points specified by a pair of poses in <span class="math notranslate nohighlight">\(\SE{3}\)</span></p>
-<div class="highlight-pycon notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="go">NameError: name &#39;qt&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;rtb&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;Ts&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;sol&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;qt&#39; is not defined</span>
 </pre></div>
 </td></tr></table></div>
 <p>At line 9 we see that the resulting trajectory, <code class="docutils literal notranslate"><span class="pre">Ts</span></code>, is an <code class="docutils literal notranslate"><span class="pre">SE3</span></code> instance with 200 values.</p>
@@ -785,18 +738,7 @@ is taken as the result of the solution at the previous time step.</p>
 <div class="section" id="symbolic-manipulation">
 <h2>Symbolic manipulation<a class="headerlink" href="#symbolic-manipulation" title="Permalink to this headline">¶</a></h2>
 <p>As mentioned earlier, the Toolbox supports symbolic manipulation using SymPy. For example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spatialmath.base</span> <span class="k">as</span> <span class="nn">base</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">psi</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">sym</span><span class="o">.</span><span class="n">symbol</span><span class="p">(</span><span class="s1">&#39;phi, theta, psi&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">base</span><span class="o">.</span><span class="n">rpy2r</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">psi</span><span class="p">)</span>
-<span class="go">array([[cos(psi)*cos(theta),</span>
-<span class="go">        sin(phi)*sin(theta)*cos(psi) - sin(psi)*cos(phi),</span>
-<span class="go">        sin(phi)*sin(psi) + sin(theta)*cos(phi)*cos(psi)],</span>
-<span class="go">       [sin(psi)*cos(theta),</span>
-<span class="go">        sin(phi)*sin(psi)*sin(theta) + cos(phi)*cos(psi),</span>
-<span class="go">        -sin(phi)*cos(psi) + sin(psi)*sin(theta)*cos(phi)],</span>
-<span class="go">       [-sin(theta), sin(phi)*cos(theta), cos(phi)*cos(theta)]],</span>
-<span class="go">      dtype=object)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
 <p>The capability extends to forward kinematics</p>
@@ -805,14 +747,12 @@ is taken as the result of the solution at the previous time step.</p>
 <span class="normal">3</span>
 <span class="normal">4</span>
 <span class="normal">5</span>
-<span class="normal">6</span>
-<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spatialmath.base</span> <span class="k">as</span> <span class="nn">base</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">puma</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">DH</span><span class="o">.</span><span class="n">Puma560</span><span class="p">(</span><span class="n">symbolic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">sym</span><span class="o">.</span><span class="n">symbol</span><span class="p">(</span><span class="s2">&quot;q_:6&quot;</span><span class="p">)</span> <span class="c1"># q = (q_1, q_2, ... q_5)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="n">puma</span><span class="o">.</span><span class="n">fkine</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="go">0.15005*sin(q_0) - 0.0203*sin(q_1)*sin(q_2)*cos(q_0) - 0.4318*sin(q_1)*cos(q_0)*cos(q_2) - 0.4318*sin(q_2)*cos(q_0)*cos(q_1) + 0.0203*cos(q_0)*cos(q_1)*cos(q_2) + 0.4318*cos(q_0)*cos(q_1)</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;T&#39; is not defined</span>
 </pre></div>
 </td></tr></table></div>
 <p>If we display the value of <code class="docutils literal notranslate"><span class="pre">puma</span></code> we see that the <span class="math notranslate nohighlight">\(\alpha_j\)</span> values are now displayed in red to indicate that they are symbolic constants.  The x-coordinate of the end-effector is
@@ -828,13 +768,15 @@ given by line 7.</p>
 </div>
 <p>in the base or end-effector frames respectively, as NumPy arrays.
 At a singular configuration</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">puma</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">DH</span><span class="o">.</span><span class="n">Puma560</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">J</span> <span class="o">=</span> <span class="n">puma</span><span class="o">.</span><span class="n">jacob0</span><span class="p">(</span><span class="n">puma</span><span class="o">.</span><span class="n">qr</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">J</span><span class="p">)</span>
-<span class="go">5</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rtb</span><span class="o">.</span><span class="n">jsingu</span><span class="p">(</span><span class="n">J</span><span class="p">)</span>
-<span class="go">joint 5 is dependent on joint 3</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;J&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;rtb&#39; is not defined</span>
 </pre></div>
 </div>
 <p>Jacobians can also be computed for symbolic joint variables as for forward kinematics above.</p>
@@ -845,22 +787,27 @@ At a singular configuration</p>
 </div>
 <p>in the base or end-effector frames respectively, as 3D NumPy arrays in <span class="math notranslate nohighlight">\(\mathbb{R}^{6 \times n \times n}\)</span>.</p>
 <p>For all robot classes we can compute manipulability</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">puma</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">DH</span><span class="o">.</span><span class="n">Puma560</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">puma</span><span class="o">.</span><span class="n">manipulability</span><span class="p">(</span><span class="n">puma</span><span class="o">.</span><span class="n">qn</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Yoshikawa manipulability is&quot;</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
-<span class="go">Yoshikawa manipulability is 0.07861716534599998</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">puma</span><span class="o">.</span><span class="n">manipulability</span><span class="p">(</span><span class="n">puma</span><span class="o">.</span><span class="n">qn</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;asada&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Asada manipulability is&quot;</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
-<span class="go">Asada manipulability is 0.004374613728166502</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;m&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;m&#39; is not defined</span>
 </pre></div>
 </div>
 <p>for the Yoshikawa and Asada measures respectively, and</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">puma</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">DH</span><span class="o">.</span><span class="n">Puma560</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">puma</span><span class="o">.</span><span class="n">manipulability</span><span class="p">(</span><span class="n">puma</span><span class="o">.</span><span class="n">qn</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="s2">&quot;trans&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Yoshikawa manipulability is&quot;</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
-<span class="go">Yoshikawa manipulability is 0.11118146146764128</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;m&#39; is not defined</span>
 </pre></div>
 </div>
 <p>is the Yoshikawa measure computed for just the task space translational degrees
@@ -881,11 +828,12 @@ algorithm implemented in Python or C.</p>
 <p>The same C code as used by RTB-M is called directly from Python, and does not use NumPy.</p>
 </div>
 <p>For example, the inverse dynamics</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rtb</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">puma</span> <span class="o">=</span> <span class="n">rtb</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">DH</span><span class="o">.</span><span class="n">Puma560</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">tau</span> <span class="o">=</span> <span class="n">puma</span><span class="o">.</span><span class="n">rne</span><span class="p">(</span><span class="n">puma</span><span class="o">.</span><span class="n">qn</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,)))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">tau</span><span class="p">)</span>
-<span class="go">[-0.     31.6399  6.0351  0.      0.0283  0.    ]</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;puma&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;tau&#39; is not defined</span>
 </pre></div>
 </div>
 <p>is the gravity torque for the robot in the configuration <code class="docutils literal notranslate"><span class="pre">qn</span></code>.</p>
@@ -987,7 +935,7 @@ the default <code class="docutils literal notranslate"><span class="pre">PyPlot<
 <p>This makes it possible to animate multiple robots in the one graphical window, or the one robot in various environments either graphical
 or real.</p>
 <div class="figure align-default" id="id20">
-<a class="reference internal image-reference" href="_images/vp_ss_0000-2.png"><img alt="Puma560 rendered using the web-based VPython visualizer." src="_images/vp_ss_0000-2.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="../figs/vp_ss_0000-2.png"><img alt="Puma560 rendered using the web-based VPython visualizer." src="../figs/vp_ss_0000-2.png" style="width: 600px;" /></a>
 <p class="caption"><span class="caption-text">Puma560 rendered using the web-based VPython visualizer.</span><a class="headerlink" href="#id20" title="Permalink to this image">¶</a></p>
 </div>
 <p>The VPython backend provides browser-based 3D graphics based on WebGL.  This is advantageous for displaying on mobile
@@ -1081,8 +1029,7 @@ and a minimalist block-diagram simulation tool <a class="reference internal" hre
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="arm.html" class="btn btn-neutral float-right" title="Manipulator arms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="index.html" class="btn btn-neutral float-left" title="Robotics Toolbox for Python" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Spatial Geometry" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
@@ -1091,7 +1038,7 @@ and a minimalist block-diagram simulation tool <a class="reference internal" hre
     <p>
         &#169; Copyright 2020, Jesse Haviland and Peter Corke.
       <span class="lastupdated">
-        Last updated on 21-Mar-2021.
+        Last updated on 01-Apr-2021.
       </span>
 
     </p>
