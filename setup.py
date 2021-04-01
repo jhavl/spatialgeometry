@@ -8,6 +8,25 @@ req = [
     'spatialmath-python'
 ]
 
+collision_req = [
+    'pybullet'
+]
+
+dev_req = [
+    'roboticstoolbox-python',
+    'swift',
+    'pytest',
+    'pytest-cov',
+    'flake8',
+    'pyyaml',
+]
+
+docs_req = [
+    'sphinx',
+    'sphinx_rtd_theme',
+    'sphinx-autorun',
+]
+
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
@@ -70,5 +89,12 @@ setup(
 
     include_package_data=True,
 
-    install_requires=req
+    install_requires=req,
+
+    extras_require={
+        'collision': collision_req,
+        'dev': dev_req,
+        'docs': docs_req,
+        'vpython': vp_req
+    }
 )
