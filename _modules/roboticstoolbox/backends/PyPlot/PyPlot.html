@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>roboticstoolbox.backends.PyPlot.PyPlot &mdash; Robotics Toolbox for Python  documentation</title>
   
@@ -14,14 +14,10 @@
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
-  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
 
   
   
-
   
-  
-
   
 
   
@@ -34,6 +30,9 @@
         <script src="../../../../_static/jquery.js"></script>
         <script src="../../../../_static/underscore.js"></script>
         <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{\\scriptscriptstyle #1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
     
     <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
 
@@ -53,7 +52,7 @@
           
 
           
-            <a href="../../../../index.html" class="icon icon-home"> Robotics Toolbox for Python
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> Robotics Toolbox for Python
           
 
           
@@ -131,8 +130,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -161,36 +158,27 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">@author Jesse Haviland</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">time</span>
+
 <span class="kn">import</span> <span class="nn">roboticstoolbox</span> <span class="k">as</span> <span class="nn">rp</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">roboticstoolbox.backends.Connector</span> <span class="kn">import</span> <span class="n">Connector</span>
-
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="kn">import</span> <span class="n">Slider</span>
 <span class="kn">from</span> <span class="nn">roboticstoolbox.backends.PyPlot.RobotPlot</span> <span class="kn">import</span> <span class="n">RobotPlot</span>
 <span class="kn">from</span> <span class="nn">roboticstoolbox.backends.PyPlot.EllipsePlot</span> <span class="kn">import</span> <span class="n">EllipsePlot</span>
 <span class="kn">from</span> <span class="nn">spatialmath.base.argcheck</span> <span class="kn">import</span> <span class="n">getvector</span>
 <span class="c1"># from roboticstoolbox.tools import Ticker</span>
 
-<span class="n">_mpl</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">_pil</span> <span class="o">=</span> <span class="kc">None</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">matplotlib</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-    <span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">Axes3D</span>
-    <span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="kn">import</span> <span class="n">Slider</span>
-    <span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;pdf.fonttype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span>
-    <span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ps.fonttype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;ggplot&#39;</span><span class="p">)</span>
-    <span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">7</span>
-    <span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.linewidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
-    <span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.5</span>
-    <span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.5</span>
-    <span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.labelpad&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#dbdbdb&#39;</span><span class="p">)</span>
-    <span class="n">_mpl</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>    <span class="c1"># pragma nocover</span>
-    <span class="k">pass</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;pdf.fonttype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ps.fonttype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;ggplot&#39;</span><span class="p">)</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.linewidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.labelpad&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#dbdbdb&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="PyPlot"><a class="viewcode-back" href="../../../../arm_backend_pyplot.html#roboticstoolbox.backends.PyPlot.PyPlot">[docs]</a><span class="k">class</span> <span class="nc">PyPlot</span><span class="p">(</span><span class="n">Connector</span><span class="p">):</span>
@@ -225,12 +213,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">robots</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ellipses</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">_mpl</span><span class="p">:</span>    <span class="c1"># pragma nocover</span>
-            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-                <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">You do not have matplotlib installed, do:</span><span class="se">\n</span><span class="s1">&#39;</span>
-                <span class="s1">&#39;pip install matplotlib</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<div class="viewcode-block" id="PyPlot.launch"><a class="viewcode-back" href="../../../../arm_backend_pyplot.html#roboticstoolbox.backends.PyPlot.PyPlot.launch">[docs]</a>    <span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PyPlot.launch"><a class="viewcode-back" href="../../../../arm_backend_pyplot.html#roboticstoolbox.backends.PyPlot.PyPlot.launch">[docs]</a>    <span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Launch a graphical interface</span>
 
@@ -247,14 +230,10 @@
         <span class="n">projection</span> <span class="o">=</span> <span class="s1">&#39;ortho&#39;</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Robotics Toolbox for Python&#39;</span>
-
-        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fig</span> <span class="o">=</span> <span class="n">fig</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">set_window_title</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="s1">&#39;Robotics Toolbox for Python&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=-</span><span class="mf">0.09</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
 
@@ -276,20 +255,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim3d</span><span class="p">([</span><span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">limits</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_zlim3d</span><span class="p">([</span><span class="n">limits</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">limits</span><span class="p">[</span><span class="mi">5</span><span class="p">]])</span>
 
-        <span class="c1"># disable the display of value under cursor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">format_coord</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
-
-        <span class="c1"># add time display in top-right corner</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figtext</span><span class="p">(</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">_isnotebook</span><span class="p">():</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_time</span> <span class="o">=</span> <span class="mi">0</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
         <span class="c1"># # Set the signal handler and a 0.1 second plot updater</span>
         <span class="c1"># signal.signal(signal.SIGALRM, self._plot_handler)</span>
@@ -323,25 +290,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_step_robots</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
 
         <span class="c1"># plt.ioff()</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_draw_ellipses</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_draw_robots</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_axes_equal</span><span class="p">()</span>
-
-        <span class="c1"># update time and display it on plot</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_time</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;t = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_time</span> <span class="o">+=</span> <span class="n">dt</span>
-
         <span class="c1"># plt.ion()</span>
-
-        <span class="k">if</span> <span class="n">_isnotebook</span><span class="p">():</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="c1"># plt.pause(dt)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_robots</span><span class="p">()</span></div>
 
@@ -383,7 +337,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="p">)</span></div>
 
     <span class="c1">#</span>
-    <span class="c1">#  Methods to interface with the robots created in other environments</span>
+    <span class="c1">#  Methods to interface with the robots created in other environemnts</span>
     <span class="c1">#</span>
 
 <div class="viewcode-block" id="PyPlot.add"><a class="viewcode-back" href="../../../../arm_backend_pyplot.html#roboticstoolbox.backends.PyPlot.PyPlot.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
@@ -392,23 +346,19 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a robot to the graphical scene</span>
 
-<span class="sd">        :param ob: The object to add to the plot (robot or ellipse)</span>
-<span class="sd">        :type ob: DHRobot or EllipsePlot</span>
-<span class="sd">        :param readonly: Do not update the state of the object</span>
-<span class="sd">            (i.e. display not simulate), defaults to False</span>
+<span class="sd">        :param ob: [description]</span>
+<span class="sd">        :type ob: [type]</span>
+<span class="sd">        :param readonly: [description], defaults to False</span>
 <span class="sd">        :type readonly: bool, optional</span>
-<span class="sd">        :param display: Display the object, defaults to True</span>
+<span class="sd">        :param display: [description], defaults to True</span>
 <span class="sd">        :type display: bool, optional</span>
-<span class="sd">        :param jointaxes: Show the joint axes of the robot with arrows,</span>
-<span class="sd">            defaults to True</span>
+<span class="sd">        :param jointaxes: [description], defaults to True</span>
 <span class="sd">        :type jointaxes: bool, optional</span>
-<span class="sd">        :param eeframe: Show the end-effector frame of the robot,</span>
-<span class="sd">            defaults to True</span>
+<span class="sd">        :param eeframe: [description], defaults to True</span>
 <span class="sd">        :type eeframe: bool, optional</span>
-<span class="sd">        :param shadow: Display a shadow of the robot on the x-y gound plane,</span>
-<span class="sd">            defaults to True</span>
+<span class="sd">        :param shadow: [description], defaults to True</span>
 <span class="sd">        :type shadow: bool, optional</span>
-<span class="sd">        :param name: Display the name of the robot, defaults to True</span>
+<span class="sd">        :param name: [description], defaults to True</span>
 <span class="sd">        :type name: bool, optional</span>
 
 <span class="sd">        ``id = env.add(robot)`` adds the ``robot`` to the graphical</span>
@@ -421,6 +371,10 @@
 <span class="sd">              when the ``step()`` method is called.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO please fill in the options</span>
+        <span class="c1"># TODO it seems that add has different args for every backend, are</span>
+        <span class="c1"># any common ones?  If yes, they should be in the superclass and we</span>
+        <span class="c1"># pass kwargs to that</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">()</span>
 
@@ -430,19 +384,13 @@
                     <span class="n">ob</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span> <span class="n">readonly</span><span class="p">,</span> <span class="n">display</span><span class="p">,</span>
                     <span class="n">jointaxes</span><span class="p">,</span> <span class="n">eeframe</span><span class="p">,</span> <span class="n">shadow</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-            <span class="nb">id</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ob</span><span class="p">,</span> <span class="n">EllipsePlot</span><span class="p">):</span>
             <span class="n">ob</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ellipses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ob</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ellipses</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ellipses</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-            <span class="nb">id</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ellipses</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_axes_equal</span><span class="p">()</span>
-        <span class="k">return</span> <span class="nb">id</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_axes_equal</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="PyPlot.remove"><a class="viewcode-back" href="../../../../arm_backend_pyplot.html#roboticstoolbox.backends.PyPlot.PyPlot.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -476,37 +424,10 @@
         <span class="c1"># signal.setitimer(signal.ITIMER_REAL, 0)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ioff</span><span class="p">()</span>
 
-        <span class="c1"># keep stepping the environment while figure is open</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">plt</span><span class="o">.</span><span class="n">fignum_exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">number</span><span class="p">):</span>
-                <span class="k">break</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="PyPlot.getframe"><a class="viewcode-back" href="../../../../arm_backend_pyplot.html#roboticstoolbox.backends.PyPlot.PyPlot.getframe">[docs]</a>    <span class="k">def</span> <span class="nf">getframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">global</span> <span class="n">_pil</span>
-
-        <span class="k">if</span> <span class="n">_pil</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="kn">import</span> <span class="nn">PIL</span>
-                <span class="n">_pil</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">frombytes</span>
-            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>    <span class="c1"># pragma nocover</span>
-                <span class="k">pass</span>
-            
-            <span class="k">if</span> <span class="n">_pil</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s1">&#39;to save movies PIL must be installed:</span><span class="se">\n</span><span class="s1">pip3 install PIL&#39;</span><span class="p">)</span>
-
-        <span class="c1"># make the background white, looks better than grey stipple</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">w_xaxis</span><span class="o">.</span><span class="n">set_pane_color</span><span class="p">((</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">w_yaxis</span><span class="o">.</span><span class="n">set_pane_color</span><span class="p">((</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">w_zaxis</span><span class="o">.</span><span class="n">set_pane_color</span><span class="p">((</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-
-        <span class="c1"># render the frame and save as a PIL image in the list</span>
-        <span class="n">canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span>
-        <span class="k">return</span> <span class="n">_pil</span><span class="p">(</span>
-            <span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="n">canvas</span><span class="o">.</span><span class="n">get_width_height</span><span class="p">(),</span>
-            <span class="n">canvas</span><span class="o">.</span><span class="n">tostring_rgb</span><span class="p">())</span></div>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
 
     <span class="c1">#</span>
     <span class="c1">#  Private methods</span>
@@ -587,10 +508,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_zlim3d</span><span class="p">([</span><span class="n">z_middle</span> <span class="o">-</span> <span class="n">plot_radius</span><span class="p">,</span> <span class="n">z_middle</span> <span class="o">+</span> <span class="n">plot_radius</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">_add_teach_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">robot</span><span class="p">):</span>
-
-        <span class="k">if</span> <span class="n">_isnotebook</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;cannot use teach panel under Jupyter&#39;</span><span class="p">)</span>
-
         <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fig</span>
 
         <span class="c1"># Add text to the plots</span>
@@ -611,6 +528,9 @@
                 <span class="n">robot</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sjoint</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">val</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
 
             <span class="n">text_trans</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+            <span class="c1"># Step the environment</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
         <span class="n">text</span> <span class="o">=</span> <span class="p">[]</span>
@@ -670,43 +590,22 @@
                     <span class="n">qlim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="n">qlim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="n">robot</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">sjoint</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">on_changed</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">update</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">robot</span><span class="p">))</span></div>
-
-
-<span class="k">def</span> <span class="nf">_isnotebook</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determine if code is being run from a Jupyter notebook</span>
-
-<span class="sd">    ``_isnotebook`` is True if running Jupyter notebook, else False</span>
-
-<span class="sd">    :references:</span>
-
-<span class="sd">        - https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-</span>
-<span class="sd">        is-executed-in-the-ipython-notebook/39662359#39662359</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">shell</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s1">&#39;ZMQInteractiveShell&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>   <span class="c1"># Jupyter notebook or qtconsole</span>
-        <span class="k">elif</span> <span class="n">shell</span> <span class="o">==</span> <span class="s1">&#39;TerminalInteractiveShell&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Terminal running IPython</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Other type (?)</span>
-    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>      <span class="c1"># Probably standard Python interpreter</span>
 </pre></div>
 
            </div>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, Jesse Haviland and Peter Corke.
+        
+        &copy; Copyright 2020, Jesse Haviland and Peter Corke
       <span class="lastupdated">
-        Last updated on 21-Mar-2021.
+        Last updated on 18-Nov-2020.
       </span>
 
     </p>
@@ -714,13 +613,14 @@
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 
@@ -746,7 +646,6 @@
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'G-11Q6WJM565', 'auto');
-    
     ga('send', 'pageview');
     </script>
 

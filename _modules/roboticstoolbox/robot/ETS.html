@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>roboticstoolbox.robot.ETS &mdash; Robotics Toolbox for Python  documentation</title>
   
@@ -14,14 +14,10 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
 
   
   
-
   
-  
-
   
 
   
@@ -34,6 +30,9 @@
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{\\scriptscriptstyle #1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -53,7 +52,7 @@
           
 
           
-            <a href="../../../index.html" class="icon icon-home"> Robotics Toolbox for Python
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> Robotics Toolbox for Python
           
 
           
@@ -131,8 +130,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -162,49 +159,43 @@
 <span class="sd">@author: Jesse Haviland</span>
 <span class="sd">@author: Peter Corke</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserList</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">SimpleNamespace</span>
-<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserList</span><span class="p">,</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE3</span><span class="p">,</span> <span class="n">SE2</span>
 <span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">getvector</span><span class="p">,</span> <span class="n">getunit</span><span class="p">,</span> <span class="n">trotx</span><span class="p">,</span> <span class="n">troty</span><span class="p">,</span> <span class="n">trotz</span><span class="p">,</span> \
-    <span class="n">issymbol</span><span class="p">,</span> <span class="n">tr2jac</span><span class="p">,</span> <span class="n">transl2</span><span class="p">,</span> <span class="n">trot2</span><span class="p">,</span> <span class="n">removesmall</span><span class="p">,</span> <span class="n">trinv</span><span class="p">,</span> <span class="n">verifymatrix</span><span class="p">,</span> <span class="n">iseye</span>
+    <span class="n">issymbol</span><span class="p">,</span> <span class="n">tr2jac</span><span class="p">,</span> <span class="n">transl2</span><span class="p">,</span> <span class="n">trot2</span><span class="p">,</span> <span class="n">removesmall</span><span class="p">,</span> <span class="n">trinv</span><span class="p">,</span> <span class="n">verifymatrix</span>
 
 
-<span class="k">class</span> <span class="nc">SuperETS</span><span class="p">(</span><span class="n">UserList</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="SuperETS"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS">[docs]</a><span class="k">class</span> <span class="nc">SuperETS</span><span class="p">(</span><span class="n">UserList</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 
     <span class="c1"># T is a NumPy array (4,4) or None</span>
-    <span class="c1"># ets_tuple = namedtuple(&#39;ETS3&#39;, &#39;eta axis_func axis joint T jindex flip&#39;)</span>
+    <span class="n">ets_tuple</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;ETS3&#39;</span><span class="p">,</span> <span class="s1">&#39;eta axis_func axis joint T jindex flip&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">axis_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;rad&#39;</span><span class="p">,</span> <span class="n">j</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>  <span class="c1"># init UserList superclass</span>
 
-        <span class="k">if</span> <span class="n">axis</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">eta</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">axis_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">axis_func</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">axis</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">eta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># ET()</span>
             <span class="c1"># create instance with no values</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">return</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">ETS</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis_func</span><span class="p">,</span> <span class="n">ETS</span><span class="p">):</span>
             <span class="c1"># copy constructor</span>
-            <span class="c1"># e = axis_func</span>
-            <span class="c1"># axis_func = e.axis_func</span>
-            <span class="c1"># axis = e.axis</span>
-            <span class="c1"># # et = e.eta</span>
-            <span class="c1"># j = e.jindex</span>
-            <span class="c1"># flip = e.isflip</span>
-            <span class="c1"># joint = e.isjoint</span>
-            <span class="c1"># T = e.T</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">axis</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-            <span class="k">return</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">axis_func</span>
+            <span class="n">axis_func</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">axis_func</span>
+            <span class="n">axis</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">axis</span>
+            <span class="c1"># et = e.eta</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">jindex</span>
+            <span class="n">flip</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">isflip</span>
+            <span class="n">joint</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">isjoint</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">T</span>
 
-        <span class="k">if</span> <span class="n">axis</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;Rx&#39;</span><span class="p">,</span> <span class="s1">&#39;Ry&#39;</span><span class="p">,</span> <span class="s1">&#39;Rz&#39;</span><span class="p">,</span> <span class="s1">&#39;tx&#39;</span><span class="p">,</span> <span class="s1">&#39;ty&#39;</span><span class="p">,</span> <span class="s1">&#39;tz&#39;</span><span class="p">):</span>
-            <span class="c1"># it&#39;s a regular axis</span>
-
+        <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">axis_func</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">eta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># no value, it&#39;s a variable joint</span>
                 <span class="k">if</span> <span class="n">unit</span> <span class="o">!=</span> <span class="s1">&#39;rad&#39;</span><span class="p">:</span>
@@ -215,8 +206,6 @@
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># constant value specified</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">axis_func</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;axis func must be callable&#39;</span><span class="p">)</span>
                 <span class="n">joint</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">eta</span> <span class="o">=</span> <span class="n">getunit</span><span class="p">(</span><span class="n">eta</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span>
                 <span class="n">T</span> <span class="o">=</span> <span class="n">axis_func</span><span class="p">(</span><span class="n">eta</span><span class="p">)</span>
@@ -249,12 +238,10 @@
             <span class="n">joint</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">axis_func</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad axis specified&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;axis_func must be callable or ndarray&#39;</span><span class="p">)</span>
 
         <span class="c1"># Save all the params in a named tuple</span>
-        <span class="n">e</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span>
-            <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">axis_func</span><span class="o">=</span><span class="n">axis_func</span><span class="p">,</span>
-            <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="n">joint</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">jindex</span><span class="o">=</span><span class="n">j</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="n">flip</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ets_tuple</span><span class="p">(</span><span class="n">eta</span><span class="p">,</span> <span class="n">axis_func</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">flip</span><span class="p">)</span>
 
         <span class="c1"># And make it the only value of this instance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">]</span>
@@ -262,10 +249,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">eta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the transform constant</span>
+<span class="sd">        The transform constant</span>
 
 <span class="sd">        :return: The constant η if set</span>
-<span class="sd">        :rtype: float, symbolic or None</span>
+<span class="sd">        :rtype: float or None</span>
 
 <span class="sd">        Example:</span>
 
@@ -283,19 +270,6 @@
 <span class="sd">            stored internally in radians</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">eta</span>
-
-    <span class="nd">@eta</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">eta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the transform constant</span>
-
-<span class="sd">        :param value: The transform constant η</span>
-<span class="sd">        :type value: float, symbolic or None</span>
-
-<span class="sd">        .. note:: No unit conversions are applied, it is assumed to be in</span>
-<span class="sd">            radians.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">axis_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -415,12 +389,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">jindex</span>
 
-    <span class="nd">@jindex</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">jindex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;jindex is </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s1">, must be an int &gt;= 0&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">jindex</span> <span class="o">=</span> <span class="n">j</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">isrevolute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -481,9 +449,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Joint structure string</span>
+<span class="sd">        Joint configuration string</span>
 
 <span class="sd">        :return: A string indicating the joint types</span>
 <span class="sd">        :rtype: str</span>
@@ -497,13 +465,13 @@
 
 <span class="sd">            &gt;&gt;&gt; from roboticstoolbox import ETS</span>
 <span class="sd">            &gt;&gt;&gt; e = ETS.tz() * ETS.tx(1) * ETS.rz() * ETS.tx(1)</span>
-<span class="sd">            &gt;&gt;&gt; e.structure</span>
+<span class="sd">            &gt;&gt;&gt; e.config</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span><span class="s1">&#39;R&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isrevolute</span> <span class="k">else</span> <span class="s1">&#39;P&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joints</span><span class="p">()])</span>
 
-    <span class="k">def</span> <span class="nf">joints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SuperETS.joints"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.joints">[docs]</a>    <span class="k">def</span> <span class="nf">joints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get index of joint transforms</span>
 
@@ -519,9 +487,9 @@
 <span class="sd">            &gt;&gt;&gt; e.joints()</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">isjoint</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">isjoint</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="nf">jointset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SuperETS.jointset"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.jointset">[docs]</a>    <span class="k">def</span> <span class="nf">jointset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get set of joint indices</span>
 
@@ -536,9 +504,9 @@
 <span class="sd">            &gt;&gt;&gt; e = ETS.rz(j=1) * ETS.tx(j=2) * ETS.rz(j=1) * ETS.tx(1)</span>
 <span class="sd">            &gt;&gt;&gt; e.jointset()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">set</span><span class="p">([</span><span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">jindex</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joints</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">([</span><span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">jindex</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joints</span><span class="p">()])</span></div>
 
-    <span class="k">def</span> <span class="nf">T</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SuperETS.T"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.T">[docs]</a>    <span class="k">def</span> <span class="nf">T</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evaluate an elementary transformation</span>
 
@@ -559,13 +527,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isjoint</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isflip</span><span class="p">:</span>
-                <span class="n">q</span> <span class="o">=</span> <span class="o">-</span><span class="n">q</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis_func</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span></div>
 
-    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;rad&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="SuperETS.eval"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.eval">[docs]</a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;rad&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evaluate an ETS with joint coordinate substitution</span>
 
@@ -610,7 +576,8 @@
                     <span class="n">qj</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">et</span><span class="o">.</span><span class="n">jindex</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">et</span><span class="o">.</span><span class="n">isrevolute</span> <span class="ow">and</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;deg&#39;</span><span class="p">:</span>
                     <span class="n">qj</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
-
+                <span class="k">if</span> <span class="n">et</span><span class="o">.</span><span class="n">isflip</span><span class="p">:</span>
+                    <span class="n">qj</span> <span class="o">=</span> <span class="o">-</span><span class="n">qj</span>
                 <span class="n">Tk</span> <span class="o">=</span> <span class="n">et</span><span class="o">.</span><span class="n">T</span><span class="p">(</span><span class="n">qj</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># for constants</span>
@@ -621,16 +588,14 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">T</span> <span class="o">=</span> <span class="n">T</span> <span class="o">@</span> <span class="n">Tk</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ETS2</span><span class="p">):</span>
-            <span class="n">T</span> <span class="o">=</span> <span class="n">SE2</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ETS</span><span class="p">):</span>
             <span class="n">T</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ETS2</span><span class="p">):</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="n">SE2</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">T</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">T</span></div>
 
-        <span class="c1"># optionally do symbolic simplification</span>
-        
-        <span class="k">return</span> <span class="n">T</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SuperETS.compile"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compile an ETS</span>
 
@@ -661,8 +626,7 @@
                 <span class="c1"># a joint</span>
                 <span class="k">if</span> <span class="n">const</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="c1"># flush the constant</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">iseye</span><span class="p">(</span><span class="n">const</span><span class="p">):</span>
-                        <span class="n">ets</span> <span class="o">*=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">_CONST</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>
+                    <span class="n">ets</span> <span class="o">*=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">_CONST</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>
                     <span class="n">const</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">ets</span> <span class="o">*=</span> <span class="n">et</span>  <span class="c1"># emit the joint ET</span>
             <span class="k">else</span><span class="p">:</span>
@@ -674,9 +638,8 @@
 
         <span class="k">if</span> <span class="n">const</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># flush the constant, tool transform</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">iseye</span><span class="p">(</span><span class="n">const</span><span class="p">):</span>
-                <span class="n">ets</span> <span class="o">*=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">_CONST</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ets</span>
+            <span class="n">ets</span> <span class="o">*=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">_CONST</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ets</span></div>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -779,7 +742,7 @@
         <span class="k">return</span> <span class="s2">&quot; * &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">es</span><span class="p">)</span>
 
     <span class="c1"># redefine * operator to concatenate the internal lists</span>
-    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
+<div class="viewcode-block" id="SuperETS.__mul__"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.__mul__">[docs]</a>    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``*`` operator</span>
 
@@ -803,17 +766,17 @@
 <span class="sd">            the left and right operands in an internal list. In this example</span>
 <span class="sd">            we see the length of the product is 2.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">prod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span>
-        <span class="n">prod</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="n">rest</span><span class="o">.</span><span class="n">data</span>
-        <span class="k">return</span> <span class="n">prod</span>
-
-    <span class="k">def</span> <span class="fm">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
         <span class="n">prod</span> <span class="o">=</span> <span class="n">ETS</span><span class="p">()</span>
         <span class="n">prod</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="n">rest</span><span class="o">.</span><span class="n">data</span>
-        <span class="k">return</span> <span class="n">prod</span>
+        <span class="k">return</span> <span class="n">prod</span></div>
+
+<div class="viewcode-block" id="SuperETS.__imul__"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.__imul__">[docs]</a>    <span class="k">def</span> <span class="fm">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
+        <span class="n">prod</span> <span class="o">=</span> <span class="n">ETS</span><span class="p">()</span>
+        <span class="n">prod</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="n">rest</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">return</span> <span class="n">prod</span></div>
 
     <span class="c1"># redefine so that indexing returns an ET type</span>
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<div class="viewcode-block" id="SuperETS.__getitem__"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Index or slice an ETS</span>
 
@@ -833,16 +796,16 @@
 <span class="sd">            &gt;&gt;&gt; e[1:3]</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">ETS</span><span class="p">()</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># can be [2] or slice, eg. [3:5]</span>
         <span class="c1"># ensure that data is always a list</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">item</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">item</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="n">item</span></div>
 
-    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="SuperETS.pop"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pop value</span>
 
@@ -865,33 +828,9 @@
 <span class="sd">            &gt;&gt;&gt; tail</span>
 <span class="sd">            &gt;&gt;&gt; e</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">ETS</span><span class="p">()</span>
         <span class="n">item</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span>
-        <span class="k">return</span> <span class="n">item</span>
-
-    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">et</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Insert value</span>
-
-<span class="sd">        :param i: insert an ET into the ET sequence, default is at the end</span>
-<span class="sd">        :type i: int</span>
-<span class="sd">        :param et: the elementary transform to insert</span>
-<span class="sd">        :type et: ETS</span>
-
-<span class="sd">        Inserts an ET into the ET sequence.  The inserted value is at position</span>
-<span class="sd">        ``i``.</span>
-
-<span class="sd">        Example:</span>
-
-<span class="sd">        .. runblock:: pycon</span>
-
-<span class="sd">            &gt;&gt;&gt; from roboticstoolbox import ETS</span>
-<span class="sd">            &gt;&gt;&gt; e = ETS.rz() * ETS.tx(1) * ETS.rz() * ETS.tx(1)</span>
-<span class="sd">            &gt;&gt;&gt; f = ETS.ry()</span>
-<span class="sd">            &gt;&gt;&gt; e.insert(2, f)</span>
-<span class="sd">            &gt;&gt;&gt; e</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">et</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">item</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -900,7 +839,7 @@
     <span class="k">def</span> <span class="nf">_CONST</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
 
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SuperETS.SE3"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.SE3">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">SE3</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">rpy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert an SE3 to an ETS</span>
@@ -958,9 +897,9 @@
             <span class="k">if</span> <span class="n">rpy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">ets</span> <span class="o">*=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">rpy</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">ets</span>
+        <span class="k">return</span> <span class="n">ets</span></div>
 
-    <span class="k">def</span> <span class="nf">inv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SuperETS.inv"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.SuperETS.inv">[docs]</a>    <span class="k">def</span> <span class="nf">inv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inverse of ETS</span>
 
@@ -990,25 +929,25 @@
 <span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
 
         <span class="n">inv</span> <span class="o">=</span> <span class="n">ETS</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
-            <span class="c1"># get the namespace from the list</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
+            <span class="c1"># get the named tuple from the list, and convert to a dict</span>
+            <span class="n">etdict</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()</span>
 
-            <span class="c1"># clone it, and invert the elements to create an inverse</span>
-            <span class="n">nsi</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">nsi</span><span class="o">.</span><span class="n">joint</span><span class="p">:</span>
-                <span class="n">nsi</span><span class="o">.</span><span class="n">flip</span> <span class="o">^=</span> <span class="kc">True</span>   <span class="c1"># toggle flip status</span>
-            <span class="k">elif</span> <span class="n">nsi</span><span class="o">.</span><span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>
-                <span class="n">nsi</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="n">trinv</span><span class="p">(</span><span class="n">nsi</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">nsi</span><span class="o">.</span><span class="n">eta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">nsi</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="n">trinv</span><span class="p">(</span><span class="n">nsi</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
-                <span class="n">nsi</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="o">-</span><span class="n">nsi</span><span class="o">.</span><span class="n">eta</span>
+            <span class="c1"># update the dict to make this an inverse</span>
+            <span class="k">if</span> <span class="n">etdict</span><span class="p">[</span><span class="s1">&#39;joint&#39;</span><span class="p">]:</span>
+                <span class="n">etdict</span><span class="p">[</span><span class="s1">&#39;flip&#39;</span><span class="p">]</span> <span class="o">^=</span> <span class="kc">True</span>   <span class="c1"># toggle flip status</span>
+            <span class="k">elif</span> <span class="n">etdict</span><span class="p">[</span><span class="s1">&#39;axis&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>
+                <span class="n">etdict</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trinv</span><span class="p">(</span><span class="n">etdict</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">etdict</span><span class="p">[</span><span class="s1">&#39;eta&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">etdict</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trinv</span><span class="p">(</span><span class="n">etdict</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])</span>
+                <span class="n">etdict</span><span class="p">[</span><span class="s1">&#39;eta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">etdict</span><span class="p">[</span><span class="s1">&#39;eta&#39;</span><span class="p">]</span>
             <span class="n">et</span> <span class="o">=</span> <span class="n">ETS</span><span class="p">()</span>  <span class="c1"># create a new ETS instance</span>
-            <span class="n">et</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">nsi</span><span class="p">]</span>  <span class="c1"># set it&#39;s data from the dict</span>
+            <span class="n">et</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ets_tuple</span><span class="p">(</span><span class="o">**</span><span class="n">etdict</span><span class="p">)]</span>  <span class="c1"># set it&#39;s data from the dict</span>
             <span class="n">inv</span> <span class="o">*=</span> <span class="n">et</span>
-        <span class="k">return</span> <span class="n">inv</span>
+        <span class="k">return</span> <span class="n">inv</span></div></div>
 
 
-<div class="viewcode-block" id="ETS"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS">[docs]</a><span class="k">class</span> <span class="nc">ETS</span><span class="p">(</span><span class="n">SuperETS</span><span class="p">):</span>
+<div class="viewcode-block" id="ETS"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS">[docs]</a><span class="k">class</span> <span class="nc">ETS</span><span class="p">(</span><span class="n">SuperETS</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements an elementary transform sequence (ETS) for 3D</span>
 
@@ -1076,7 +1015,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="ETS.rx"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS.rx">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ETS.rx"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS.rx">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">rx</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;rad&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pure rotation about the x-axis</span>
@@ -1101,9 +1040,9 @@
 <span class="sd">        :seealso: :func:`ETS`, :func:`isrevolute`</span>
 <span class="sd">        :SymPy: supported</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;Rx&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">axis_func</span><span class="o">=</span><span class="n">trotx</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">trotx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;Rx&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ETS.ry"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS.ry">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ETS.ry"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS.ry">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">ry</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;rad&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pure rotation about the y-axis</span>
@@ -1128,9 +1067,9 @@
 <span class="sd">        :seealso: :func:`ETS`, :func:`isrevolute`</span>
 <span class="sd">        :SymPy: supported</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;Ry&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">axis_func</span><span class="o">=</span><span class="n">troty</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">troty</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;Ry&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ETS.rz"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS.rz">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ETS.rz"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS.rz">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">rz</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;rad&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pure rotation about the z-axis</span>
@@ -1155,9 +1094,9 @@
 <span class="sd">        :seealso: :func:`ETS`, :func:`isrevolute`</span>
 <span class="sd">        :SymPy: supported</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;Rz&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">axis_func</span><span class="o">=</span><span class="n">trotz</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">trotz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;Rz&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ETS.tx"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS.tx">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ETS.tx"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS.tx">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">tx</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pure translation along the x-axis</span>
@@ -1190,9 +1129,9 @@
                 <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
             <span class="p">])</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;tx&#39;</span><span class="p">,</span> <span class="n">axis_func</span><span class="o">=</span><span class="n">axis_func</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">axis_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;tx&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ETS.ty"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS.ty">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ETS.ty"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS.ty">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">ty</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pure translation along the y-axis</span>
@@ -1223,11 +1162,11 @@
                 <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
             <span class="p">])</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;ty&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">axis_func</span><span class="o">=</span><span class="n">axis_func</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">axis_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;ty&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
         <span class="c1"># return cls(SE3.Ty, axis=&#39;ty&#39;, eta=eta)</span>
 
-<div class="viewcode-block" id="ETS.tz"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS.tz">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ETS.tz"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS.tz">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">tz</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pure translation along the z-axis</span>
@@ -1258,9 +1197,9 @@
                 <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
             <span class="p">])</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;tz&#39;</span><span class="p">,</span> <span class="n">axis_func</span><span class="o">=</span><span class="n">axis_func</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">axis_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;tz&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ETS.jacob0"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS.jacob0">[docs]</a>    <span class="k">def</span> <span class="nf">jacob0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ETS.jacob0"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS.jacob0">[docs]</a>    <span class="k">def</span> <span class="nf">jacob0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Jacobian in base frame</span>
 
@@ -1320,7 +1259,7 @@
 
         <span class="c1"># we will work with NumPy arrays for maximum speed</span>
         <span class="n">T</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">A</span>
-        <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># SE(3) matrix</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
         <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">J</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
 
@@ -1329,13 +1268,13 @@
             <span class="k">if</span> <span class="n">et</span><span class="o">.</span><span class="n">isjoint</span><span class="p">:</span>
                 <span class="c1"># joint variable</span>
                 <span class="c1"># U = U @ link.A(q[j], fast=True)</span>
-                <span class="n">U</span> <span class="o">=</span> <span class="n">U</span> <span class="o">@</span> <span class="n">et</span><span class="o">.</span><span class="n">T</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">U</span> <span class="o">=</span> <span class="n">U</span> <span class="o">@</span> <span class="n">et</span><span class="o">.</span><span class="n">axis_func</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
 
                 <span class="c1"># TODO???</span>
                 <span class="c1"># if link == to_link:</span>
                 <span class="c1">#     U = U @ offset.A</span>
 
-                <span class="n">Tu</span> <span class="o">=</span> <span class="n">trinv</span><span class="p">(</span><span class="n">U</span><span class="p">)</span> <span class="o">@</span> <span class="n">T</span>
+                <span class="n">Tu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">U</span><span class="p">)</span> <span class="o">@</span> <span class="n">T</span>
                 <span class="n">n</span> <span class="o">=</span> <span class="n">U</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
                 <span class="n">o</span> <span class="o">=</span> <span class="n">U</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
                 <span class="n">a</span> <span class="o">=</span> <span class="n">U</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
@@ -1374,7 +1313,7 @@
 
         <span class="k">return</span> <span class="n">J</span></div>
 
-    <span class="k">def</span> <span class="nf">jacobe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ETS.jacobe"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS.jacobe">[docs]</a>    <span class="k">def</span> <span class="nf">jacobe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Jacobian in base frame</span>
 
@@ -1400,9 +1339,9 @@
         <span class="k">if</span> <span class="n">T</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">tr2jac</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">A</span><span class="p">)</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">jacob0</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tr2jac</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">A</span><span class="p">)</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">jacob0</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ETS.hessian0"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS.hessian0">[docs]</a>    <span class="k">def</span> <span class="nf">hessian0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">J0</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ETS.hessian0"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS.hessian0">[docs]</a>    <span class="k">def</span> <span class="nf">hessian0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">J0</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Hessian in base frame</span>
 
@@ -1481,7 +1420,7 @@
         <span class="k">return</span> <span class="n">H</span></div></div>
 
 
-<div class="viewcode-block" id="ETS2"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS2">[docs]</a><span class="k">class</span> <span class="nc">ETS2</span><span class="p">(</span><span class="n">SuperETS</span><span class="p">):</span>
+<div class="viewcode-block" id="ETS2"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS2">[docs]</a><span class="k">class</span> <span class="nc">ETS2</span><span class="p">(</span><span class="n">SuperETS</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements an elementary transform sequence (ETS) for 2D</span>
 
@@ -1531,7 +1470,7 @@
 <span class="sd">    :seealso: :func:`r`, :func:`tx`, :func:`ty`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ETS2.r"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS2.r">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ETS2.r"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS2.r">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">r</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;rad&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pure rotation</span>
@@ -1558,10 +1497,9 @@
 <span class="sd">        :seealso: :func:`ETS`, :func:`isrevolute`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span>
-            <span class="n">axis_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">theta</span><span class="p">:</span> <span class="n">trot2</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+            <span class="k">lambda</span> <span class="n">theta</span><span class="p">:</span> <span class="n">trot2</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ETS2.tx"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS2.tx">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ETS2.tx"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS2.tx">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">tx</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pure translation along the x-axis</span>
@@ -1583,11 +1521,9 @@
 
 <span class="sd">        :seealso: :func:`ETS`, :func:`isprismatic`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;tx&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span>
-            <span class="n">axis_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">transl2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">transl2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;tx&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ETS2.ty"><a class="viewcode-back" href="../../../arm_ets.html#roboticstoolbox.robot.ETS.ETS2.ty">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ETS2.ty"><a class="viewcode-back" href="../../../mobile.html#roboticstoolbox.robot.ETS.ETS2.ty">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">ty</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pure translation along the y-axis</span>
@@ -1609,95 +1545,91 @@
 
 <span class="sd">        :seealso: :func:`ETS`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;ty&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span>
-            <span class="n">axis_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="n">transl2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="n">transl2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;ty&#39;</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 
-    <span class="c1"># print(ETS.rx(0.2))</span>
-    <span class="c1"># print(ETS.rx(45, &#39;deg&#39;))</span>
-    <span class="c1"># print(ETS.tz(0.75))</span>
-    <span class="c1"># e = ETS.rx(45, &#39;deg&#39;) * ETS.tz(0.75)</span>
-    <span class="c1"># print(e)</span>
-    <span class="c1"># print(e.eval())</span>
-
-    <span class="c1"># from roboticstoolbox import ETS</span>
-    <span class="c1"># e = ETS.rz() * ETS.tx(1) * ETS.rz() * ETS.tx(1)</span>
-    <span class="c1"># print(e.eval([0, 0]))</span>
-    <span class="c1"># print(e.eval([90, -90], &#39;deg&#39;))</span>
-    <span class="c1"># a = e.pop()</span>
-    <span class="c1"># print(a)</span>
-
-    <span class="c1"># from spatialmath.base import symbol</span>
-
-    <span class="c1"># theta, d = symbol(&#39;theta, d&#39;)</span>
-
-    <span class="c1"># e = ETS.rx(theta) * ETS.tx(2) * ETS.rx(45, &#39;deg&#39;) * ETS.ry(0.2) * ETS.ty(d)</span>
-    <span class="c1"># print(e)</span>
-
-    <span class="c1"># e = ETS()</span>
-    <span class="c1"># e *= ETS.rx()</span>
-    <span class="c1"># e *= ETS.tz()</span>
-    <span class="c1"># print(e)</span>
-
-    <span class="c1"># print(e.__str__(&quot;θ{0}&quot;))</span>
-    <span class="c1"># print(e.__str__(&quot;θ{1}&quot;))</span>
-
-    <span class="c1"># e = ETS.rx() * ETS._CONST(SE3()) * ETS.tx(0.3)</span>
-    <span class="c1"># print(e)</span>
-
-    <span class="c1"># l1 = 0.672</span>
-    <span class="c1"># l2 = -0.2337</span>
-    <span class="c1"># l3 = 0.4318</span>
-    <span class="c1"># l4 = 0.0203</span>
-    <span class="c1"># l5 = 0.0837</span>
-    <span class="c1"># l6 = 0.4318</span>
-
-    <span class="c1"># e = ETS.tz(l1) * ETS.rz() * ETS.ry() * ETS.ty(l2) * ETS.tz(l3) * ETS.ry() \</span>
-    <span class="c1">#     * ETS.tx(l4) * ETS.ty(l5) * ETS.tz(l6) * ETS.rz() * ETS.ry() * ETS.rz()</span>
-    <span class="c1"># print(e.joints())</span>
-    <span class="c1"># print(e.config)</span>
-    <span class="c1"># print(e.eval(np.zeros(6)))</span>
-    <span class="c1"># ec = e.compile()</span>
-    <span class="c1"># print(ec)</span>
-    <span class="c1"># print(ec.eval(np.zeros(6)))</span>
-
-    <span class="c1"># print(ETS.SE3(SE3.Rz(200, &#39;deg&#39;)))</span>
-
-    <span class="c1"># a = ETS.rx()</span>
-    <span class="c1"># b = ETS(a)</span>
-    <span class="c1"># print(b)</span>
-    <span class="c1"># a = ETS.tz()</span>
-    <span class="c1"># print(b)</span>
-    <span class="c1"># e = ETS.rz(j=5) * ETS.tx(1) * ETS.rx(j=7, flip=True) * ETS.tx(1)</span>
-    <span class="c1"># print(e)</span>
-
-    <span class="c1"># print(e.inv())</span>
-
-    <span class="c1"># q = [1, 2, 3, 4, 5, 6, 7, 8]</span>
-    <span class="c1"># print(e.eval(q))</span>
-    <span class="c1"># print(e.inv().eval(q))</span>
-    <span class="c1"># print(e.eval(q) * e.inv().eval(q))</span>
-
-    <span class="n">e</span> <span class="o">=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rz</span><span class="p">()</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rz</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ETS</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="mf">0.2</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ETS</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ETS</span><span class="o">.</span><span class="n">tz</span><span class="p">(</span><span class="mf">0.75</span><span class="p">))</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tz</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">compile</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">eval</span><span class="p">())</span>
+
+    <span class="kn">from</span> <span class="nn">roboticstoolbox</span> <span class="kn">import</span> <span class="n">ETS</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rz</span><span class="p">()</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rz</span><span class="p">()</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">eval</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">eval</span><span class="p">([</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">],</span> <span class="s1">&#39;deg&#39;</span><span class="p">))</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+    <span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">symbol</span>
+
+    <span class="n">theta</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">symbol</span><span class="p">(</span><span class="s1">&#39;theta, d&#39;</span><span class="p">)</span>
+
+    <span class="n">e</span> <span class="o">=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">ry</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">ty</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="n">e</span> <span class="o">=</span> <span class="n">ETS</span><span class="p">()</span>
+    <span class="n">e</span> <span class="o">*=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rx</span><span class="p">()</span>
+    <span class="n">e</span> <span class="o">*=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tz</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="s2">&quot;θ</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="s2">&quot;θ</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="p">))</span>
+
+    <span class="n">e</span> <span class="o">=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rx</span><span class="p">()</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">_CONST</span><span class="p">(</span><span class="n">SE3</span><span class="p">())</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="n">l1</span> <span class="o">=</span> <span class="mf">0.672</span>
+    <span class="n">l2</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.2337</span>
+    <span class="n">l3</span> <span class="o">=</span> <span class="mf">0.4318</span>
+    <span class="n">l4</span> <span class="o">=</span> <span class="mf">0.0203</span>
+    <span class="n">l5</span> <span class="o">=</span> <span class="mf">0.0837</span>
+    <span class="n">l6</span> <span class="o">=</span> <span class="mf">0.4318</span>
+
+    <span class="n">e</span> <span class="o">=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tz</span><span class="p">(</span><span class="n">l1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rz</span><span class="p">()</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">ry</span><span class="p">()</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">ty</span><span class="p">(</span><span class="n">l2</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tz</span><span class="p">(</span><span class="n">l3</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">ry</span><span class="p">()</span> \
+        <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="n">l4</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">ty</span><span class="p">(</span><span class="n">l5</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tz</span><span class="p">(</span><span class="n">l6</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rz</span><span class="p">()</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">ry</span><span class="p">()</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rz</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">joints</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">6</span><span class="p">)))</span>
+    <span class="n">ec</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ec</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ec</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">6</span><span class="p">)))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">ETS</span><span class="o">.</span><span class="n">SE3</span><span class="p">(</span><span class="n">SE3</span><span class="o">.</span><span class="n">Rz</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">)))</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rx</span><span class="p">()</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">ETS</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tz</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rz</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">*</span> <span class="n">ETS</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">inv</span><span class="p">())</span>
+
+    <span class="n">q</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">*</span> <span class="n">e</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
 </pre></div>
 
            </div>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, Jesse Haviland and Peter Corke.
+        
+        &copy; Copyright 2020, Jesse Haviland and Peter Corke
       <span class="lastupdated">
-        Last updated on 21-Mar-2021.
+        Last updated on 18-Nov-2020.
       </span>
 
     </p>
@@ -1705,13 +1637,14 @@
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 
@@ -1737,7 +1670,6 @@
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'G-11Q6WJM565', 'auto');
-    
     ga('send', 'pageview');
     </script>
 
