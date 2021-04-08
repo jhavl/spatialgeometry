@@ -17,7 +17,7 @@ except ImportError:    # pragma nocover
     pass
 
 
-CONST_RX = SE3.Rx(np.pi/2).A
+CONST_RX = SE3.Rx(np.pi / 2).A
 
 
 class Shape:
@@ -28,8 +28,14 @@ class Shape:
             color=None,
             stype=None):
 
+        # These three are static attributes which can never be changed
+        # If these are directly accessed and re-written, segmentation faults
+        # will follow very soon after
+        # wT and sT cannot be accessed and set by users by base can be
+        # modified through its setter
         self._wT = np.eye(4)
         self._sT = np.eye(4)
+        self._base = np.eye(4)
 
         self.base = base
         self.stype = stype
@@ -49,12 +55,10 @@ class Shape:
         '''
         self._to_hex(self.color[0:3])
 
-        sT = self._wT @ self._base.A
-
         if self.stype == 'cylinder':
-            fk = sT @ CONST_RX
+            fk = self._sT @ CONST_RX
         else:
-            fk = sT
+            fk = self._sT
 
         q = r2q(fk[:3, :3]).tolist()
         q = [q[1], q[2], q[3], q[0]]
@@ -78,12 +82,10 @@ class Shape:
         :rtype: dict
         '''
 
-        sT = self._wT @ self._base.A
-
         if self.stype == 'cylinder':
-            fk = sT @ CONST_RX
+            fk = self._sT @ CONST_RX
         else:
-            fk = sT
+            fk = self._sT
 
         q = r2q(fk[:3, :3]).tolist()
         q = [q[1], q[2], q[3], q[0]]
@@ -151,52 +153,16 @@ class Shape:
 
     @wT.setter
     def wT(self, T):
-        self._wT = T
-        self._sT = self._wT @ self._base.A
+        self._wT[:] = T
+        self._sT[:] = self._wT @ self._base
 
     @property
     def base(self):
-        return self._base
+        return SE3(np.copy(self._base), check=False)
 
     @base.setter
     def base(self, T):
         if not isinstance(T, SE3):
             T = SE3(T)
-        self._base = T
-        self._sT = self._wT @ self._base.A
-
-    # @property
-    # def scale(self):
-    #     return self._scale
-
-    # @scale.setter
-    # def scale(self, value):
-    #     if value is not None:
-    #         value = getvector(value, 3)
-    #     else:
-    #         value = getvector([1, 1, 1], 3)
-    #     self._scale = value
-
-    # @property
-    # def filename(self):
-    #     return self._filename
-
-    # @filename.setter
-    # def filename(self, value):
-    #     self._filename = value
-
-    # @property
-    # def radius(self):
-    #     return self._radius
-
-    # @radius.setter
-    # def radius(self, value):
-    #     self._radius = float(value)
-
-    # @property
-    # def length(self):
-    #     return self._length
-
-    # @length.setter
-    # def length(self, value):
-    #     self._length = float(value)
+        self._base[:] = T.A
+        self._sT[:] = self._wT @ self._base

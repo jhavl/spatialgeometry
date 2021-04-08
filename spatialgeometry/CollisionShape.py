@@ -66,6 +66,7 @@ class CollisionShape(Shape):
         def wrapper_check_pyb(*args, **kwargs):
             if _pyb is None:
                 _import_pyb()
+            args[0]._update_pyb()
             return func(*args, **kwargs)
         return wrapper_check_pyb
 
@@ -85,21 +86,21 @@ class CollisionShape(Shape):
 
     @wT.setter
     def wT(self, T):
-        self._wT = T
-        self._sT = self._wT @ self._base.A
-        self._update_pyb()
+        self._wT[:] = T
+        self._sT[:] = self._wT @ self._base
+        # self._update_pyb()
 
     @property
     def base(self):
-        return self._base
+        return SE3(np.copy(self._base), check=False)
 
     @base.setter
     def base(self, T):
         if not isinstance(T, SE3):
             T = SE3(T)
-        self._base = T
-        self._sT = self._wT @ self._base.A
-        self._update_pyb()
+        self._base[:] = T.A
+        self._sT[:] = self._wT @ self._base
+        # self._update_pyb()
 
     @property
     def collision(self):
@@ -195,7 +196,8 @@ class Mesh(CollisionShape):
 
     def _init_pob(self):
         name, file_extension = os.path.splitext(self.filename)
-        if (file_extension == '.stl' or file_extension == '.STL') and self.collision:
+        if (file_extension == '.stl' or file_extension ==
+                '.STL') and self.collision:
 
             col = p.createCollisionShape(
                 shapeType=p.GEOM_MESH,
@@ -375,7 +377,7 @@ class Box(CollisionShape):
         if self.collision:
             col = p.createCollisionShape(
                 shapeType=p.GEOM_BOX,
-                halfExtents=np.array(self.scale)/2)
+                halfExtents=np.array(self.scale) / 2)
 
             super()._s_init_pob(col)
         else:
