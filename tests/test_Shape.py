@@ -183,6 +183,18 @@ class TestShape(unittest.TestCase):
         b = gm.Box([1, 1, 1], base=SE3(1.0, 0, 0))
         r.links[1].collision[0].closest_point(b)
 
+    def test_robot2(self):
+        r = rtb.models.Panda()
+        b = gm.Box([1, 1, 1], base=SE3(1.0, 0, 0))
+
+        d1, _, _ = r.closest_point(b)
+        r.q = r.qr
+        r.fkine_links(r.q)
+        d2, _, _ = r.closest_point(b)
+
+        self.assertAlmostEqual(d1, 0.4276)
+        self.assertAlmostEqual(d2, 0.015720599440705682)
+
     def test_cylinder(self):
         s0 = gm.Cylinder(1, 1, collision=False)
         with self.assertRaises(ValueError):
