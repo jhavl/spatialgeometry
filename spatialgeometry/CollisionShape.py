@@ -56,17 +56,15 @@ class CollisionShape(Shape):
 
     def _update_pyb(self):
         if _pyb and self.co is not None:
-            q = r2q(self._sT[:3, :3])
-            rot = [q[1], q[2], q[3], q[0]]
             p.resetBasePositionAndOrientation(
-                self.co, self._sT[:3, 3], rot)
+                self.co, self._sT[:3, 3], self._sq)
 
     def _check_pyb(func):   # pragma nocover
         @wraps(func)
         def wrapper_check_pyb(*args, **kwargs):
             if _pyb is None:
                 _import_pyb()
-            args[0]._update_pyb()
+            # args[0]._update_pyb()
             return func(*args, **kwargs)
         return wrapper_check_pyb
 
@@ -82,13 +80,14 @@ class CollisionShape(Shape):
 
     @property
     def wT(self):
-        return self._wT @ self.base.A
+        return self._sT
 
     @wT.setter
     def wT(self, T):
         self._wT[:] = T
         self._sT[:] = self._wT @ self._base
-        # self._update_pyb()
+        self._sq[:] = r2q(self._sT[:3, :3], order='xyzs')
+        self._update_pyb()
 
     @property
     def base(self):
@@ -100,7 +99,8 @@ class CollisionShape(Shape):
             T = SE3(T)
         self._base[:] = T.A
         self._sT[:] = self._wT @ self._base
-        # self._update_pyb()
+        self._sq[:] = r2q(self._sT[:3, :3], order='xyzs')
+        self._update_pyb()
 
     @property
     def collision(self):
@@ -129,6 +129,8 @@ class CollisionShape(Shape):
         if not self.pinit:
             self._init_pob()
             self._update_pyb()
+
+        self._update_pyb()
 
         if not shape.pinit:
             shape._init_pob()

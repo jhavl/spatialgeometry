@@ -35,6 +35,7 @@ class Shape:
         # modified through its setter
         self._wT = np.eye(4)
         self._sT = np.eye(4)
+        self._sq = np.zeros(4)
         self._base = np.eye(4)
 
         self.base = base
@@ -149,12 +150,13 @@ class Shape:
 
     @property
     def wT(self):
-        return self._wT @ self.base.A
+        return self._sT
 
     @wT.setter
     def wT(self, T):
         self._wT[:] = T
         self._sT[:] = self._wT @ self._base
+        self._sq[:] = r2q(self._sT[:3, :3], order='xyzs')
 
     @property
     def base(self):
@@ -166,3 +168,4 @@ class Shape:
             T = SE3(T)
         self._base[:] = T.A
         self._sT[:] = self._wT @ self._base
+        self._sq[:] = r2q(self._sT[:3, :3], order='xyzs')
