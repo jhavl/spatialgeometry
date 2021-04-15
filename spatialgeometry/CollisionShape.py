@@ -122,8 +122,8 @@ class CollisionShape(Shape):
         :type inf_dist: float
         :returns: d, p1, p2 where d is the distance between the shapes,
             p1 and p2 are the points in the world frame on the respective
-            shapes
-        :rtype: float, SE3, SE3
+            shapes. The points returned are homogeneous with [x, y, z, 1].
+        :rtype: float, ndarray(1x4), ndarray(1x4)
         '''
 
         if not self.pinit:
@@ -148,8 +148,8 @@ class CollisionShape(Shape):
         else:
             ret = ret[0]
             d = ret[8]
-            p1 = SE3(ret[5])
-            p2 = SE3(ret[6])
+            p1 = np.r_[ret[5], 1]
+            p2 = np.r_[ret[6], 1]
 
         return d, p1, p2
 

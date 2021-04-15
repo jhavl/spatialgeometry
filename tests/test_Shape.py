@@ -187,12 +187,12 @@ class TestShape(unittest.TestCase):
         r = rtb.models.Panda()
         b = gm.Box([1, 1, 1], base=SE3(1.0, 0, 0))
 
-        d1, _, _ = r.closest_point(b)
+        d1, _, _ = r.closest_point(r.q, b)
         r.q = r.qr
-        r.fkine_links(r.q)
-        d2, _, _ = r.closest_point(b)
+        r._set_link_fk(r.q)
+        d2, _, _ = r.closest_point(r.q, b)
 
-        self.assertAlmostEqual(d1, 0.4276)
+        self.assertAlmostEqual(d1, 0.38356973581205467)
         self.assertAlmostEqual(d2, 0.015720599440705682)
 
     def test_cylinder(self):
