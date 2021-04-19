@@ -18,6 +18,7 @@ _pyb = None
 
 def _import_pyb():
     import importlib
+
     global _pyb
     global p
 
@@ -34,20 +35,19 @@ def _import_pyb():
         out = StringIO()
         try:
             with pipes(stdout=out, stderr=None):
-                p = importlib.import_module('pybullet')
+                p = importlib.import_module("pybullet")
         except Exception:  # pragma nocover
-            p = importlib.import_module('pybullet')
+            p = importlib.import_module("pybullet")
 
         cid = p.connect(p.SHARED_MEMORY)
-        if (cid < 0):
+        if cid < 0:
             p.connect(p.DIRECT)
         _pyb = True
-    except ImportError:   # pragma nocover
+    except ImportError:  # pragma nocover
         _pyb = False
 
 
 class CollisionShape(Shape):
-
     def __init__(self, collision=True, **kwargs):
         self._collision = collision
         self.co = None
@@ -56,23 +56,22 @@ class CollisionShape(Shape):
 
     def _update_pyb(self):
         if _pyb and self.co is not None:
-            p.resetBasePositionAndOrientation(
-                self.co, self._sT[:3, 3], self._sq)
+            p.resetBasePositionAndOrientation(self.co, self._sT[:3, 3], self._sq)
 
-    def _check_pyb(func):   # pragma nocover
+    def _check_pyb(func):  # pragma nocover
         @wraps(func)
         def wrapper_check_pyb(*args, **kwargs):
             if _pyb is None:
                 _import_pyb()
             # args[0]._update_pyb()
             return func(*args, **kwargs)
+
         return wrapper_check_pyb
 
     def _s_init_pob(self, col):
         self.co = p.createMultiBody(
-            baseMass=1,
-            baseInertialFramePosition=[0, 0, 0],
-            baseCollisionShapeIndex=col)
+            baseMass=1, baseInertialFramePosition=[0, 0, 0], baseCollisionShapeIndex=col
+        )
         self.pinit = True
 
     def _init_pob(self):  # pragma nocover
@@ -86,7 +85,7 @@ class CollisionShape(Shape):
     def wT(self, T):
         self._wT[:] = T
         self._sT[:] = self._wT @ self._base
-        self._sq[:] = r2q(self._sT[:3, :3], order='xyzs')
+        self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
         self._update_pyb()
 
     @property
@@ -99,7 +98,7 @@ class CollisionShape(Shape):
             T = SE3(T)
         self._base[:] = T.A
         self._sT[:] = self._wT @ self._base
-        self._sq[:] = r2q(self._sT[:3, :3], order='xyzs')
+        self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
         self._update_pyb()
 
     @property
@@ -108,7 +107,7 @@ class CollisionShape(Shape):
 
     @_check_pyb
     def closest_point(self, shape, inf_dist=1.0):
-        '''
+        """
         closest_point(shape, inf_dist) returns the minimum euclidean
         distance between self and shape, provided it is less than inf_dist.
         It will also return the points on self and shape in the world frame
@@ -124,7 +123,7 @@ class CollisionShape(Shape):
             p1 and p2 are the points in the world frame on the respective
             shapes. The points returned are homogeneous with [x, y, z, 1].
         :rtype: float, ndarray(1x4), ndarray(1x4)
-        '''
+        """
 
         if not self.pinit:
             self._init_pob()
@@ -138,8 +137,9 @@ class CollisionShape(Shape):
 
         if not _pyb:  # pragma nocover
             raise ImportError(
-                'The package PyBullet is required for collision '
-                'functionality. Install using pip install pybullet')
+                "The package PyBullet is required for collision "
+                "functionality. Install using pip install pybullet"
+            )
 
         ret = p.getClosestPoints(self.co, shape.co, inf_dist)
 
@@ -156,14 +156,14 @@ class CollisionShape(Shape):
         return d, p1, p2
 
     def collided(self, shape):
-        '''
+        """
         collided(shape) checks if self and shape have collided
 
         :param shape: The shape to compare distance to
         :type shape: Shape
         :returns: True if shapes have collided
         :rtype: bool
-        '''
+        """
 
         d, _, _ = self.closest_point(shape)
 
@@ -191,26 +191,25 @@ class Mesh(CollisionShape):
     """
 
     def __init__(self, filename=None, scale=[1, 1, 1], **kwargs):
-        super(Mesh, self).__init__(stype='mesh', **kwargs)
+        super(Mesh, self).__init__(stype="mesh", **kwargs)
 
         self.filename = filename
         self.scale = scale
 
     def _init_pob(self):
         name, file_extension = os.path.splitext(self.filename)
-        if (file_extension == '.stl' or file_extension ==
-                '.STL') and self.collision:
+        if (file_extension == ".stl" or file_extension == ".STL") and self.collision:
 
             col = p.createCollisionShape(
-                shapeType=p.GEOM_MESH,
-                fileName=self.filename,
-                meshScale=self.scale)
+                shapeType=p.GEOM_MESH, fileName=self.filename, meshScale=self.scale
+            )
 
             super()._s_init_pob(col)
         else:
             raise ValueError(
                 "This shape has self.collision=False meaning it "
-                "is not to be used as a collision object")
+                "is not to be used as a collision object"
+            )
 
     @property
     def scale(self):
@@ -233,16 +232,16 @@ class Mesh(CollisionShape):
         self._filename = value
 
     def to_dict(self):
-        '''
+        """
         to_dict() returns the shapes information in dictionary form
 
         :returns: All information about the shape
         :rtype: dict
-        '''
+        """
 
         shape = super().to_dict()
-        shape['filename'] = self.filename
-        shape['scale'] = self.scale.tolist()
+        shape["filename"] = self.filename
+        shape["scale"] = self.scale.tolist()
         return shape
 
 
@@ -262,21 +261,22 @@ class Cylinder(CollisionShape):
     """
 
     def __init__(self, radius, length, **kwargs):
-        super(Cylinder, self).__init__(stype='cylinder', **kwargs)
+        super(Cylinder, self).__init__(stype="cylinder", **kwargs)
         self.radius = radius
         self.length = length
 
     def _init_pob(self):
         if self.collision:
             col = p.createCollisionShape(
-                shapeType=p.GEOM_CYLINDER,
-                radius=self.radius, height=self.length)
+                shapeType=p.GEOM_CYLINDER, radius=self.radius, height=self.length
+            )
 
             super()._s_init_pob(col)
         else:
             raise ValueError(
                 "This shape has self.collision=False meaning it "
-                "is not to be used as a collision object")
+                "is not to be used as a collision object"
+            )
 
     @property
     def radius(self):
@@ -295,16 +295,16 @@ class Cylinder(CollisionShape):
         self._length = float(value)
 
     def to_dict(self):
-        '''
+        """
         to_dict() returns the shapes information in dictionary form
 
         :returns: All information about the shape
         :rtype: dict
-        '''
+        """
 
         shape = super().to_dict()
-        shape['radius'] = self.radius
-        shape['length'] = self.length
+        shape["radius"] = self.radius
+        shape["length"] = self.length
         return shape
 
 
@@ -322,19 +322,19 @@ class Sphere(CollisionShape):
     """
 
     def __init__(self, radius, **kwargs):
-        super(Sphere, self).__init__(stype='sphere', **kwargs)
+        super(Sphere, self).__init__(stype="sphere", **kwargs)
         self.radius = radius
 
     def _init_pob(self):
         if self.collision:
-            col = p.createCollisionShape(
-                shapeType=p.GEOM_SPHERE, radius=self.radius)
+            col = p.createCollisionShape(shapeType=p.GEOM_SPHERE, radius=self.radius)
 
             super()._s_init_pob(col)
         else:
             raise ValueError(
                 "This shape has self.collision=False meaning it "
-                "is not to be used as a collision object")
+                "is not to be used as a collision object"
+            )
 
     @property
     def radius(self):
@@ -345,15 +345,15 @@ class Sphere(CollisionShape):
         self._radius = float(value)
 
     def to_dict(self):
-        '''
+        """
         to_dict() returns the shapes information in dictionary form
 
         :returns: All information about the shape
         :rtype: dict
-        '''
+        """
 
         shape = super().to_dict()
-        shape['radius'] = self.radius
+        shape["radius"] = self.radius
         return shape
 
 
@@ -371,21 +371,22 @@ class Box(CollisionShape):
     """
 
     def __init__(self, scale, **kwargs):
-        super(Box, self).__init__(stype='box', **kwargs)
+        super(Box, self).__init__(stype="box", **kwargs)
         self.scale = scale
 
     def _init_pob(self):
 
         if self.collision:
             col = p.createCollisionShape(
-                shapeType=p.GEOM_BOX,
-                halfExtents=np.array(self.scale) / 2)
+                shapeType=p.GEOM_BOX, halfExtents=np.array(self.scale) / 2
+            )
 
             super()._s_init_pob(col)
         else:
             raise ValueError(
                 "This shape has self.collision=False meaning it "
-                "is not to be used as a collision object")
+                "is not to be used as a collision object"
+            )
 
     @property
     def scale(self):
@@ -400,13 +401,13 @@ class Box(CollisionShape):
         self._scale = value
 
     def to_dict(self):
-        '''
+        """
         to_dict() returns the shapes information in dictionary form
 
         :returns: All information about the shape
         :rtype: dict
-        '''
+        """
 
         shape = super().to_dict()
-        shape['scale'] = self.scale.tolist()
+        shape["scale"] = self.scale.tolist()
         return shape

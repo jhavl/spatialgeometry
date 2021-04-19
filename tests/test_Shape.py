@@ -14,7 +14,6 @@ import roboticstoolbox as rtb
 
 
 class TestShape(unittest.TestCase):
-
     def test_init(self):
         gm.Box([1, 1, 1], base=sm.SE3(0, 0, 0))
         gm.Cylinder(1, 1, base=sm.SE3(2, 0, 0))
@@ -70,31 +69,33 @@ class TestShape(unittest.TestCase):
         s1 = gm.Cylinder(1, 1)
 
         ans = {
-            'stype': 'cylinder',
-            'radius': 1.0,
-            'length': 1.0,
-            't': [0.0, 0.0, 0.0],
-            'q': [0.7071067811865475, 0.0, 0.0, 0.7071067811865476],
-            'v': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            'color': 15892287,
-            'opacity': 1.0}
+            "stype": "cylinder",
+            "radius": 1.0,
+            "length": 1.0,
+            "t": [0.0, 0.0, 0.0],
+            "q": [0.7071067811865475, 0.0, 0.0, 0.7071067811865476],
+            "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "color": 15892287,
+            "opacity": 1.0,
+        }
 
-        self.assertEqual(s1.to_dict()['stype'], ans['stype'])
-        self.assertEqual(s1.to_dict()['v'], ans['v'])
-        self.assertEqual(s1.to_dict()['color'], ans['color'])
-        nt.assert_almost_equal(s1.to_dict()['q'], ans['q'])
+        self.assertEqual(s1.to_dict()["stype"], ans["stype"])
+        self.assertEqual(s1.to_dict()["v"], ans["v"])
+        self.assertEqual(s1.to_dict()["color"], ans["color"])
+        nt.assert_almost_equal(s1.to_dict()["q"], ans["q"])
 
     def test_to_dict2(self):
         s1 = gm.Sphere(1)
 
         ans = {
-            'stype': 'sphere',
-            'radius': 1.0,
-            't': [0.0, 0.0, 0.0],
-            'q': [0, 0.0, 0.0, 1.0],
-            'v': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            'color': 15892287,
-            'opacity': 1.0}
+            "stype": "sphere",
+            "radius": 1.0,
+            "t": [0.0, 0.0, 0.0],
+            "q": [0, 0.0, 0.0, 1.0],
+            "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "color": 15892287,
+            "opacity": 1.0,
+        }
 
         self.assertEqual(s1.to_dict(), ans)
 
@@ -102,17 +103,17 @@ class TestShape(unittest.TestCase):
         s1 = gm.Cylinder(1, 1)
 
         ans = {
-            't': [0.0, 0.0, 0.0],
-            'q': [0.7071067811865475, 0.0, 0.0, 0.7071067811865476]}
+            "t": [0.0, 0.0, 0.0],
+            "q": [0.7071067811865475, 0.0, 0.0, 0.7071067811865476],
+        }
 
-        nt.assert_almost_equal(s1.fk_dict()['t'], ans['t'])
-        nt.assert_almost_equal(s1.fk_dict()['q'], ans['q'])
+        nt.assert_almost_equal(s1.fk_dict()["t"], ans["t"])
+        nt.assert_almost_equal(s1.fk_dict()["q"], ans["q"])
 
     def test_fk_dict2(self):
         s1 = gm.Sphere(1)
 
-        ans = {
-            't': [0.0, 0.0, 0.0], 'q': [0, 0, 0, 1]}
+        ans = {"t": [0.0, 0.0, 0.0], "q": [0, 0, 0, 1]}
 
         self.assertEqual(s1.fk_dict(), ans)
 
@@ -137,11 +138,11 @@ class TestShape(unittest.TestCase):
         s0.wT = np.eye(4)
 
     def test_color(self):
-        s0 = gm.Sphere(1, color='red')
+        s0 = gm.Sphere(1, color="red")
         self.assertEqual(s0.color, (1.0, 0.0, 0.0, 1.0))
 
     def test_color2(self):
-        s0 = gm.Sphere(1, color='sdgfsg')
+        s0 = gm.Sphere(1, color="sdgfsg")
         self.assertEqual(s0.color, (0.95, 0.5, 0.25, 1.0))
 
     def test_color3(self):
@@ -159,22 +160,23 @@ class TestShape(unittest.TestCase):
         nt.assert_almost_equal(np.eye(4), s0.wT)
 
     def test_mesh(self):
-        s0 = gm.Mesh('test.stl', collision=False)
+        s0 = gm.Mesh("test.stl", collision=False)
         with self.assertRaises(ValueError):
             s0._init_pob()
 
     def test_mesh2(self):
-        s0 = gm.Mesh('test.stl')
+        s0 = gm.Mesh("test.stl")
 
         ans = {
-            'stype': 'mesh',
-            'scale': [1.0, 1.0, 1.0],
-            'filename': 'test.stl',
-            't': [0.0, 0.0, 0.0],
-            'q': [0.0, 0.0, 0.0, 1],
-            'v': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            'color': 15892287,
-            'opacity': 1.0}
+            "stype": "mesh",
+            "scale": [1.0, 1.0, 1.0],
+            "filename": "test.stl",
+            "t": [0.0, 0.0, 0.0],
+            "q": [0.0, 0.0, 0.0, 1],
+            "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "color": 15892287,
+            "opacity": 1.0,
+        }
 
         self.assertEqual(s0.to_dict(), ans)
 
@@ -214,16 +216,17 @@ class TestShape(unittest.TestCase):
         s0 = gm.Box([1, 1, 1])
 
         ans = {
-            'stype': 'box',
-            'scale': [1.0, 1.0, 1.0],
-            't': [0.0, 0.0, 0.0],
-            'q': [0.0, 0.0, 0.0, 1],
-            'v': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            'color': 15892287,
-            'opacity': 1.0}
+            "stype": "box",
+            "scale": [1.0, 1.0, 1.0],
+            "t": [0.0, 0.0, 0.0],
+            "q": [0.0, 0.0, 0.0, 1],
+            "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "color": 15892287,
+            "opacity": 1.0,
+        }
 
         self.assertEqual(s0.to_dict(), ans)
 
 
-if __name__ == '__main__':  # pragma nocover
+if __name__ == "__main__":  # pragma nocover
     unittest.main()

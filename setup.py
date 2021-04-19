@@ -3,31 +3,27 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-req = [
-    'spatialmath-python>=0.9.2'
-]
+req = ["spatialmath-python>=0.9.2"]
 
-collision_req = [
-    'pybullet'
-]
+collision_req = ["pybullet"]
 
 dev_req = [
-    'roboticstoolbox-python>=0.9.1',
-    'swift-sim',
-    'pytest',
-    'pytest-cov',
-    'flake8',
-    'pyyaml',
+    "roboticstoolbox-python>=0.9.1",
+    "swift-sim",
+    "pytest",
+    "pytest-cov",
+    "flake8",
+    "pyyaml",
 ]
 
 docs_req = [
-    'sphinx',
-    'sphinx_rtd_theme',
-    'sphinx-autorun',
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinx-autorun",
 ]
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 # def package_files(directory):
@@ -41,58 +37,36 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 # extra_files = package_files('swift/public')
 
 setup(
-    name='spatialgeometry',
-
-    version='0.1.0',
-
-    description='A Shape and Geometry Package',
-
+    name="spatialgeometry",
+    version="0.1.0",
+    description="A Shape and Geometry Package",
     long_description=long_description,
-
-    long_description_content_type='text/markdown',
-
-    url='https://github.com/jhavl/spatialgeometry',
-
-    author='Jesse Haviland',
-
-    license='MIT',
-
+    long_description_content_type="text/markdown",
+    url="https://github.com/jhavl/spatialgeometry",
+    author="Jesse Haviland",
+    license="MIT",
     classifiers=[
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
-
+        "Development Status :: 3 - Alpha",
         # Indicate who your project is intended for
-        'Intended Audience :: Developers',
+        "Intended Audience :: Developers",
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: MIT License',
-
+        "License :: OSI Approved :: MIT License",
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
-
-    python_requires='>=3.6',
-
-    keywords='python robotics robotics-toolbox kinematics dynamics' \
-             ' motion-planning trajectory-generation jacobian hessian' \
-             ' control simulation robot-manipulator mobile-robot',
-
+    python_requires=">=3.6",
+    keywords="python robotics robotics-toolbox kinematics dynamics"
+    " motion-planning trajectory-generation jacobian hessian"
+    " control simulation robot-manipulator mobile-robot",
     packages=find_packages(exclude=["tests", "examples"]),
-
-    # package_data={'swift': extra_files},
-
     include_package_data=True,
-
     install_requires=req,
-
-    extras_require={
-        'collision': collision_req,
-        'dev': dev_req,
-        'docs': docs_req
-    }
+    extras_require={"collision": collision_req, "dev": dev_req, "docs": docs_req},
 )

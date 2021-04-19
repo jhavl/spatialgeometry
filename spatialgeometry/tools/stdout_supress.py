@@ -13,7 +13,7 @@ import os
 
 try:
     from queue import Queue
-except ImportError:   # pragma nocover
+except ImportError:  # pragma nocover
     from Queue import Queue
 
 import selectors
@@ -27,17 +27,17 @@ STDOUT = 2
 PIPE = 3
 
 try:
-    c_stdout_p = ctypes.c_void_p.in_dll(libc, 'stdout')
-    c_stderr_p = ctypes.c_void_p.in_dll(libc, 'stderr')
+    c_stdout_p = ctypes.c_void_p.in_dll(libc, "stdout")
+    c_stderr_p = ctypes.c_void_p.in_dll(libc, "stderr")
 except ValueError:  # pragma: no cover
     # libc.stdout is has a funny name on OS X
-    c_stdout_p = ctypes.c_void_p.in_dll(libc, '__stdoutp')  # pragma: no cover
-    c_stderr_p = ctypes.c_void_p.in_dll(libc, '__stderrp')  # pragma: no cover
+    c_stdout_p = ctypes.c_void_p.in_dll(libc, "__stdoutp")  # pragma: no cover
+    c_stderr_p = ctypes.c_void_p.in_dll(libc, "__stderrp")  # pragma: no cover
 
-_default_encoding = getattr(sys.stdin, 'encoding', None) or 'utf8'
-if _default_encoding.lower() == 'ascii':
+_default_encoding = getattr(sys.stdin, "encoding", None) or "utf8"
+if _default_encoding.lower() == "ascii":
     # don't respect ascii
-    _default_encoding = 'utf8'  # pragma: no cover
+    _default_encoding = "utf8"  # pragma: no cover
 
 
 def dup2(a, b, timeout=3):
@@ -47,13 +47,13 @@ def dup2(a, b, timeout=3):
     for i in range(int(10 * timeout)):
         try:
             return os.dup2(a, b)
-        except OSError as e:   # pragma nocover
+        except OSError as e:  # pragma nocover
             dup_err = e
             if e.errno == errno.EBUSY:
                 time.sleep(0.1)
             else:
                 raise
-    if dup_err:   # pragma nocover
+    if dup_err:  # pragma nocover
         raise dup_err
 
 
@@ -62,6 +62,7 @@ class Wurlitzer(object):  # pragma: no cover
 
     Typically used via `wurlitzer.capture`
     """
+
     flush_interval = 0.2
 
     def __init__(self, stdout=None, stderr=None, encoding=_default_encoding):
@@ -81,11 +82,11 @@ class Wurlitzer(object):  # pragma: no cover
         self._save_fds = {}
         self._real_fds = {}
         self._handlers = {}
-        self._handlers['stderr'] = self._handle_stderr
-        self._handlers['stdout'] = self._handle_stdout
+        self._handlers["stderr"] = self._handle_stderr
+        self._handlers["stdout"] = self._handle_stdout
 
     def _setup_pipe(self, name):
-        real_fd = getattr(sys, '__%s__' % name).fileno()
+        real_fd = getattr(sys, "__%s__" % name).fileno()
         save_fd = os.dup(real_fd)
         self._save_fds[name] = save_fd
 
@@ -105,7 +106,7 @@ class Wurlitzer(object):  # pragma: no cover
         Called before passing to stdout/stderr streams
         """
         if self.encoding:
-            data = data.decode(self.encoding, 'replace')
+            data = data.decode(self.encoding, "replace")
         return data
 
     def _handle_stdout(self, data):
@@ -121,8 +122,7 @@ class Wurlitzer(object):  # pragma: no cover
         self.handle = (self._stdout, self._stderr)
 
     def _finish_handle(self):
-        """Finish handle, if anything should be done when it's all wrapped up.
-        """
+        """Finish handle, if anything should be done when it's all wrapped up."""
         pass
 
     def _flush(self):
@@ -144,15 +144,15 @@ class Wurlitzer(object):  # pragma: no cover
 
         # create pipe for stdout
         pipes = [self._control_r]
-        names = {self._control_r: 'control'}
+        names = {self._control_r: "control"}
         if self._stdout:
-            pipe = self._setup_pipe('stdout')
+            pipe = self._setup_pipe("stdout")
             pipes.append(pipe)
-            names[pipe] = 'stdout'
+            names[pipe] = "stdout"
         if self._stderr:
-            pipe = self._setup_pipe('stderr')
+            pipe = self._setup_pipe("stderr")
             pipes.append(pipe)
-            names[pipe] = 'stderr'
+            names[pipe] = "stderr"
 
         # flush pipes in a background thread to avoid blocking
         # the reader thread when the buffer is full
@@ -161,7 +161,7 @@ class Wurlitzer(object):  # pragma: no cover
         def flush_main():
             while True:
                 msg = flush_queue.get()
-                if msg == 'stop':
+                if msg == "stop":
                     return
                 self._flush()
 
@@ -193,7 +193,7 @@ class Wurlitzer(object):  # pragma: no cover
                         # nothing to read, get ready to wait.
                         # flush the streams in case there's something waiting
                         # to be written.
-                        flush_queue.put('flush')
+                        flush_queue.put("flush")
                         flush_interval = self.flush_interval
                         continue
 
@@ -213,13 +213,13 @@ class Wurlitzer(object):  # pragma: no cover
                         poller.unregister(fd)
                         os.close(fd)
                     else:
-                        handler = getattr(self, '_handle_%s' % name)
+                        handler = getattr(self, "_handle_%s" % name)
                         handler(data)
                 if not pipes:
                     # pipes closed, we are done
                     break
             # stop flush thread
-            flush_queue.put('stop')
+            flush_queue.put("stop")
             flush_thread.join()
             # cleanup pipes
             [os.close(pipe) for pipe in pipes]
@@ -235,7 +235,7 @@ class Wurlitzer(object):  # pragma: no cover
         self._flush()
 
         # signal output is complete on control pipe
-        os.write(self._control_w, b'\1')
+        os.write(self._control_w, b"\1")
         self.thread.join()
         os.close(self._control_w)
 
@@ -249,7 +249,9 @@ class Wurlitzer(object):  # pragma: no cover
 
 
 @contextmanager
-def pipes(stdout=PIPE, stderr=PIPE, encoding=_default_encoding):  # pragma: no cover  # noqa
+def pipes(
+    stdout=PIPE, stderr=PIPE, encoding=_default_encoding
+):  # pragma: no cover  # noqa
     """Capture C-level stdout/stderr in a context manager.
     The return value for the context manager is (stdout, stderr).
     Examples
@@ -262,11 +264,11 @@ def pipes(stdout=PIPE, stderr=PIPE, encoding=_default_encoding):  # pragma: no c
     # setup stdout
     if stdout == PIPE:
         stdout_r, stdout_w = os.pipe()
-        stdout_w = os.fdopen(stdout_w, 'wb')
+        stdout_w = os.fdopen(stdout_w, "wb")
         if encoding:
-            stdout_r = io.open(stdout_r, 'r', encoding=encoding)
+            stdout_r = io.open(stdout_r, "r", encoding=encoding)
         else:
-            stdout_r = os.fdopen(stdout_r, 'rb')
+            stdout_r = os.fdopen(stdout_r, "rb")
         stdout_pipe = True
     else:
         stdout_r = stdout_w = stdout
@@ -276,11 +278,11 @@ def pipes(stdout=PIPE, stderr=PIPE, encoding=_default_encoding):  # pragma: no c
         stderr_w = stdout_w
     elif stderr == PIPE:
         stderr_r, stderr_w = os.pipe()
-        stderr_w = os.fdopen(stderr_w, 'wb')
+        stderr_w = os.fdopen(stderr_w, "wb")
         if encoding:
-            stderr_r = io.open(stderr_r, 'r', encoding=encoding)
+            stderr_r = io.open(stderr_r, "r", encoding=encoding)
         else:
-            stderr_r = os.fdopen(stderr_r, 'rb')
+            stderr_r = os.fdopen(stderr_r, "rb")
         stderr_pipe = True
     else:
         stderr_r = stderr_w = stderr
