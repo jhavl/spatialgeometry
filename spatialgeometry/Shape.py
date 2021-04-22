@@ -39,6 +39,8 @@ class Shape:
         self.v = np.zeros(6)
         self.color = color
 
+        self._collision = False
+
     def _to_hex(self, rgb):
         rgb = (np.array(rgb) * 255).astype(int)
         return int("0x%02x%02x%02x" % (rgb[0], rgb[1], rgb[2]), 16)
@@ -93,6 +95,10 @@ class Shape:
 
     def __repr__(self):  # pragma nocover
         return f"{self.stype},\n{self.base}"
+
+    @property
+    def collision(self):
+        return self._collision
 
     @property
     def v(self):

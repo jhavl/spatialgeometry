@@ -49,24 +49,14 @@ def _import_pyb():
 
 class CollisionShape(Shape):
     def __init__(self, collision=True, **kwargs):
-        self._collision = collision
         self.co = None
         self.pinit = False
         super().__init__(**kwargs)
+        self._collision = collision
 
     def _update_pyb(self):
         if _pyb and self.co is not None:
             p.resetBasePositionAndOrientation(self.co, self._sT[:3, 3], self._sq)
-
-    def _check_pyb(func):  # pragma nocover
-        @wraps(func)
-        def wrapper_check_pyb(*args, **kwargs):
-            if _pyb is None:
-                _import_pyb()
-            # args[0]._update_pyb()
-            return func(*args, **kwargs)
-
-        return wrapper_check_pyb
 
     def _s_init_pob(self, col):
         self.co = p.createMultiBody(
@@ -76,6 +66,10 @@ class CollisionShape(Shape):
 
     def _init_pob(self):  # pragma nocover
         pass
+
+    def _check_pyb(self):
+        if _pyb is None:
+            _import_pyb()
 
     @property
     def wT(self):
@@ -101,11 +95,6 @@ class CollisionShape(Shape):
         self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
         self._update_pyb()
 
-    @property
-    def collision(self):
-        return self._collision
-
-    @_check_pyb
     def closest_point(self, shape, inf_dist=1.0):
         """
         closest_point(shape, inf_dist) returns the minimum euclidean
@@ -125,6 +114,14 @@ class CollisionShape(Shape):
         :rtype: float, ndarray(1x4), ndarray(1x4)
         """
 
+        self._check_pyb()
+
+        if not _pyb:  # pragma nocover
+            raise ImportError(
+                "The package PyBullet is required for collision "
+                "functionality. Install using pip install pybullet"
+            )
+
         if not self.pinit:
             self._init_pob()
             self._update_pyb()
@@ -135,25 +132,13 @@ class CollisionShape(Shape):
             shape._init_pob()
             shape._update_pyb()
 
-        if not _pyb:  # pragma nocover
-            raise ImportError(
-                "The package PyBullet is required for collision "
-                "functionality. Install using pip install pybullet"
-            )
-
         ret = p.getClosestPoints(self.co, shape.co, inf_dist)
 
-        if len(ret) == 0:
-            d = None
-            p1 = None
-            p2 = None
-        else:
-            ret = ret[0]
-            d = ret[8]
-            p1 = np.r_[ret[5], 1]
-            p2 = np.r_[ret[6], 1]
-
-        return d, p1, p2
+        try:
+            return ret[0][8], np.r_[ret[0][5], 1], np.r_[ret[0][6], 1]
+        except IndexError:
+            # Obstacle is further away than inf_dist
+            return None, None, None
 
     def collided(self, shape):
         """
