@@ -95,7 +95,7 @@ class CollisionShape(Shape):
         self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
         self._update_pyb()
 
-    def closest_point(self, shape, inf_dist=1.0):
+    def closest_point(self, shape, inf_dist=1.0, homogenous=True):
         """
         closest_point(shape, inf_dist) returns the minimum euclidean
         distance between self and shape, provided it is less than inf_dist.
@@ -134,11 +134,22 @@ class CollisionShape(Shape):
 
         ret = p.getClosestPoints(self.co, shape.co, inf_dist)
 
-        try:
-            return ret[0][8], np.r_[ret[0][5], 1], np.r_[ret[0][6], 1]
-        except IndexError:
-            # Obstacle is further away than inf_dist
-            return None, None, None
+        if homogenous:
+            try:
+                return ret[0][8], np.append(np.array(ret[0][5]), 1.0), np.append(np.array(ret[0][6]), 1.0)
+            except ValueError:
+                return None, None, None
+            except IndexError:
+                # Obstacle is further away than inf_dist
+                return None, None, None
+        else:
+            try:
+                return ret[0][8], np.array(ret[0][5]), np.array(ret[0][6])
+            except ValueError:
+                return None, None, None
+            except IndexError:
+                # Obstacle is further away than inf_dist
+                return None, None, None
 
     def collided(self, shape):
         """
@@ -150,7 +161,7 @@ class CollisionShape(Shape):
         :rtype: bool
         """
 
-        d, _, _ = self.closest_point(shape)
+        d, _, _ = self.closest_point(shape, homogenous=False)
 
         if d is not None and d <= 0:
             return True
