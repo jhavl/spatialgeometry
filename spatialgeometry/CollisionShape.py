@@ -95,7 +95,7 @@ class CollisionShape(Shape):
         self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
         self._update_pyb()
 
-    def closest_point(self, shape, inf_dist=1.0, homogenous=True):
+    def closest_point(self, shape, inf_dist=1.0):
         """
         closest_point(shape, inf_dist) returns the minimum euclidean
         distance between self and shape, provided it is less than inf_dist.
@@ -110,8 +110,8 @@ class CollisionShape(Shape):
         :type inf_dist: float
         :returns: d, p1, p2 where d is the distance between the shapes,
             p1 and p2 are the points in the world frame on the respective
-            shapes. The points returned are homogeneous with [x, y, z, 1].
-        :rtype: float, ndarray(1x4), ndarray(1x4)
+            shapes. The points returned are [x, y, z].
+        :rtype: float, ndarray(1x3), ndarray(1x3)
         """
 
         self._check_pyb()
@@ -134,22 +134,13 @@ class CollisionShape(Shape):
 
         ret = p.getClosestPoints(self.co, shape.co, inf_dist)
 
-        if homogenous:
-            try:
-                return ret[0][8], np.append(np.array(ret[0][5]), 1.0), np.append(np.array(ret[0][6]), 1.0)
-            except ValueError:
-                return None, None, None
-            except IndexError:
-                # Obstacle is further away than inf_dist
-                return None, None, None
-        else:
-            try:
-                return ret[0][8], np.array(ret[0][5]), np.array(ret[0][6])
-            except ValueError:
-                return None, None, None
-            except IndexError:
-                # Obstacle is further away than inf_dist
-                return None, None, None
+        try:
+            return ret[0][8], np.array(ret[0][5]), np.array(ret[0][6])
+        except ValueError:
+            return None, None, None
+        except IndexError:
+            # Obstacle is further away than inf_dist
+            return None, None, None
 
     def collided(self, shape):
         """
@@ -161,7 +152,7 @@ class CollisionShape(Shape):
         :rtype: bool
         """
 
-        d, _, _ = self.closest_point(shape, homogenous=False)
+        d, _, _ = self.closest_point(shape)
 
         if d is not None and d <= 0:
             return True
