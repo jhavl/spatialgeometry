@@ -7,7 +7,6 @@ import numpy as np
 from io import StringIO
 from spatialmath.base import r2q
 from spatialmath.base.argcheck import getvector
-from functools import wraps
 from spatialmath import SE3
 from spatialgeometry import Shape
 import os
