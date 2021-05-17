@@ -167,3 +167,39 @@ class Shape:
         self._base[:] = T.A
         self._sT[:] = self._wT @ self._base
         self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
+
+
+class Axes(Shape):
+    """An axes whose center is at the local origin.
+    Parameters
+
+    :param length: The length of each axis.
+    :type length: float
+    :param base: Local reference frame of the shape
+    :type base: SE3
+
+    """
+
+    def __init__(self, length, **kwargs):
+        super(Axes, self).__init__(stype="axes", **kwargs)
+        self.length = length
+
+    @property
+    def length(self):
+        return self._length
+
+    @length.setter
+    def length(self, value):
+        self._length = float(value)
+
+    def to_dict(self):
+        """
+        to_dict() returns the shapes information in dictionary form
+
+        :returns: All information about the shape
+        :rtype: dict
+        """
+
+        shape = super().to_dict()
+        shape["length"] = self.length
+        return shape
