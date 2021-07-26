@@ -110,10 +110,29 @@ class Shape:
 
     @property
     def color(self):
+        """
+        shape.color returns a four length tuple representing (red, green, blue, alpha)
+        where alpha represents transparency. Values returned are in the range [0-1].
+        """
         return self._color
 
     @color.setter
     def color(self, value):
+        """
+        shape.color(new_color) sets the color of a shape.
+
+        The color format is (red, green, blue, alpha).
+
+        Color can be set with a three length list, tuple or array which
+        will only set the (r, g, b) values and alpha will be set to maximum.
+
+        Color can be set with a four length list, tuple or array which
+        will set the (r, g, b, a) values.
+
+        Note: the color is auto-normalising. If any value passed is greater than
+        1.0 then all values will be normalised to the [0-1] range assuming the
+        previous range was [0-255].
+        """
 
         default_color = (0.95, 0.5, 0.25, 1.0)
 
@@ -145,6 +164,17 @@ class Shape:
             value = tuple(value)
 
         self._color = value
+
+    def set_alpha(self, alpha):
+        """
+        Convenience method to set the opacity/alpha value of the robots color.
+        """
+
+        if alpha > 1.0:
+            alpha /= 255
+
+        new_color = np.r_[self._color[:3], alpha]
+        self._color = tuple(new_color)
 
     @property
     def wT(self):
