@@ -343,11 +343,11 @@ class Sphere(CollisionShape):
         return shape
 
 
-class Box(CollisionShape):
+class Cuboid(CollisionShape):
     """
     A rectangular prism whose center is at the local origin.
 
-    :param scale: The length, width, and height of the box in meters.
+    :param scale: The length, width, and height of the cuboid in meters.
     :type scale: list (3) float
     :param base: Local reference frame of the shape
     :type base: SE3
@@ -357,7 +357,7 @@ class Box(CollisionShape):
     """
 
     def __init__(self, scale, **kwargs):
-        super(Box, self).__init__(stype="box", **kwargs)
+        super(Cuboid, self).__init__(stype="cuboid", **kwargs)
         self.scale = scale
 
     def _init_pob(self):
