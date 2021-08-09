@@ -10,6 +10,7 @@ from spatialmath.base.argcheck import getvector
 from spatialmath import SE3
 from spatialgeometry import Shape
 import os
+import copy
 
 p = None
 _pyb = None
@@ -52,6 +53,19 @@ class CollisionShape(Shape):
         self.pinit = False
         super().__init__(**kwargs)
         self._collision = collision
+
+    # def __copy__(self):
+    #     """
+    #     Copy of CollisionShape object
+
+    #     :return: Shallow copy of CollisionShape object
+    #     :rtype: CollisionShape
+    #     """
+    #     print("HELLO")
+    #     # new = copy.copy(super())
+    #     # for k, v in self.__dict__.items():
+    #     #     if k.startswith("_") and isinstance(v, np.ndarray):
+    #     #         setattr(new, k, np.copy(v))
 
     def _update_pyb(self):
         if _pyb and self.co is not None:

@@ -7,6 +7,7 @@ from spatialmath import SE3
 from spatialmath.base.argcheck import getvector
 from spatialmath.base import r2q
 import numpy as np
+import copy
 
 _mpl = False
 
@@ -40,6 +41,27 @@ class Shape:
         self.color = color
 
         self._collision = False
+
+    def copy(self):
+        """
+        Copy of Shape object
+
+        :return: Shallow copy of Shape object
+        :rtype: Shape
+        """
+
+        # print("Hello")
+        new = copy.copy(self)
+
+        # print(self._base)
+
+        # new = Shape(self.base, self.color, self.stype)
+
+        for k, v in self.__dict__.items():
+            if k.startswith("_") and isinstance(v, np.ndarray):
+                setattr(new, k, np.copy(v))
+
+        return new
 
     def _to_hex(self, rgb):
         rgb = (np.array(rgb) * 255).astype(int)
