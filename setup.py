@@ -8,7 +8,7 @@ req = ["spatialmath-python>=0.9.2"]
 collision_req = ["pybullet"]
 
 dev_req = [
-    "roboticstoolbox-python>=0.9.1",
+    "roboticstoolbox-python>=0.11.0",
     "swift-sim",
     "pytest",
     "pytest-cov",
@@ -38,7 +38,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="spatialgeometry",
-    version="0.1.2",
+    version="0.2.0",
     description="A Shape and Geometry Package",
     long_description=long_description,
     long_description_content_type="text/markdown",
