@@ -15,12 +15,12 @@ import roboticstoolbox as rtb
 
 class TestShape(unittest.TestCase):
     def test_init(self):
-        gm.Box([1, 1, 1], base=sm.SE3(0, 0, 0))
+        gm.Cuboid([1, 1, 1], base=sm.SE3(0, 0, 0))
         gm.Cylinder(1, 1, base=sm.SE3(2, 0, 0))
         gm.Sphere(1, base=sm.SE3(4, 0, 0))
 
     def test_color(self):
-        shape = gm.Box([1, 1, 1], base=sm.SE3(0, 0, 0))
+        shape = gm.Cuboid([1, 1, 1], base=sm.SE3(0, 0, 0))
 
         shape.color = [0.1, 0.2, 0.3]
 
@@ -51,7 +51,7 @@ class TestShape(unittest.TestCase):
         self.assertEqual(shape.color[3], 100 / 255)
 
     def test_closest(self):
-        s0 = gm.Box([1, 1, 1], base=sm.SE3(0, 0, 0))
+        s0 = gm.Cuboid([1, 1, 1], base=sm.SE3(0, 0, 0))
         s1 = gm.Cylinder(1, 1, base=sm.SE3(2, 0, 0))
         s2 = gm.Sphere(1, base=sm.SE3(4, 0, 0))
 
@@ -123,9 +123,9 @@ class TestShape(unittest.TestCase):
         ur.links[1].collision[0].closest_point(ur.links[2].collision[0])
 
     def test_collision(self):
-        s0 = gm.Box([1, 1, 1], base=sm.SE3(0, 0, 0))
-        s1 = gm.Box([1, 1, 1], base=sm.SE3(0.5, 0, 0))
-        s2 = gm.Box([1, 1, 1], base=sm.SE3(3, 0, 0))
+        s0 = gm.Cuboid([1, 1, 1], base=sm.SE3(0, 0, 0))
+        s1 = gm.Cuboid([1, 1, 1], base=sm.SE3(0.5, 0, 0))
+        s2 = gm.Cuboid([1, 1, 1], base=sm.SE3(3, 0, 0))
 
         c0 = s0.collided(s1)
         c1 = s0.collided(s2)
@@ -134,7 +134,7 @@ class TestShape(unittest.TestCase):
         self.assertFalse(c1)
 
     def test_wt(self):
-        s0 = gm.Box([1, 1, 1], base=sm.SE3(0, 0, 0))
+        s0 = gm.Cuboid([1, 1, 1], base=sm.SE3(0, 0, 0))
         s0.wT = np.eye(4)
 
     def test_color(self):
@@ -182,12 +182,12 @@ class TestShape(unittest.TestCase):
 
     def test_robot(self):
         r = rtb.models.UR5()
-        b = gm.Box([1, 1, 1], base=SE3(1.0, 0, 0))
+        b = gm.Cuboid([1, 1, 1], base=SE3(1.0, 0, 0))
         r.links[1].collision[0].closest_point(b)
 
     def test_robot2(self):
         r = rtb.models.Panda()
-        b = gm.Box([1, 1, 1], base=SE3(1.0, 0, 0))
+        b = gm.Cuboid([1, 1, 1], base=SE3(1.0, 0, 0))
 
         d1, _, _ = r.closest_point(r.q, b)
         r.q = r.qr
@@ -207,16 +207,16 @@ class TestShape(unittest.TestCase):
         with self.assertRaises(ValueError):
             s0._init_pob()
 
-    def test_box(self):
-        s0 = gm.Box(None, collision=False)
+    def test_Cuboid(self):
+        s0 = gm.Cuboid(None, collision=False)
         with self.assertRaises(ValueError):
             s0._init_pob()
 
-    def test_box2(self):
-        s0 = gm.Box([1, 1, 1])
+    def test_Cuboid2(self):
+        s0 = gm.Cuboid([1, 1, 1])
 
         ans = {
-            "stype": "box",
+            "stype": "cuboid",
             "scale": [1.0, 1.0, 1.0],
             "t": [0.0, 0.0, 0.0],
             "q": [0.0, 0.0, 0.0, 1],
