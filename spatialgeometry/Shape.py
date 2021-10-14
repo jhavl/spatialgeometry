@@ -10,11 +10,21 @@ import numpy as np
 import copy
 
 _mpl = False
+_rtb = False
 
 try:
     from matplotlib import colors as mpc
 
     _mpl = True
+except ImportError:  # pragma nocover
+    pass
+
+
+
+try:
+    import roboticsroolbox as rtb
+
+    _rtb = True
 except ImportError:  # pragma nocover
     pass
 
@@ -30,17 +40,33 @@ class Shape:
         # will follow very soon after
         # wT and sT cannot be accessed and set by users by base can be
         # modified through its setter
+
+        # The world transform
         self._wT = np.eye(4)
+
+        # The swift transform, may have a constant offset from wT
         self._sT = np.eye(4)
+
+        # The swift quaternion extracted from sT
         self._sq = np.zeros(4)
+
+        # The 
         self._base = np.eye(4)
 
         self.base = base
         self.stype = stype
         self.v = np.zeros(6)
         self.color = color
+        self.attached = True
 
         self._collision = False
+
+    def attach_to(self, object):
+        if isinstance(object, Shape):
+            self.attached = True
+            self._wT = object._wT
+
+
 
     def copy(self):
         """
@@ -254,4 +280,41 @@ class Axes(Shape):
 
         shape = super().to_dict()
         shape["length"] = self.length
+        return shape
+
+class Camera(Shape):
+    """An axes whose center is at the local origin.
+    Parameters
+
+    :param length: The length of each axis.
+    :type length: float
+    :param base: Local reference frame of the shape
+    :type base: SE3
+
+    """
+
+    def __init__(self, im_size, id, **kwargs):
+        super().__init__(stype="camera", **kwargs)
+        self.im_size = im_size
+        self.id = id
+
+    @property
+    def im_size(self):
+        return self._im_size
+
+    @im_size.setter
+    def im_size(self, value):
+        self._im_size = value
+
+    def to_dict(self):
+        """
+        to_dict() returns the shapes information in dictionary form
+
+        :returns: All information about the shape
+        :rtype: dict
+        """
+
+        shape = super().to_dict()
+        shape["im_size"] = self.im_size
+        shape["id"] = self.id
         return shape
