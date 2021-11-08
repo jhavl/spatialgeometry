@@ -281,3 +281,41 @@ class Axes(Shape):
         shape = super().to_dict()
         shape["length"] = self.length
         return shape
+
+
+class Arrow(Shape):
+    """An arrow whose center is at the local origin, and points
+    in the positive z direction.
+
+    Parameters
+
+    :param length: The length of the arrow.
+    :type length: float
+    :param base: Local reference frame of the shape
+    :type base: SE3
+
+    """
+
+    def __init__(self, length, **kwargs):
+        super(Arrow, self).__init__(stype="arrow", **kwargs)
+        self.length = length
+
+    @property
+    def length(self):
+        return self._length
+
+    @length.setter
+    def length(self, value):
+        self._length = float(value)
+
+    def to_dict(self):
+        """
+        to_dict() returns the shapes information in dictionary form
+
+        :returns: All information about the shape
+        :rtype: dict
+        """
+
+        shape = super().to_dict()
+        shape["length"] = self.length
+        return shape
