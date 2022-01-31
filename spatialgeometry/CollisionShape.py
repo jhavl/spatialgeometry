@@ -411,3 +411,12 @@ class Cuboid(CollisionShape):
         shape = super().to_dict()
         shape["scale"] = self.scale.tolist()
         return shape
+
+
+class Box(Cuboid):
+
+    def __init__(self, scale, **kwargs):
+        import warnings
+
+        warnings.warn("Box is deprecated, use Cuboid instead", FutureWarning)
+        super().__init__(scale, **kwargs)

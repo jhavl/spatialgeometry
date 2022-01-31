@@ -4,7 +4,8 @@ from spatialgeometry.CollisionShape import (
     Mesh,
     Cylinder,
     Cuboid,
+    Box,
     Sphere,
 )
 
-__all__ = ["Shape", "CollisionShape", "Mesh", "Cylinder", "Cuboid", "Sphere", "Axes"]
+__all__ = ["Shape", "CollisionShape", "Mesh", "Cylinder", "Cuboid", "Box", "Sphere", "Axes"]
