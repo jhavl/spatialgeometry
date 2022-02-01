@@ -1,4 +1,4 @@
-from spatialgeometry.Shape import Shape, Axes
+from spatialgeometry.Shape import Shape, Axes, Arrow
 from spatialgeometry.CollisionShape import (
     CollisionShape,
     Mesh,
@@ -8,4 +8,5 @@ from spatialgeometry.CollisionShape import (
     Sphere,
 )
 
-__all__ = ["Shape", "CollisionShape", "Mesh", "Cylinder", "Cuboid", "Box", "Sphere", "Axes"]
+__all__ = ["Shape", "CollisionShape", "Mesh", "Cylinder", "Cuboid", "Box", "Sphere", "Axes", "Arrow"]
+

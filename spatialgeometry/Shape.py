@@ -10,11 +10,21 @@ import numpy as np
 import copy
 
 _mpl = False
+_rtb = False
 
 try:
     from matplotlib import colors as mpc
 
     _mpl = True
+except ImportError:  # pragma nocover
+    pass
+
+
+
+try:
+    import roboticsroolbox as rtb
+
+    _rtb = True
 except ImportError:  # pragma nocover
     pass
 
@@ -30,17 +40,33 @@ class Shape:
         # will follow very soon after
         # wT and sT cannot be accessed and set by users by base can be
         # modified through its setter
+
+        # The world transform
         self._wT = np.eye(4)
+
+        # The swift transform, may have a constant offset from wT
         self._sT = np.eye(4)
+
+        # The swift quaternion extracted from sT
         self._sq = np.zeros(4)
+
+        # The 
         self._base = np.eye(4)
 
         self.base = base
         self.stype = stype
         self.v = np.zeros(6)
         self.color = color
+        self.attached = True
 
         self._collision = False
+
+    def attach_to(self, object):
+        if isinstance(object, Shape):
+            self.attached = True
+            self._wT = object._wT
+
+
 
     def copy(self):
         """
@@ -234,6 +260,44 @@ class Axes(Shape):
 
     def __init__(self, length, **kwargs):
         super(Axes, self).__init__(stype="axes", **kwargs)
+        self.length = length
+
+    @property
+    def length(self):
+        return self._length
+
+    @length.setter
+    def length(self, value):
+        self._length = float(value)
+
+    def to_dict(self):
+        """
+        to_dict() returns the shapes information in dictionary form
+
+        :returns: All information about the shape
+        :rtype: dict
+        """
+
+        shape = super().to_dict()
+        shape["length"] = self.length
+        return shape
+
+
+class Arrow(Shape):
+    """An arrow whose center is at the local origin, and points
+    in the positive z direction.
+
+    Parameters
+
+    :param length: The length of the arrow.
+    :type length: float
+    :param base: Local reference frame of the shape
+    :type base: SE3
+
+    """
+
+    def __init__(self, length, **kwargs):
+        super(Arrow, self).__init__(stype="arrow", **kwargs)
         self.length = length
 
     @property
