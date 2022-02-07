@@ -1,4 +1,5 @@
-from SceneNode import SceneNode
+from spatialgeometry.SceneNode import SceneNode
+from spatialgeometry.SceneGroup import SceneGroup
 from spatialgeometry.Shape import Shape, Axes, Arrow
 from spatialgeometry.CollisionShape import (
     CollisionShape,
@@ -18,4 +19,5 @@ __all__ = [
     "Axes",
     "Arrow",
     "SceneNode",
+    "SceneGroup",
 ]
