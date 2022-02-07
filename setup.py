@@ -1,5 +1,11 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 from os import path
+
+# fmt: off
+import pip
+pip.main(['install', 'numpy>=1.17.4'])
+import numpy
+# fmt: on
 
 here = path.abspath(path.dirname(__file__))
 
@@ -26,15 +32,12 @@ docs_req = [
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
-# def package_files(directory):
-#     paths = []
-#     for (pathhere, _, filenames) in os.walk(directory):
-#         for filename in filenames:
-#             paths.append(os.path.join('..', pathhere, filename))
-#     return paths
+scene = Extension(
+    "scene",
+    sources=["./spatialgeometry/core/scene.c"],
+    include_dirs=["./spatialgeometry/core/", numpy.get_include()],
+)
 
-
-# extra_files = package_files('swift/public')
 
 setup(
     name="spatialgeometry",
@@ -62,6 +65,7 @@ setup(
         "Programming Language :: Python :: 3.9",
     ],
     python_requires=">=3.6",
+    ext_modules=[scene],
     keywords="python robotics robotics-toolbox kinematics dynamics"
     " motion-planning trajectory-generation jacobian hessian"
     " control simulation robot-manipulator mobile-robot",
