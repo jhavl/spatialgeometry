@@ -3,12 +3,15 @@
 @author: Jesse Haviland
 """
 
-from numpy import ndarray, eye, zeros
+from numpy import ndarray, eye, zeros, copy as npcopy
 from spatialmath.base import r2q
-from roboticstoolbox.robot.ETS import ETS
+from abc import ABC
+
+# from roboticstoolbox.robot.ETS import ETS
+from typing import Type
 
 
-class SceneNode:
+class SceneNode(ABC):
     def __init__(
         self,
         T: ndarray = eye(4),
@@ -25,36 +28,40 @@ class SceneNode:
         # The world transform
         self.__wT = eye(4)
 
-        # The swift transform, may have a constant offset from wT
-        self.__swift_wT = eye(4)
-
-        # The swift quaternion extracted from swift_wT
-        self.__swift_wq = zeros(4)
+        # The quaternion extracted from wT
+        self.__wq = zeros(4)
 
         # The local transform
         self.__T = T
 
-        self._children = children
-        self._parent = parent
+        self.__scene_children = children
+
+        # Update child parents
+        for child in children:
+            child._scene_parent = self
+
+        self.__scene_parent = parent
+
+    # TODO DEFINE COPY METHOD
 
     @property
-    def parent(self) -> "SceneNode":
+    def _scene_parent(self) -> Type["SceneNode"]:
         """
         Returns the parent node of this object
 
         """
-        return self._parent
+        return self.__scene_parent
 
     @property
-    def children(self) -> list["SceneNode"]:
+    def _scene_children(self) -> list["SceneNode"]:
         """
         Returns the child nodes of this object
 
         """
-        return self._children
+        return self.__scene_children
 
     @property
-    def wT(self) -> ndarray:
+    def _wT(self) -> ndarray:
         """
         Returns the transform of this object in the world frame
 
@@ -62,43 +69,31 @@ class SceneNode:
         return self.__wT
 
     @property
-    def swift_wT(self) -> ndarray:
+    def _wq(self) -> ndarray:
         """
-        Returns the transform of this object in the world frame using
-        the three.js representation of the object (if applicable).
-
-        Note that this property is only useful to swift not end-users.
+        Returns the quaternion of this object in the world frame.
 
         """
-        return self.__swift_wT
+        return self.__wq
 
     @property
-    def swift_wq(self) -> ndarray:
-        """
-        Returns the quaternion of this object in the world frame using
-        the three.js representation of the object (if applicable).
-
-        Note that this property is only useful to swift not end-users.
-
-        """
-        return self.__swift_wq
-
-    @property
-    def T(self) -> ndarray:
+    def _T(self) -> ndarray:
         """
         Returns the transform of this object with respect to the parent
         frame.
 
         """
-        return self.__T
+        return npcopy(self.__T)
 
-    @T.setter
-    def T(self, T: ndarray):
+    @_T.setter
+    def _T(self, T: ndarray):
         self.__T[:] = T
 
-        if self.parent is not None:
-            self.__wT[:] = self.parent.wT @ self.T
+        if self.__scene_parent is not None:
+            self.__wT[:] = self.parent.wT @ self._T
         else:
-            self.__wT[:] = self.T
+            self.__wT[:] = self._T
 
-        self.__swift_wq[:] = r2q(self.__wT[:3, :3], order="xyzs")
+        self.__wq[:] = r2q(self.__wT[:3, :3], order="xyzs")
+
+    # Attach should go here

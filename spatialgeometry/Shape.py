@@ -7,9 +7,8 @@ from spatialgeometry.SceneNode import SceneNode
 from spatialmath import SE3
 from spatialmath.base.argcheck import getvector
 from spatialmath.base import r2q
-import numpy as np
-import copy
-from numpy import ndarray, copy as npcopy, pi, zeros, array, any, concatenate
+from copy import copy as ccopy
+from numpy import ndarray, copy as npcopy, pi, zeros, array, any, concatenate, eye
 from typing import Union
 
 ArrayLike = Union[list, ndarray, tuple, set]
@@ -38,7 +37,7 @@ CONST_RX = SE3.Rx(pi / 2).A
 class Shape(SceneNode):
     def __init__(
         self,
-        T: Union[ndarray, SE3, None] = None,
+        T: Union[ndarray, SE3] = eye(4),
         color: ArrayLike = None,
         stype: str = None,
     ):
@@ -66,7 +65,7 @@ class Shape(SceneNode):
         :rtype: Shape
         """
 
-        new = copy.copy(self)
+        new = ccopy(self)
 
         for k, v in self.__dict__.items():
             if k.startswith("_") and isinstance(v, ndarray):
@@ -88,9 +87,9 @@ class Shape(SceneNode):
         self._to_hex(self.color[0:3])
 
         if self.stype == "cylinder":
-            fk = self._sT @ CONST_RX
+            fk = self._wT @ CONST_RX
         else:
-            fk = self._sT
+            fk = self._wT
 
         q = r2q(fk[:3, :3]).tolist()
         q = [q[1], q[2], q[3], q[0]]
@@ -115,9 +114,9 @@ class Shape(SceneNode):
         """
 
         if self.stype == "cylinder":
-            fk = self._sT @ CONST_RX
+            fk = self._wT @ CONST_RX
         else:
-            fk = self._sT
+            fk = self._wT
 
         q = r2q(fk[:3, :3]).tolist()
         q = [q[1], q[2], q[3], q[0]]
@@ -192,7 +191,7 @@ class Shape(SceneNode):
                 value = value / 255.0
 
             if value.shape[0] == 3:
-                value = concatenate([value, 1.0])
+                value = concatenate([value, [1.0]])
 
             value = tuple(value)
 
@@ -206,7 +205,7 @@ class Shape(SceneNode):
         if alpha > 1.0:
             alpha /= 255
 
-        new_color = concatenate([self._color[:3], alpha])
+        new_color = concatenate([self._color[:3], [alpha]])
         self._color = tuple(new_color)
 
     # --------------------------------------------------------------------- #
@@ -215,10 +214,12 @@ class Shape(SceneNode):
 
     @property
     def T(self) -> ndarray:
-        return npcopy(self.__T)
+        return self._T
 
     @T.setter
-    def T(self, T_new: ndarray):
+    def T(self, T_new: Union[ndarray, SE3]):
+        if isinstance(T_new, SE3):
+            T_new = T_new.A
         self._T = T_new
 
     # --------------------------------------------------------------------- #

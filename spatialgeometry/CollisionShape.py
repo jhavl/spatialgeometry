@@ -69,7 +69,7 @@ class CollisionShape(Shape):
 
     def _update_pyb(self):
         if _pyb and self.co is not None:
-            p.resetBasePositionAndOrientation(self.co, self._sT[:3, 3], self._sq)
+            p.resetBasePositionAndOrientation(self.co, self._wT[:3, 3], self._wq)
 
     def _s_init_pob(self, col):
         self.co = p.createMultiBody(
@@ -84,29 +84,29 @@ class CollisionShape(Shape):
         if _pyb is None:
             _import_pyb()
 
-    @property
-    def wT(self):
-        return self._sT
+    # @property
+    # def wT(self):
+    #     return self._sT
 
-    @wT.setter
-    def wT(self, T):
-        self._wT[:] = T
-        self._sT[:] = self._wT @ self._base
-        self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
-        self._update_pyb()
+    # @wT.setter
+    # def wT(self, T):
+    #     self._wT[:] = T
+    #     self._sT[:] = self._wT @ self._base
+    #     self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
+    #     self._update_pyb()
 
-    @property
-    def base(self):
-        return SE3(np.copy(self._base), check=False)
+    # @property
+    # def base(self):
+    #     return SE3(np.copy(self._base), check=False)
 
-    @base.setter
-    def base(self, T):
-        if not isinstance(T, SE3):
-            T = SE3(T)
-        self._base[:] = T.A
-        self._sT[:] = self._wT @ self._base
-        self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
-        self._update_pyb()
+    # @base.setter
+    # def base(self, T):
+    #     if not isinstance(T, SE3):
+    #         T = SE3(T)
+    #     self._base[:] = T.A
+    #     self._sT[:] = self._wT @ self._base
+    #     self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
+    #     self._update_pyb()
 
     def closest_point(self, shape, inf_dist=1.0):
         """
