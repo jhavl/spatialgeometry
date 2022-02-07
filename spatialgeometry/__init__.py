@@ -6,6 +6,7 @@ from spatialgeometry.CollisionShape import (
     Mesh,
     Cylinder,
     Cuboid,
+    Box,
     Sphere,
 )
 
@@ -15,6 +16,7 @@ __all__ = [
     "Mesh",
     "Cylinder",
     "Cuboid",
+    "Box",
     "Sphere",
     "Axes",
     "Arrow",
