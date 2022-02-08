@@ -33,8 +33,8 @@ class SceneNode:
         self.__wq = zeros(4)
 
         # The local transform
-        self._T = eye(4)
-        self._T[:] = T
+        self.__T = eye(4)
+        self.__T[:] = T
 
         if scene_children is None:
             self._scene_children = []
@@ -64,7 +64,7 @@ class SceneNode:
 
         return node_init(
             len(self._scene_children),
-            self._T,
+            self.__T,
             self.__wT,
             self.__wq,
             self._scene_parent._scene if self._scene_parent is not None else None,
@@ -195,25 +195,25 @@ class SceneNode:
         """
         return self.__wq
 
-    # @property
-    # def _T(self) -> ndarray:
-    #     """
-    #     Returns the transform of this object with respect to the parent
-    #     frame.
+    @property
+    def _T(self) -> ndarray:
+        """
+        Returns the transform of this object with respect to the parent
+        frame.
 
-    #     """
-    #     return npcopy(self.__T)
+        """
+        return npcopy(self.__T)
 
-    # @_T.setter
-    # def _T(self, T: ndarray):
-    #     self.__T[:] = T
+    @_T.setter
+    def _T(self, T: ndarray):
+        self.__T[:] = T
 
-    #     if self.__scene_parent is not None:
-    #         self.__wT[:] = self.parent.wT @ self._T
-    #     else:
-    #         self.__wT[:] = self._T
+        if self.__scene_parent is not None:
+            self.__wT[:] = self.parent.wT @ self._T
+        else:
+            self.__wT[:] = self._T
 
-    #     self.__wq[:] = r2q(self.__wT[:3, :3], order="xyzs")
+        self.__wq[:] = r2q(self.__wT[:3, :3], order="xyzs")
 
     def _propogate_scene(self):
         scene_graph_single(self.__scene)
