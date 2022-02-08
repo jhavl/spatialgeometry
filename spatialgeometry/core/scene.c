@@ -131,7 +131,6 @@ static PyObject *node_update(PyObject *self, PyObject *args)
             return NULL;
 
         node->children[i] = (Node *)PyCapsule_GetPointer(child, "Node");
-        // node->T[3] = i * 10;
     }
 
     Py_DECREF(iter_children);
@@ -175,7 +174,6 @@ static PyObject *node_init(PyObject *self, PyObject *args)
     node->T = (npy_float64 *)PyArray_DATA(py_T);
     node->wT = (npy_float64 *)PyArray_DATA(py_wT);
     node->wq = (npy_float64 *)PyArray_DATA(py_wq);
-    // node->T[3] = 123.0;
 
     // Allocate children array
     node->children = (Node **)PyMem_RawCalloc(node->n_children, sizeof(Node *));
@@ -190,7 +188,6 @@ static PyObject *node_init(PyObject *self, PyObject *args)
             return NULL;
 
         node->children[i] = (Node *)PyCapsule_GetPointer(child, "Node");
-        // node->T[i] = i * 10;
     }
 
     Py_DECREF(iter_children);
@@ -221,8 +218,6 @@ int _check_array_type(PyObject *toCheck)
 
 void propogate_T(Node *node, npy_float64 *parent_wT)
 {
-    // npy_float64 *temp = (npy_float64 *)PyMem_RawCalloc(16, sizeof(npy_float64));
-
     if (parent_wT == NULL)
     {
         // We have the top node
@@ -230,8 +225,6 @@ void propogate_T(Node *node, npy_float64 *parent_wT)
     }
     else
     {
-        // node->T[0] = 10;
-        // copy(node->T, node->wT);
         mult(parent_wT, node->T, node->wT);
     }
 
