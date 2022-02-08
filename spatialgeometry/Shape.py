@@ -40,10 +40,11 @@ class Shape(SceneNode):
         T: Union[ndarray, SE3] = eye(4),
         color: ArrayLike = None,
         stype: str = None,
+        **kwargs,
     ):
 
         # Initialise the scene node
-        super().__init__(T=T)
+        super().__init__(T=T, **kwargs)
 
         self.stype = stype
         self.v = zeros(6)
@@ -126,7 +127,7 @@ class Shape(SceneNode):
         return shape
 
     def __repr__(self) -> str:  # pragma nocover
-        return f"{self.stype},\n{self.base}"
+        return f"{self.stype},\n{self.T[:3, -1]}"
 
     @property
     def collision(self) -> bool:
