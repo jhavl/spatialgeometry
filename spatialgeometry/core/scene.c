@@ -14,10 +14,13 @@
 #include <stdio.h>
 
 // forward defines
-static PyObject *link_init(PyObject *self, PyObject *args);
-static PyObject *link_update(PyObject *self, PyObject *args);
+static PyObject *scene_graph_single(PyObject *self, PyObject *args);
+static PyObject *node_update(PyObject *self, PyObject *args);
+static PyObject *node_init(PyObject *self, PyObject *args);
 
 int _check_array_type(PyObject *toCheck);
+void propogate_T(Node *node, npy_float64 *parent_wT);
+
 // void A(Link *link, npy_float64 *ret, double eta);
 void mult(npy_float64 *A, npy_float64 *B, npy_float64 *C);
 void copy(npy_float64 *A, npy_float64 *B);
@@ -27,12 +30,16 @@ void _r2q(npy_float64 *r, npy_float64 *q);
 void _cross(npy_float64 *a, npy_float64 *b, npy_float64 *ret, int n);
 
 static PyMethodDef sceneMethods[] = {
-    {"link_init",
-     (PyCFunction)link_init,
+    {"scene_graph_single",
+     (PyCFunction)scene_graph_single,
      METH_VARARGS,
      "Link"},
-    {"link_update",
-     (PyCFunction)link_update,
+    {"node_update",
+     (PyCFunction)node_update,
+     METH_VARARGS,
+     "Link"},
+    {"node_init",
+     (PyCFunction)node_init,
      METH_VARARGS,
      "Link"},
     {NULL, NULL, 0, NULL} /* Sentinel */
@@ -52,233 +59,144 @@ PyMODINIT_FUNC PyInit_scene(void)
     return PyModule_Create(&scenemodule);
 }
 
-static PyObject *link_init(PyObject *self, PyObject *args)
+static PyObject *scene_graph_single(PyObject *self, PyObject *args)
 {
-    // Node *link, *parent;
-    // int jointtype;
-    // PyObject *ret, *py_parent;
+    Node *top, *node, *child;
+    PyObject *py_top;
 
-    // PyObject *py_shape_base, *py_shape_wT, *py_shape_sT, *py_shape_sq;
-    // PyObject *iter_base, *iter_wT, *iter_sT, *iter_sq;
-    // PyArrayObject *pys_base, *pys_wT, *pys_sT, *pys_sq;
-    // PyArrayObject *py_A, *py_fk;
+    node = (Node *)PyMem_RawMalloc(sizeof(Node));
 
-    // link = (Node *)PyMem_RawMalloc(sizeof(Node));
+    if (!PyArg_ParseTuple(args, "O",
+                          &py_top))
+        return NULL;
 
-    // if (!PyArg_ParseTuple(args, "iiiiiO!O!OOOOO",
-    //                       &link->isjoint,
-    //                       &link->isflip,
-    //                       &jointtype,
-    //                       &link->jindex,
-    //                       &link->n_shapes,
-    //                       &PyArray_Type, &py_A,
-    //                       &PyArray_Type, &py_fk,
-    //                       &py_shape_base,
-    //                       &py_shape_wT,
-    //                       &py_shape_sT,
-    //                       &py_shape_sq,
-    //                       &py_parent))
-    //     return NULL;
+    // Get existing top pointer
+    if (!(top = (Node *)PyCapsule_GetPointer(py_top, "Node")))
+    {
+        return NULL;
+    }
 
-    // if (py_parent == Py_None)
-    // {
-    //     parent = NULL;
-    // }
-    // else if (!(parent = (Link *)PyCapsule_GetPointer(py_parent, "Link")))
-    // {
-    //     return NULL;
-    // }
+    propogate_T(top, (npy_float64 *)NULL);
 
-    // link->A = (npy_float64 *)PyArray_DATA(py_A);
-    // link->fk = (npy_float64 *)PyArray_DATA(py_fk);
-
-    // // Set shape pointers
-    // iter_base = PyObject_GetIter(py_shape_base);
-    // iter_wT = PyObject_GetIter(py_shape_wT);
-    // iter_sT = PyObject_GetIter(py_shape_sT);
-    // iter_sq = PyObject_GetIter(py_shape_sq);
-
-    // link->shape_base = (npy_float64 **)PyMem_RawCalloc(link->n_shapes, sizeof(npy_float64));
-    // link->shape_wT = (npy_float64 **)PyMem_RawCalloc(link->n_shapes, sizeof(npy_float64));
-    // link->shape_sT = (npy_float64 **)PyMem_RawCalloc(link->n_shapes, sizeof(npy_float64));
-    // link->shape_sq = (npy_float64 **)PyMem_RawCalloc(link->n_shapes, sizeof(npy_float64));
-
-    // for (int i = 0; i < link->n_shapes; i++)
-    // {
-    //     if (
-    //         !(pys_base = (PyArrayObject *)PyIter_Next(iter_base)) ||
-    //         !(pys_wT = (PyArrayObject *)PyIter_Next(iter_wT)) ||
-    //         !(pys_sT = (PyArrayObject *)PyIter_Next(iter_sT)) ||
-    //         !(pys_sq = (PyArrayObject *)PyIter_Next(iter_sq)))
-    //         return NULL;
-
-    //     link->shape_base[i] = (npy_float64 *)PyArray_DATA(pys_base);
-    //     link->shape_wT[i] = (npy_float64 *)PyArray_DATA(pys_wT);
-    //     link->shape_sT[i] = (npy_float64 *)PyArray_DATA(pys_sT);
-    //     link->shape_sq[i] = (npy_float64 *)PyArray_DATA(pys_sq);
-    // }
-
-    // link->axis = jointtype;
-    // link->parent = parent;
-
-    // if (jointtype == 0)
-    // {
-    //     link->op = rx;
-    // }
-    // else if (jointtype == 1)
-    // {
-    //     link->op = ry;
-    // }
-    // else if (jointtype == 2)
-    // {
-    //     link->op = rz;
-    // }
-    // else if (jointtype == 3)
-    // {
-    //     link->op = tx;
-    // }
-    // else if (jointtype == 4)
-    // {
-    //     link->op = ty;
-    // }
-    // else if (jointtype == 5)
-    // {
-    //     link->op = tz;
-    // }
-
-    // Py_DECREF(iter_base);
-    // Py_DECREF(iter_wT);
-    // Py_DECREF(iter_sT);
-    // Py_DECREF(iter_sq);
-
-    // ret = PyCapsule_New(link, "Link", NULL);
-    // return ret;
     Py_RETURN_NONE;
 }
 
-static PyObject *link_update(PyObject *self, PyObject *args)
+static PyObject *node_update(PyObject *self, PyObject *args)
 {
-    // Node *link, *parent;
-    // int isjoint, isflip;
-    // int jointtype, jindex, n_shapes;
-    // PyObject *lo, *py_parent;
-    // PyArrayObject *py_A, *py_fk;
+    Node *node, *parent, *child;
+    PyObject *py_node, *py_parent, *py_children, *ret;
+    PyObject *iter_children;
+    int n_children;
 
-    // PyObject *py_shape_base, *py_shape_wT, *py_shape_sT, *py_shape_sq;
-    // PyObject *iter_base, *iter_wT, *iter_sT, *iter_sq;
-    // PyArrayObject *pys_base, *pys_wT, *pys_sT, *pys_sq;
+    if (!PyArg_ParseTuple(args, "OiOO",
+                          &py_node,
+                          &n_children,
+                          &py_parent,
+                          &py_children))
+        return NULL;
 
-    // if (!PyArg_ParseTuple(args, "OiiiiiO!O!OOOOO",
-    //                       &lo,
-    //                       &isjoint,
-    //                       &isflip,
-    //                       &jointtype,
-    //                       &jindex,
-    //                       &n_shapes,
-    //                       &PyArray_Type, &py_A,
-    //                       &PyArray_Type, &py_fk,
-    //                       &py_shape_base,
-    //                       &py_shape_wT,
-    //                       &py_shape_sT,
-    //                       &py_shape_sq,
-    //                       &py_parent))
-    //     return NULL;
+    // Get existing node pointer
+    if (!(node = (Node *)PyCapsule_GetPointer(py_node, "Node")))
+    {
+        return NULL;
+    }
 
-    // if (py_parent == Py_None)
-    // {
-    //     parent = NULL;
-    // }
-    // else if (!(parent = (Link *)PyCapsule_GetPointer(py_parent, "Link")))
-    // {
-    //     return NULL;
-    // }
+    // Check the parent of the node
+    if (py_parent == Py_None)
+    {
+        parent = NULL;
+    }
+    else if (!(parent = (Node *)PyCapsule_GetPointer(py_parent, "Node")))
+    {
+        return NULL;
+    }
+    else
+    {
+        node->parent = parent;
+    }
 
-    // if (!(link = (Link *)PyCapsule_GetPointer(lo, "Link")))
-    // {
-    //     return NULL;
-    // }
+    // Set the number of children
+    node->n_children = n_children;
 
-    // // Set shape pointers
-    // iter_base = PyObject_GetIter(py_shape_base);
-    // iter_wT = PyObject_GetIter(py_shape_wT);
-    // iter_sT = PyObject_GetIter(py_shape_sT);
-    // iter_sq = PyObject_GetIter(py_shape_sq);
+    // Allocate children array
+    node->children = (Node **)PyMem_RawCalloc(node->n_children, sizeof(Node));
 
-    // if (link->shape_base != 0)
-    //     free(link->shape_base);
-    // if (link->shape_wT != 0)
-    //     free(link->shape_wT);
-    // if (link->shape_sT != 0)
-    //     free(link->shape_sT);
-    // if (link->shape_sq != 0)
-    //     free(link->shape_sq);
+    // Set shape pointers
+    iter_children = PyObject_GetIter(py_children);
 
-    // link->shape_base = 0;
-    // link->shape_wT = 0;
-    // link->shape_sT = 0;
-    // link->shape_sq = 0;
+    for (int i = 0; i < node->n_children; i++)
+    {
+        if (
+            !(child = (Node *)PyIter_Next(iter_children)))
+            return NULL;
 
-    // link->shape_base = (npy_float64 **)PyMem_RawCalloc(n_shapes, sizeof(npy_float64));
-    // link->shape_wT = (npy_float64 **)PyMem_RawCalloc(n_shapes, sizeof(npy_float64));
-    // link->shape_sT = (npy_float64 **)PyMem_RawCalloc(n_shapes, sizeof(npy_float64));
-    // link->shape_sq = (npy_float64 **)PyMem_RawCalloc(n_shapes, sizeof(npy_float64));
+        node->children[i] = (Node *)PyCapsule_GetPointer(child, "Node");
+        // node->T[3] = i * 10;
+    }
 
-    // for (int i = 0; i < n_shapes; i++)
-    // {
-    //     if (
-    //         !(pys_base = (PyArrayObject *)PyIter_Next(iter_base)) ||
-    //         !(pys_wT = (PyArrayObject *)PyIter_Next(iter_wT)) ||
-    //         !(pys_sT = (PyArrayObject *)PyIter_Next(iter_sT)) ||
-    //         !(pys_sq = (PyArrayObject *)PyIter_Next(iter_sq)))
-    //         return NULL;
+    Py_DECREF(iter_children);
 
-    //     link->shape_base[i] = (npy_float64 *)PyArray_DATA(pys_base);
-    //     link->shape_wT[i] = (npy_float64 *)PyArray_DATA(pys_wT);
-    //     link->shape_sT[i] = (npy_float64 *)PyArray_DATA(pys_sT);
-    //     link->shape_sq[i] = (npy_float64 *)PyArray_DATA(pys_sq);
-    // }
-
-    // if (jointtype == 0)
-    // {
-    //     link->op = rx;
-    // }
-    // else if (jointtype == 1)
-    // {
-    //     link->op = ry;
-    // }
-    // else if (jointtype == 2)
-    // {
-    //     link->op = rz;
-    // }
-    // else if (jointtype == 3)
-    // {
-    //     link->op = tx;
-    // }
-    // else if (jointtype == 4)
-    // {
-    //     link->op = ty;
-    // }
-    // else if (jointtype == 5)
-    // {
-    //     link->op = tz;
-    // }
-
-    // link->isjoint = isjoint;
-    // link->isflip = isflip;
-    // link->A = (npy_float64 *)PyArray_DATA(py_A);
-    // link->fk = (npy_float64 *)PyArray_DATA(py_fk);
-    // link->jindex = jindex;
-    // link->axis = jointtype;
-    // link->parent = parent;
-    // link->n_shapes = n_shapes;
-
-    // Py_DECREF(iter_base);
-    // Py_DECREF(iter_wT);
-    // Py_DECREF(iter_sT);
-    // Py_DECREF(iter_sq);
-
-    // Py_RETURN_NONE;
     Py_RETURN_NONE;
+}
+
+static PyObject *node_init(PyObject *self, PyObject *args)
+{
+    Node *node, *parent, *child;
+    PyObject *py_parent, *py_children, *ret;
+    PyObject *iter_children;
+    PyArrayObject *py_T, *py_wT, *py_wq;
+
+    node = (Node *)PyMem_RawMalloc(sizeof(Node));
+
+    if (!PyArg_ParseTuple(args, "iO!O!O!OO",
+                          &node->n_children,
+                          &PyArray_Type, &py_T,
+                          &PyArray_Type, &py_wT,
+                          &PyArray_Type, &py_wq,
+                          &py_parent,
+                          &py_children))
+        return NULL;
+
+    // Check the parent of the node
+    if (py_parent == Py_None)
+    {
+        parent = NULL;
+    }
+    else if (!(parent = (Node *)PyCapsule_GetPointer(py_parent, "Node")))
+    {
+        return NULL;
+    }
+    else
+    {
+        node->parent = parent;
+    }
+
+    // Set the transform arrays
+    node->T = (npy_float64 *)PyArray_DATA(py_T);
+    node->wT = (npy_float64 *)PyArray_DATA(py_wT);
+    node->wq = (npy_float64 *)PyArray_DATA(py_wq);
+    // node->T[3] = 123.0;
+
+    // Allocate children array
+    node->children = (Node **)PyMem_RawCalloc(node->n_children, sizeof(Node *));
+
+    // Set shape pointers
+    iter_children = PyObject_GetIter(py_children);
+
+    for (int i = 0; i < node->n_children; i++)
+    {
+        if (
+            !(child = (Node *)PyIter_Next(iter_children)))
+            return NULL;
+
+        node->children[i] = (Node *)PyCapsule_GetPointer(child, "Node");
+        // node->T[i] = i * 10;
+    }
+
+    Py_DECREF(iter_children);
+
+    ret = PyCapsule_New(node, "Node", NULL);
+    return ret;
 }
 
 /* ----------------------------------------------------------------- */
@@ -299,6 +217,28 @@ int _check_array_type(PyObject *toCheck)
     }
 
     return 1;
+}
+
+void propogate_T(Node *node, npy_float64 *parent_wT)
+{
+    // npy_float64 *temp = (npy_float64 *)PyMem_RawCalloc(16, sizeof(npy_float64));
+
+    if (parent_wT == NULL)
+    {
+        // We have the top node
+        copy(node->T, node->wT);
+    }
+    else
+    {
+        // node->T[0] = 10;
+        // copy(node->T, node->wT);
+        mult(parent_wT, node->T, node->wT);
+    }
+
+    for (int i = 0; i < node->n_children; i++)
+    {
+        propogate_T(node->children[i], node->wT);
+    }
 }
 
 // void A(Link *link, npy_float64 *ret, double eta)

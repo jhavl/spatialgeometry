@@ -22,6 +22,7 @@ struct Node
     npy_float64 *wT; // world transform
     npy_float64 *wq; // world quaternion
 
+    int n_children;
     Node *parent;
     Node **children;
 };
