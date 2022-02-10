@@ -195,20 +195,33 @@ class SceneNode:
         """
         return self.__wq
 
+    # --------------------------------------------------------------------- #
+
     @property
-    def _T(self) -> ndarray:
+    def _T_reference(self) -> ndarray:
         """
         Returns the transform of this object with respect to the parent
         frame.
 
         """
+        return self.__T
+
+    @property
+    def _T(self) -> ndarray:
+        """
+        Returns a copy of the transform of this object with respect to the parent
+        frame.
+
+        """
         return npcopy(self.__T)
+
+    # --------------------------------------------------------------------- #
 
     @_T.setter
     def _T(self, T: ndarray):
         self.__T[:] = T
 
-        if self.__scene_parent is not None:
+        if self._scene_parent is not None:
             self.__wT[:] = self.parent.wT @ self._T
         else:
             self.__wT[:] = self._T
