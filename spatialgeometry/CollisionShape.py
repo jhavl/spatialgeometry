@@ -27,7 +27,7 @@ def _import_pyb():
     except Exception:  # pragma nocover
         from contextlib import contextmanager
 
-        @contextmanager
+        @contextmanager  # type: ignore
         def pipes(stdout=None, stderr=None):
             pass
 
@@ -69,10 +69,10 @@ class CollisionShape(Shape):
 
     def _update_pyb(self):
         if _pyb and self.co is not None:
-            p.resetBasePositionAndOrientation(self.co, self._wT[:3, 3], self._wq)
+            p.resetBasePositionAndOrientation(self.co, self._wT[:3, 3], self._wq)  # type: ignore
 
     def _s_init_pob(self, col):
-        self.co = p.createMultiBody(
+        self.co = p.createMultiBody(  # type: ignore
             baseMass=1, baseInertialFramePosition=[0, 0, 0], baseCollisionShapeIndex=col
         )
         self.pinit = True
@@ -83,30 +83,6 @@ class CollisionShape(Shape):
     def _check_pyb(self):
         if _pyb is None:
             _import_pyb()
-
-    # @property
-    # def wT(self):
-    #     return self._sT
-
-    # @wT.setter
-    # def wT(self, T):
-    #     self._wT[:] = T
-    #     self._sT[:] = self._wT @ self._base
-    #     self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
-    #     self._update_pyb()
-
-    # @property
-    # def base(self):
-    #     return SE3(np.copy(self._base), check=False)
-
-    # @base.setter
-    # def base(self, T):
-    #     if not isinstance(T, SE3):
-    #         T = SE3(T)
-    #     self._base[:] = T.A
-    #     self._sT[:] = self._wT @ self._base
-    #     self._sq[:] = r2q(self._sT[:3, :3], order="xyzs")
-    #     self._update_pyb()
 
     def closest_point(self, shape, inf_dist=1.0):
         """
@@ -140,12 +116,14 @@ class CollisionShape(Shape):
             self._update_pyb()
 
         self._update_pyb()
+        # shape._update_pyb()
 
         if not shape.pinit:
             shape._init_pob()
             shape._update_pyb()
 
-        ret = p.getClosestPoints(self.co, shape.co, inf_dist)
+        ret = p.getClosestPoints(self.co, shape.co, 10000.0)  # type: ignore
+        print(ret)
 
         try:
             return ret[0][8], np.array(ret[0][5]), np.array(ret[0][6])
@@ -200,8 +178,8 @@ class Mesh(CollisionShape):
         name, file_extension = os.path.splitext(self.filename)
         if (file_extension == ".stl" or file_extension == ".STL") and self.collision:
 
-            col = p.createCollisionShape(
-                shapeType=p.GEOM_MESH, fileName=self.filename, meshScale=self.scale
+            col = p.createCollisionShape(  # type: ignore
+                shapeType=p.GEOM_MESH, fileName=self.filename, meshScale=self.scale  # type: ignore
             )
 
             super()._s_init_pob(col)
@@ -212,7 +190,7 @@ class Mesh(CollisionShape):
             )
 
     @property
-    def scale(self):
+    def scale(self) -> np.ndarray:
         return self._scale
 
     @scale.setter
@@ -221,7 +199,7 @@ class Mesh(CollisionShape):
             value = getvector(value, 3)
         else:
             value = getvector([1, 1, 1], 3)
-        self._scale = value
+        self._scale = np.array(value)
 
     @property
     def filename(self):
@@ -267,8 +245,8 @@ class Cylinder(CollisionShape):
 
     def _init_pob(self):
         if self.collision:
-            col = p.createCollisionShape(
-                shapeType=p.GEOM_CYLINDER, radius=self.radius, height=self.length
+            col = p.createCollisionShape(  # type: ignore
+                shapeType=p.GEOM_CYLINDER, radius=self.radius, height=self.length  # type: ignore
             )
 
             super()._s_init_pob(col)
@@ -327,7 +305,7 @@ class Sphere(CollisionShape):
 
     def _init_pob(self):
         if self.collision:
-            col = p.createCollisionShape(shapeType=p.GEOM_SPHERE, radius=self.radius)
+            col = p.createCollisionShape(shapeType=p.GEOM_SPHERE, radius=self.radius)  # type: ignore
 
             super()._s_init_pob(col)
         else:
@@ -377,8 +355,8 @@ class Cuboid(CollisionShape):
     def _init_pob(self):
 
         if self.collision:
-            col = p.createCollisionShape(
-                shapeType=p.GEOM_BOX, halfExtents=np.array(self.scale) / 2
+            col = p.createCollisionShape(  # type: ignore
+                shapeType=p.GEOM_BOX, halfExtents=np.array(self.scale) / 2  # type: ignore
             )
 
             super()._s_init_pob(col)
@@ -389,7 +367,7 @@ class Cuboid(CollisionShape):
             )
 
     @property
-    def scale(self):
+    def scale(self) -> np.ndarray:
         return self._scale
 
     @scale.setter
@@ -398,7 +376,7 @@ class Cuboid(CollisionShape):
             value = getvector(value, 3)
         else:
             value = getvector([1, 1, 1], 3)
-        self._scale = value
+        self._scale = np.array(value)
 
     def to_dict(self):
         """
@@ -414,7 +392,6 @@ class Cuboid(CollisionShape):
 
 
 class Box(Cuboid):
-
     def __init__(self, scale, **kwargs):
         import warnings
 
