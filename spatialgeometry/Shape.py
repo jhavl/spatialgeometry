@@ -9,7 +9,7 @@ from spatialmath.base.argcheck import getvector
 from spatialmath.base import r2q
 from copy import copy as ccopy
 from numpy import ndarray, copy as npcopy, pi, zeros, array, any, concatenate, eye
-from typing import Union
+from typing import Union, Tuple, Dict, Any
 
 ArrayLike = Union[list, ndarray, tuple, set]
 _mpl = False
@@ -43,20 +43,25 @@ class Shape(SceneNode):
         **kwargs,
     ):
 
+        if isinstance(T, SE3):
+            T = T.A
+
+        if color is None:
+            self._color = (0.3, 0.3, 0.3, 1.0)
+
         # Initialise the scene node
         super().__init__(T=T, **kwargs)
 
         self.stype = stype
         self.v = zeros(6)
-        self.color = color
         self.attached = True
 
         self._collision = False
 
-    def attach_to(self, object):
-        if isinstance(object, Shape):
-            self.attached = True
-            self._wT = object._wT
+    # def attach_to(self, object):
+    #     if isinstance(object, Shape):
+    #         self.attached = True
+    #         self._wT = object._wT
 
     def copy(self) -> "Shape":
         """
@@ -78,7 +83,7 @@ class Shape(SceneNode):
         rgb = (array(rgb) * 255).astype(int)
         return int("0x%02x%02x%02x" % (rgb[0], rgb[1], rgb[2]), 16)
 
-    def to_dict(self) -> str:
+    def to_dict(self) -> Dict[str, Any]:
         """
         to_dict() returns the shapes information in dictionary form
 
@@ -106,7 +111,7 @@ class Shape(SceneNode):
 
         return shape
 
-    def fk_dict(self) -> str:
+    def fk_dict(self) -> Dict[str, Any]:
         """
         fk_dict() outputs shapes pose in dictionary form
 
@@ -139,10 +144,10 @@ class Shape(SceneNode):
 
     @v.setter
     def v(self, value: ArrayLike):
-        self._v = getvector(value, 6)
+        self._v = array(getvector(value, 6))
 
     @property
-    def color(self) -> list[float]:
+    def color(self) -> Tuple[float, float, float, float]:
         """
         shape.color returns a four length tuple representing (red, green, blue, alpha)
         where alpha represents transparency. Values returned are in the range [0-1].
@@ -185,13 +190,12 @@ class Shape(SceneNode):
         elif value is None:
             value = default_color
         else:
-
             value = array(value)
 
             if any(value > 1.0):
                 value = value / 255.0
 
-            if value.shape[0] == 3:
+            if value.shape[0] == 3:  # type: ignore
                 value = concatenate([value, [1.0]])
 
             value = tuple(value)
