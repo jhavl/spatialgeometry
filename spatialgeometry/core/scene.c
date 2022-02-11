@@ -1,7 +1,7 @@
 /**
  * \file scene.c
  * \author Jesse Haviland
- * 
+ *
  *
  */
 
@@ -226,6 +226,7 @@ void propogate_T(Node *node, npy_float64 *parent_wT)
     else
     {
         mult(parent_wT, node->T, node->wT);
+        _r2q(node->wT, node->wq);
     }
 
     for (int i = 0; i < node->n_children; i++)
