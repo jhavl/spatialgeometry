@@ -10,7 +10,7 @@ from scene import node_init, node_update, scene_graph_single
 from spatialmath import SE3
 
 # from roboticstoolbox.robot.ETS import ETS
-from typing import Type, Union
+from typing import Type, Union, List
 
 
 class SceneNode:
@@ -18,7 +18,7 @@ class SceneNode:
         self,
         T: ndarray = eye(4),
         scene_parent: Union["SceneNode", None] = None,
-        scene_children: Union[list["SceneNode"], None] = None,
+        scene_children: Union[List["SceneNode"], None] = None,
     ):
         # These three are static attributes which can never be changed
         # If these are directly accessed and re-written, segmentation faults
@@ -142,7 +142,7 @@ class SceneNode:
     # --------------------------------------------------------------------- #
 
     @property
-    def scene_children(self) -> list["SceneNode"]:
+    def scene_children(self) -> List["SceneNode"]:
         """
         Returns the child nodes of this object
 
@@ -150,7 +150,7 @@ class SceneNode:
         return self._scene_children
 
     @scene_children.setter
-    def scene_children(self, children: list["SceneNode"]):
+    def scene_children(self, children: List["SceneNode"]):
         """
         Sets the child nodes of this object, does not update childs
         parent
