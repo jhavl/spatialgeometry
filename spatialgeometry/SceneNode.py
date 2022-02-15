@@ -3,10 +3,10 @@
 @author: Jesse Haviland
 """
 
-from numpy import ndarray, eye, zeros, copy as npcopy
+from numpy import ndarray, eye, copy as npcopy, array
 from spatialmath.base import r2q
 from abc import ABC
-from scene import node_init, node_update, scene_graph_single
+from scene import node_init, node_update, scene_graph_children, scene_graph_tree
 from spatialmath import SE3
 
 # from roboticstoolbox.robot.ETS import ETS
@@ -30,7 +30,7 @@ class SceneNode:
         self.__wT = eye(4)
 
         # The quaternion extracted from wT
-        self.__wq = zeros(4)
+        self.__wq = array([0, 0, 0, 1])
 
         # The local transform
         self.__T = eye(4)
@@ -215,8 +215,6 @@ class SceneNode:
         """
         return npcopy(self.__T)
 
-    # --------------------------------------------------------------------- #
-
     @_T.setter
     def _T(self, T: ndarray):
         self.__T[:] = T
@@ -228,5 +226,24 @@ class SceneNode:
 
         self.__wq[:] = r2q(self.__wT[:3, :3], order="xyzs")
 
-    def _propogate_scene(self):
-        scene_graph_single(self.__scene)
+    # --------------------------------------------------------------------- #
+    # Scene transform propogation methods
+    #
+    # The scene graph is a Forest -- A disjoint union of Rooted Trees
+    # Each tree has a single root, no cycles, and each node has at most one
+    # parent but unlimited children.
+    # --------------------------------------------------------------------- #
+
+    def _propogate_scene_children(self):
+        """
+        Propogates the world transform starting from this node going downwards
+        through the tree (will not go through parents)
+        """
+        scene_graph_children(self.__scene)
+
+    def _propogate_scene_tree(self):
+        """
+        Propogates the world transform starting from this root of the tree in
+        which this node lives
+        """
+        scene_graph_tree(self.__scene)
