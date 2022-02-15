@@ -116,14 +116,12 @@ class CollisionShape(Shape):
             self._update_pyb()
 
         self._update_pyb()
-        # shape._update_pyb()
 
         if not shape.pinit:
             shape._init_pob()
             shape._update_pyb()
 
-        ret = p.getClosestPoints(self.co, shape.co, 10000.0)  # type: ignore
-        print(ret)
+        ret = p.getClosestPoints(self.co, shape.co, inf_dist)  # type: ignore
 
         try:
             return ret[0][8], np.array(ret[0][5]), np.array(ret[0][6])
