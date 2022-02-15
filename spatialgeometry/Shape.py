@@ -13,7 +13,7 @@ from typing import Union, Tuple, Dict, Any
 
 ArrayLike = Union[list, ndarray, tuple, set]
 _mpl = False
-_rtb = False
+# _rtb = False
 
 try:
     from matplotlib import colors as mpc
@@ -23,12 +23,12 @@ except ImportError:  # pragma nocover
     pass
 
 
-try:
-    import roboticstoolbox as rtb
+# try:
+#     import roboticstoolbox as rtb
 
-    _rtb = True
-except ImportError:  # pragma nocover
-    pass
+#     _rtb = True
+# except ImportError:  # pragma nocover
+#     pass
 
 
 CONST_RX = SE3.Rx(pi / 2).A
