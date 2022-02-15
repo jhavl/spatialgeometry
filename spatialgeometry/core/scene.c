@@ -14,7 +14,8 @@
 #include <stdio.h>
 
 // forward defines
-static PyObject *scene_graph_single(PyObject *self, PyObject *args);
+static PyObject *scene_graph_tree(PyObject *self, PyObject *args);
+static PyObject *scene_graph_children(PyObject *self, PyObject *args);
 static PyObject *node_update(PyObject *self, PyObject *args);
 static PyObject *node_init(PyObject *self, PyObject *args);
 
@@ -30,8 +31,12 @@ void _r2q(npy_float64 *r, npy_float64 *q);
 void _cross(npy_float64 *a, npy_float64 *b, npy_float64 *ret, int n);
 
 static PyMethodDef sceneMethods[] = {
-    {"scene_graph_single",
-     (PyCFunction)scene_graph_single,
+    {"scene_graph_tree",
+     (PyCFunction)scene_graph_tree,
+     METH_VARARGS,
+     "Link"},
+    {"scene_graph_children",
+     (PyCFunction)scene_graph_children,
      METH_VARARGS,
      "Link"},
     {"node_update",
@@ -59,24 +64,55 @@ PyMODINIT_FUNC PyInit_scene(void)
     return PyModule_Create(&scenemodule);
 }
 
-static PyObject *scene_graph_single(PyObject *self, PyObject *args)
+static PyObject *scene_graph_tree(PyObject *self, PyObject *args)
 {
-    Node *top, *node, *child;
-    PyObject *py_top;
-
-    node = (Node *)PyMem_RawMalloc(sizeof(Node));
+    Node *node;
+    PyObject *py_node;
 
     if (!PyArg_ParseTuple(args, "O",
-                          &py_top))
+                          &py_node))
         return NULL;
 
-    // Get existing top pointer
-    if (!(top = (Node *)PyCapsule_GetPointer(py_top, "Node")))
+    // Get existing note pointer
+    if (!(node = (Node *)PyCapsule_GetPointer(py_node, "Node")))
     {
         return NULL;
     }
 
-    propogate_T(top, (npy_float64 *)NULL);
+    // Get to parent node
+    while (1)
+    {
+        if (node->parent != NULL)
+        {
+            node = node->parent;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    propogate_T(node, (npy_float64 *)NULL);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *scene_graph_children(PyObject *self, PyObject *args)
+{
+    Node *node;
+    PyObject *py_node;
+
+    if (!PyArg_ParseTuple(args, "O",
+                          &py_node))
+        return NULL;
+
+    // Get existing node pointer
+    if (!(node = (Node *)PyCapsule_GetPointer(py_node, "Node")))
+    {
+        return NULL;
+    }
+
+    propogate_T(node, (npy_float64 *)NULL);
 
     Py_RETURN_NONE;
 }
@@ -104,7 +140,7 @@ static PyObject *node_update(PyObject *self, PyObject *args)
     // Check the parent of the node
     if (py_parent == Py_None)
     {
-        parent = NULL;
+        node->parent = NULL;
     }
     else if (!(parent = (Node *)PyCapsule_GetPointer(py_parent, "Node")))
     {
@@ -159,7 +195,7 @@ static PyObject *node_init(PyObject *self, PyObject *args)
     // Check the parent of the node
     if (py_parent == Py_None)
     {
-        parent = NULL;
+        node->parent = NULL;
     }
     else if (!(parent = (Node *)PyCapsule_GetPointer(py_parent, "Node")))
     {
@@ -222,6 +258,7 @@ void propogate_T(Node *node, npy_float64 *parent_wT)
     {
         // We have the top node
         copy(node->T, node->wT);
+        _r2q(node->wT, node->wq);
     }
     else
     {
