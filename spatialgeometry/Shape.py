@@ -133,6 +133,7 @@ class Shape(SceneNode):
 
     def __repr__(self) -> str:  # pragma nocover
         return f"{self.stype},\n{self.T[:3, -1]}"
+        # return f"{hex(id(self.stype))}"
 
     @property
     def collision(self) -> bool:
