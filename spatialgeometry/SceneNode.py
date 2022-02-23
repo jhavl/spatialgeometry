@@ -8,6 +8,7 @@ from spatialmath.base import r2q
 from abc import ABC
 from scene import node_init, node_update, scene_graph_children, scene_graph_tree
 from spatialmath import SE3
+from copy import deepcopy
 
 # from roboticstoolbox.robot.ETS import ETS
 from typing import Type, Union, List
@@ -90,7 +91,19 @@ class SceneNode:
 
     # --------------------------------------------------------------------- #
 
-    # TODO DEFINE COPY METHOD
+    def __copy__(self):
+        return deepcopy(self)
+
+    def __deepcopy__(self, memo):
+        result = SceneNode(
+            T=self._T,
+        )
+
+        result._scene_children = self.scene_children.copy()
+        result._scene_parent = self.scene_parent
+        result.__update_c()
+        memo[id(self)] = result
+        return result
 
     def __str__(self) -> str:
         if self._scene_parent is not None:
@@ -98,9 +111,10 @@ class SceneNode:
         else:
             parent = "None"
 
-        # return f"parent: {parent} \n self: {SE3(self._T).t} \n children: {[SE3(child._T).t for child in self._scene_children]}"
+        return f"parent: {parent} \n self: {SE3(self._T).t} \n children: {[SE3(child._T).t for child in self._scene_children]}"
 
-        return f"parent: {parent} \n self: {SE3(self._T).t} \n children: {self._scene_children}"
+        # parent = self.scene_parent
+        # return f"parent: {hex(id(parent)) if parent is not None else None} \n self: {hex(id(self))} \n children: {[hex(id(child)) for child in self.scene_children]}"
 
     # --------------------------------------------------------------------- #
 
