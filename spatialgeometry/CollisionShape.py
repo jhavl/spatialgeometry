@@ -11,6 +11,7 @@ from spatialmath import SE3
 from spatialgeometry import Shape
 import os
 import copy
+from warnings import warn
 
 p = None
 _pyb = None
@@ -391,7 +392,5 @@ class Cuboid(CollisionShape):
 
 class Box(Cuboid):
     def __init__(self, scale, **kwargs):
-        import warnings
-
-        warnings.warn("Box is deprecated, use Cuboid instead", FutureWarning)
+        warn("Box is deprecated, use Cuboid instead", FutureWarning)
         super().__init__(scale, **kwargs)
