@@ -9,7 +9,17 @@ from spatialmath import SE3
 from spatialmath.base.argcheck import getvector
 from spatialmath.base import r2q
 from copy import copy as ccopy
-from numpy import ndarray, copy as npcopy, pi, zeros, array, any, concatenate, eye
+from numpy import (
+    ndarray,
+    copy as npcopy,
+    pi,
+    zeros,
+    array,
+    any,
+    concatenate,
+    eye,
+    array_equal,
+)
 from typing import Union, Tuple, Dict, Any
 from warnings import warn
 
@@ -49,15 +59,16 @@ class Shape(SceneNode):
         if base is not None:
             warn("base kwarg is deprecated, use pose instead", FutureWarning)
 
-            if base is not None and not all(pose == eye(4)):
-                raise ValueError(
-                    "You cannot use both base and pose kwargs as they offer identical functionality. Use only pose."
-                )
-
             if isinstance(base, SE3):
                 T = base.A
             else:
                 T = base
+
+            if T is not None and not array_equal(pose, eye(4)):
+                raise ValueError(
+                    "You cannot use both base and pose kwargs as they offer identical functionality. Use only pose."
+                )
+
         else:
 
             if isinstance(pose, SE3):
