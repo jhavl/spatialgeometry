@@ -3,6 +3,7 @@
 @author: Jesse Haviland
 """
 
+from multiprocessing.sharedctypes import Value
 from spatialgeometry.SceneNode import SceneNode
 from spatialmath import SE3
 from spatialmath.base.argcheck import getvector
@@ -10,6 +11,7 @@ from spatialmath.base import r2q
 from copy import copy as ccopy
 from numpy import ndarray, copy as npcopy, pi, zeros, array, any, concatenate, eye
 from typing import Union, Tuple, Dict, Any
+from warnings import warn
 
 ArrayLike = Union[list, ndarray, tuple, set]
 _mpl = False
@@ -37,14 +39,31 @@ CONST_RX = SE3.Rx(pi / 2).A
 class Shape(SceneNode):
     def __init__(
         self,
-        T: Union[ndarray, SE3] = eye(4),
+        pose: Union[ndarray, SE3] = eye(4),
         color: ArrayLike = None,
         stype: str = None,
+        base: Union[ndarray, SE3, None] = None,
         **kwargs,
     ):
 
-        if isinstance(T, SE3):
-            T = T.A
+        if base is not None:
+            warn("base kwarg is deprecated, use pose instead", FutureWarning)
+
+            if base is not None and not all(pose == eye(4)):
+                raise ValueError(
+                    "You cannot use both base and pose kwargs as they offer identical functionality. Use only pose."
+                )
+
+            if isinstance(base, SE3):
+                T = base.A
+            else:
+                T = base
+        else:
+
+            if isinstance(pose, SE3):
+                T = pose.A
+            else:
+                T = pose
 
         if color is None:
             self._color = (0.3, 0.3, 0.3, 1.0)
