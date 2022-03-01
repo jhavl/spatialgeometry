@@ -132,9 +132,9 @@ class CollisionShape(Shape):
             # Obstacle is further away than inf_dist
             return None, None, None
 
-    def collided(self, shape):
+    def iscollided(self, shape) -> bool:
         """
-        collided(shape) checks if self and shape have collided
+        iscollided(shape) checks if self and shape have collided
 
         :param shape: The shape to compare distance to
         :type shape: Shape
@@ -148,6 +148,18 @@ class CollisionShape(Shape):
             return True
         else:
             return False
+
+    def collided(self, shape):
+        """
+        collided(shape) checks if self and shape have collided
+
+        :param shape: The shape to compare distance to
+        :type shape: Shape
+        :returns: True if shapes have collided
+        :rtype: bool
+        """
+        warn("base kwarg is deprecated, use pose instead", FutureWarning)
+        return self.iscollided(shape)
 
 
 class Mesh(CollisionShape):
