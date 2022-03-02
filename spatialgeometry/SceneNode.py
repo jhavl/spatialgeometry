@@ -31,7 +31,7 @@ class SceneNode:
         self.__wT = eye(4)
 
         # The quaternion extracted from wT
-        self.__wq = array([0, 0, 0, 1])
+        self.__wq = array([0.0, 0.0, 0.0, 1.0])
 
         # The local transform
         self.__T = eye(4)
