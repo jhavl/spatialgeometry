@@ -267,8 +267,8 @@ class Axes(Shape):
 
     :param length: The length of each axis.
     :type length: float
-    :param base: Local reference frame of the shape
-    :type base: SE3
+    :param pose: Local reference frame of the shape
+    :type pose: SE3
 
     """
 
@@ -301,18 +301,35 @@ class Arrow(Shape):
     """An arrow whose center is at the local origin, and points
     in the positive z direction.
 
+    The arrow is made using a cylinder and a cone
+
     Parameters
 
     :param length: The length of the arrow.
-    :type length: float
-    :param base: Local reference frame of the shape
-    :type base: SE3
+    :param diameter: The length of the arrow.
+    :param cone_length: The lenght of the cone (head of the arrow). This is
+        represented as a fraction of the lenght.
+    :param cone_diameter: The width of the cone (head of the arrow). This is
+        represented as a fraction of the diameter.
+
+    :param pose: Local reference frame of the shape
+    :type pose: SE3
 
     """
 
-    def __init__(self, length, **kwargs):
+    def __init__(
+        self,
+        length: float,
+        diameter: float,
+        cone_length: float = 0.1,
+        cone_diameter: float = 1.5,
+        **kwargs,
+    ):
         super(Arrow, self).__init__(stype="arrow", **kwargs)
         self.length = length
+        self.diameter = diameter
+        self.cone_length = cone_length
+        self.cone_diameter = cone_diameter
 
     @property
     def length(self):
@@ -321,6 +338,30 @@ class Arrow(Shape):
     @length.setter
     def length(self, value):
         self._length = float(value)
+
+    @property
+    def diameter(self):
+        return self._diameter
+
+    @diameter.setter
+    def diameter(self, value):
+        self._diameter = float(value)
+
+    @property
+    def cone_length(self):
+        return self._cone_length
+
+    @cone_length.setter
+    def cone_length(self, value):
+        self._cone_length = float(value)
+
+    @property
+    def cone_diameter(self):
+        return self._cone_diameter
+
+    @cone_diameter.setter
+    def cone_diameter(self, value):
+        self._cone_diameter = float(value)
 
     def to_dict(self):
         """
@@ -332,4 +373,7 @@ class Arrow(Shape):
 
         shape = super().to_dict()
         shape["length"] = self.length
+        shape["diameter"] = self.diameter
+        shape["cone_length"] = self.cone_length
+        shape["cone_diameter"] = self.cone_diameter
         return shape
