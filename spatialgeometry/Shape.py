@@ -81,6 +81,8 @@ class Shape(SceneNode):
 
         if color is None:
             self._color = (0.3, 0.3, 0.3, 1.0)
+        else:
+            self.color = color
 
         # Initialise the scene node
         super().__init__(T=T, **kwargs)
