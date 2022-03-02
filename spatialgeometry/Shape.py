@@ -23,6 +23,9 @@ from numpy import (
 from typing import Union, Tuple, Dict, Any
 from warnings import warn
 
+import spatialmath.base as smb
+import numpy as np
+
 ArrayLike = Union[list, ndarray, tuple, set]
 _mpl = False
 # _rtb = False
@@ -88,11 +91,6 @@ class Shape(SceneNode):
 
         self._collision = False
 
-    # def attach_to(self, object):
-    #     if isinstance(object, Shape):
-    #         self.attached = True
-    #         self._wT = object._wT
-
     def copy(self) -> "Shape":
         """
         Copy of Shape object
@@ -122,18 +120,10 @@ class Shape(SceneNode):
         """
         self._to_hex(self.color[0:3])
 
-        if self.stype == "cylinder":
-            fk = self._wT @ CONST_RX
-        else:
-            fk = self._wT
-
-        q = r2q(fk[:3, :3]).tolist()
-        q = [q[1], q[2], q[3], q[0]]
-
         shape = {
             "stype": self.stype,
-            "t": fk[:3, 3].tolist(),
-            "q": q,
+            "t": self._wT[:3, 3].tolist(),
+            "q": self._wq.tolist(),
             "v": self.v.tolist(),
             "color": self._to_hex(self.color[0:3]),
             "opacity": self.color[3],
@@ -149,15 +139,7 @@ class Shape(SceneNode):
         :rtype: dict
         """
 
-        if self.stype == "cylinder":
-            fk = self._wT @ CONST_RX
-        else:
-            fk = self._wT
-
-        q = r2q(fk[:3, :3]).tolist()
-        q = [q[1], q[2], q[3], q[0]]
-
-        shape = {"t": fk[:3, 3].tolist(), "q": q}
+        shape = {"t": self._wT[:3, 3].tolist(), "q": self._wq.tolist()}
 
         return shape
 
@@ -306,11 +288,12 @@ class Arrow(Shape):
     Parameters
 
     :param length: The length of the arrow.
-    :param diameter: The length of the arrow.
-    :param cone_length: The lenght of the cone (head of the arrow). This is
+    :param radius: The length of the arrow. If radius is 0, then the arrow is
+        made with a line.
+    :param head_length: The lenght of the cone (head of the arrow). This is
         represented as a fraction of the lenght.
-    :param cone_diameter: The width of the cone (head of the arrow). This is
-        represented as a fraction of the diameter.
+    :param head_radius: The width of the cone (head of the arrow). This is
+        represented as a fraction of the head_length.
 
     :param pose: Local reference frame of the shape
     :type pose: SE3
@@ -320,16 +303,16 @@ class Arrow(Shape):
     def __init__(
         self,
         length: float,
-        diameter: float,
-        cone_length: float = 0.1,
-        cone_diameter: float = 1.5,
+        radius: float = 0.0,
+        head_length: float = 0.2,
+        head_radius: float = 0.2,
         **kwargs,
     ):
         super(Arrow, self).__init__(stype="arrow", **kwargs)
         self.length = length
-        self.diameter = diameter
-        self.cone_length = cone_length
-        self.cone_diameter = cone_diameter
+        self.radius = radius
+        self.head_length = head_length
+        self.head_radius = head_radius
 
     @property
     def length(self):
@@ -340,28 +323,28 @@ class Arrow(Shape):
         self._length = float(value)
 
     @property
-    def diameter(self):
-        return self._diameter
+    def radius(self):
+        return self._radius
 
-    @diameter.setter
-    def diameter(self, value):
-        self._diameter = float(value)
-
-    @property
-    def cone_length(self):
-        return self._cone_length
-
-    @cone_length.setter
-    def cone_length(self, value):
-        self._cone_length = float(value)
+    @radius.setter
+    def radius(self, value):
+        self._radius = float(value)
 
     @property
-    def cone_diameter(self):
-        return self._cone_diameter
+    def head_length(self):
+        return self._head_length
 
-    @cone_diameter.setter
-    def cone_diameter(self, value):
-        self._cone_diameter = float(value)
+    @head_length.setter
+    def head_length(self, value):
+        self._head_length = float(value)
+
+    @property
+    def head_radius(self):
+        return self._head_radius
+
+    @head_radius.setter
+    def head_radius(self, value):
+        self._head_radius = float(value)
 
     def to_dict(self):
         """
@@ -373,7 +356,7 @@ class Arrow(Shape):
 
         shape = super().to_dict()
         shape["length"] = self.length
-        shape["diameter"] = self.diameter
-        shape["cone_length"] = self.cone_length
-        shape["cone_diameter"] = self.cone_diameter
+        shape["radius"] = self.radius
+        shape["head_length"] = self.head_length
+        shape["head_radius"] = self.head_radius
         return shape
