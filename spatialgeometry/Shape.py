@@ -141,6 +141,10 @@ class Shape(SceneNode):
         :rtype: dict
         """
 
+        # q = smb.r2q(self._wT[:3, :3])
+        # q = [q[1], q[2], q[3], q[0]]
+        # shape = {"t": self._wT[:3, 3].tolist(), "q": q}
+
         shape = {"t": self._wT[:3, 3].tolist(), "q": self._wq.tolist()}
 
         return shape
@@ -289,11 +293,12 @@ class Arrow(Shape):
 
     Parameters
 
-    :param length: The length of the arrow.
-    :param radius: The length of the arrow. If radius is 0, then the arrow is
-        made with a line.
+    :param length: The total length of the arrow.
+    :param radius: The radius of the arrow body. If radius is 0, then the
+        arrow is made with a line.
     :param head_length: The lenght of the cone (head of the arrow). This is
-        represented as a fraction of the lenght.
+        represented as a fraction of the lenght. Must be a value between 0
+        and 1.
     :param head_radius: The width of the cone (head of the arrow). This is
         represented as a fraction of the head_length.
 
@@ -310,6 +315,9 @@ class Arrow(Shape):
         head_radius: float = 0.2,
         **kwargs,
     ):
+        if head_length > 1.0 or head_length < 0.0:
+            raise ValueError("Head length must be a value between 0 and 1")
+
         super(Arrow, self).__init__(stype="arrow", **kwargs)
         self.length = length
         self.radius = radius
