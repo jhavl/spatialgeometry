@@ -261,3 +261,13 @@ class SceneNode:
         which this node lives
         """
         scene_graph_tree(self.__scene)
+
+    # --------------------------------------------------------------------- #
+
+    def attach(self, object: "SceneNode"):
+        new_childs = self.scene_children
+        new_childs.append(object)
+        self.scene_children = new_childs
+
+    def attach_to(self, object: "SceneNode"):
+        self.scene_parent = object
