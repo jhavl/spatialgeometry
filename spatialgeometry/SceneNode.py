@@ -28,14 +28,14 @@ class SceneNode:
         # modified through its setter
 
         # The world transform
-        self.__wT = eye(4)
+        self.__wT = eye(4).copy(order="F")
 
         # The quaternion extracted from wT
         self.__wq = array([0.0, 0.0, 0.0, 1.0])
 
         # The local transform
-        self.__T = eye(4)
-        self.__T[:] = T
+        self.__T = eye(4).copy(order="F")
+        self.__T[:] = T.copy(order="F")
 
         if scene_children is None:
             self._scene_children = []
@@ -231,7 +231,7 @@ class SceneNode:
 
     @_T.setter
     def _T(self, T: ndarray):
-        self.__T[:] = T
+        self.__T[:] = T.copy(order="F")
 
         if self._scene_parent is not None:
             self.__wT[:] = self.parent.wT @ self._T

@@ -26,9 +26,9 @@ void propogate_T(Node *node, npy_float64 *parent_wT);
 void mult(npy_float64 *A, npy_float64 *B, npy_float64 *C);
 void copy(npy_float64 *A, npy_float64 *B);
 void _eye(npy_float64 *data);
-void _inv(npy_float64 *m, npy_float64 *invOut);
+// void _inv(npy_float64 *m, npy_float64 *invOut);
 void _r2q(npy_float64 *r, npy_float64 *q);
-void _cross(npy_float64 *a, npy_float64 *b, npy_float64 *ret, int n);
+// void _cross(npy_float64 *a, npy_float64 *b, npy_float64 *ret, int n);
 
 static PyMethodDef sceneMethods[] = {
     {"scene_graph_tree",
@@ -330,9 +330,9 @@ void mult(npy_float64 *A, npy_float64 *B, npy_float64 *C)
             num = 0;
             for (k = 0; k < N; k++)
             {
-                num += A[i * N + k] * B[k * N + j];
+                num += A[k + i * N] * B[j + k * N];
             }
-            C[i * N + j] = num;
+            C[j + i * N] = num;
         }
     }
 }
@@ -357,29 +357,29 @@ void _eye(npy_float64 *data)
     data[15] = 1;
 }
 
-void _inv(npy_float64 *m, npy_float64 *inv)
-{
-    inv[0] = m[0];
-    inv[1] = m[4];
-    inv[2] = m[8];
+// void _inv(npy_float64 *m, npy_float64 *inv)
+// {
+//     inv[0] = m[0];
+//     inv[1] = m[4];
+//     inv[2] = m[8];
 
-    inv[4] = m[1];
-    inv[5] = m[5];
-    inv[6] = m[9];
+//     inv[4] = m[1];
+//     inv[5] = m[5];
+//     inv[6] = m[9];
 
-    inv[8] = m[2];
-    inv[9] = m[6];
-    inv[10] = m[10];
+//     inv[8] = m[2];
+//     inv[9] = m[6];
+//     inv[10] = m[10];
 
-    inv[3] = -(inv[0] * m[3] + inv[1] * m[7] + inv[2] * m[11]);
-    inv[7] = -(inv[4] * m[3] + inv[5] * m[7] + inv[6] * m[11]);
-    inv[11] = -(inv[8] * m[3] + inv[9] * m[7] + inv[10] * m[11]);
+//     inv[3] = -(inv[0] * m[3] + inv[1] * m[7] + inv[2] * m[11]);
+//     inv[7] = -(inv[4] * m[3] + inv[5] * m[7] + inv[6] * m[11]);
+//     inv[11] = -(inv[8] * m[3] + inv[9] * m[7] + inv[10] * m[11]);
 
-    inv[12] = 0;
-    inv[13] = 0;
-    inv[14] = 0;
-    inv[15] = 1;
-}
+//     inv[12] = 0;
+//     inv[13] = 0;
+//     inv[14] = 0;
+//     inv[15] = 1;
+// }
 
 // void _r2q(npy_float64 *r, npy_float64 *q)
 // {
@@ -416,48 +416,83 @@ void _inv(npy_float64 *m, npy_float64 *inv)
 
 void _r2q(npy_float64 *r, npy_float64 *q)
 {
-    float tr = r[0 * 4 + 0] + r[1 * 4 + 1] + r[2 * 4 + 2];
+    float tr = r[0] + r[5] + r[10];
 
     if (tr > 0)
     {
         float S = sqrt(tr + 1.0) * 2; // S=4*qw
         q[3] = 0.25 * S;
-        q[0] = (r[2 * 4 + 1] - r[1 * 4 + 2]) / S;
-        q[1] = (r[0 * 4 + 2] - r[2 * 4 + 0]) / S;
-        q[2] = (r[1 * 4 + 0] - r[0 * 4 + 1]) / S;
+        q[0] = (r[6] - r[2]) / S;
+        q[1] = (r[8] - r[2]) / S;
+        q[2] = (r[1] - r[4]) / S;
     }
-    else if ((r[0 * 4 + 0] > r[1 * 4 + 1]) & (r[0 * 4 + 0] > r[2 * 4 + 2]))
+    else if ((r[0] > r[5]) & (r[0] > r[10]))
     {
-        float S = sqrt(1.0 + r[0 * 4 + 0] - r[1 * 4 + 1] - r[2 * 4 + 2]) * 2; // S=4*q[0]
-        q[3] = (r[2 * 4 + 1] - r[1 * 4 + 2]) / S;
+        float S = sqrt(1.0 + r[0] - r[5] - r[10]) * 2; // S=4*q[0]
+        q[3] = (r[6] - r[2]) / S;
         q[0] = 0.25 * S;
-        q[1] = (r[0 * 4 + 1] + r[1 * 4 + 0]) / S;
-        q[2] = (r[0 * 4 + 2] + r[2 * 4 + 0]) / S;
+        q[1] = (r[4] + r[1]) / S;
+        q[2] = (r[8] + r[2]) / S;
     }
-    else if (r[1 * 4 + 1] > r[2 * 4 + 2])
+    else if (r[5] > r[10])
     {
-        float S = sqrt(1.0 + r[1 * 4 + 1] - r[0 * 4 + 0] - r[2 * 4 + 2]) * 2; // S=4*q[1]
-        q[3] = (r[0 * 4 + 2] - r[2 * 4 + 0]) / S;
-        q[0] = (r[0 * 4 + 1] + r[1 * 4 + 0]) / S;
+        float S = sqrt(1.0 + r[5] - r[0] - r[10]) * 2; // S=4*q[1]
+        q[3] = (r[8] - r[2]) / S;
+        q[0] = (r[4] + r[1]) / S;
         q[1] = 0.25 * S;
-        q[2] = (r[1 * 4 + 2] + r[2 * 4 + 1]) / S;
+        q[2] = (r[2] + r[6]) / S;
     }
     else
     {
-        float S = sqrt(1.0 + r[2 * 4 + 2] - r[0 * 4 + 0] - r[1 * 4 + 1]) * 2; // S=4*q[2]
-        q[3] = (r[1 * 4 + 0] - r[0 * 4 + 1]) / S;
-        q[0] = (r[0 * 4 + 2] + r[2 * 4 + 0]) / S;
-        q[1] = (r[1 * 4 + 2] + r[2 * 4 + 1]) / S;
+        float S = sqrt(1.0 + r[10] - r[0] - r[5]) * 2; // S=4*q[2]
+        q[3] = (r[1] - r[4]) / S;
+        q[0] = (r[8] + r[2]) / S;
+        q[1] = (r[2] + r[6]) / S;
         q[2] = 0.25 * S;
     }
+
+    // float tr = r[0] + r[1 * 4 + 1] + r[2 * 4 + 2];
+
+    // if (tr > 0)
+    // {
+    //     float S = sqrt(tr + 1.0) * 2; // S=4*qw
+    //     q[3] = 0.25 * S;
+    //     q[0] = (r[2 * 4 + 1] - r[1 * 4 + 2]) / S;
+    //     q[1] = (r[0 * 4 + 2] - r[2 * 4 + 0]) / S;
+    //     q[2] = (r[1 * 4 + 0] - r[0 * 4 + 1]) / S;
+    // }
+    // else if ((r[0 * 4 + 0] > r[1 * 4 + 1]) & (r[0 * 4 + 0] > r[2 * 4 + 2]))
+    // {
+    //     float S = sqrt(1.0 + r[0 * 4 + 0] - r[1 * 4 + 1] - r[2 * 4 + 2]) * 2; // S=4*q[0]
+    //     q[3] = (r[2 * 4 + 1] - r[1 * 4 + 2]) / S;
+    //     q[0] = 0.25 * S;
+    //     q[1] = (r[0 * 4 + 1] + r[1 * 4 + 0]) / S;
+    //     q[2] = (r[0 * 4 + 2] + r[2 * 4 + 0]) / S;
+    // }
+    // else if (r[1 * 4 + 1] > r[2 * 4 + 2])
+    // {
+    //     float S = sqrt(1.0 + r[1 * 4 + 1] - r[0 * 4 + 0] - r[2 * 4 + 2]) * 2; // S=4*q[1]
+    //     q[3] = (r[0 * 4 + 2] - r[2 * 4 + 0]) / S;
+    //     q[0] = (r[0 * 4 + 1] + r[1 * 4 + 0]) / S;
+    //     q[1] = 0.25 * S;
+    //     q[2] = (r[1 * 4 + 2] + r[2 * 4 + 1]) / S;
+    // }
+    // else
+    // {
+    //     float S = sqrt(1.0 + r[2 * 4 + 2] - r[0 * 4 + 0] - r[1 * 4 + 1]) * 2; // S=4*q[2]
+    //     q[3] = (r[1 * 4 + 0] - r[0 * 4 + 1]) / S;
+    //     q[0] = (r[0 * 4 + 2] + r[2 * 4 + 0]) / S;
+    //     q[1] = (r[1 * 4 + 2] + r[2 * 4 + 1]) / S;
+    //     q[2] = 0.25 * S;
+    // }
 }
 
-void _cross(npy_float64 *a, npy_float64 *b, npy_float64 *ret, int n)
-{
-    ret[0] = a[1 * n] * b[2 * n] - a[2 * n] * b[1 * n];
-    ret[1 * n] = a[2 * n] * b[0] - a[0] * b[2 * n];
-    ret[2 * n] = a[0] * b[1 * n] - a[1 * n] * b[0];
-    // ret[0] = b[0 * n];
-    // ret[1 * n] = b[1 * n];
-    // ret[2 * n] = b[2 * n];
-}
+// void _cross(npy_float64 *a, npy_float64 *b, npy_float64 *ret, int n)
+// {
+//     ret[0] = a[1 * n] * b[2 * n] - a[2 * n] * b[1 * n];
+//     ret[1 * n] = a[2 * n] * b[0] - a[0] * b[2 * n];
+//     ret[2 * n] = a[0] * b[1 * n] - a[1 * n] * b[0];
+//     // ret[0] = b[0 * n];
+//     // ret[1 * n] = b[1 * n];
+//     // ret[2 * n] = b[2 * n];
+// }
