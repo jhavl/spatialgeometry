@@ -34,7 +34,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
 scene = Extension(
     "scene",
-    sources=["./spatialgeometry/core/scene.c"],
+    sources=["./spatialgeometry/core/scene.cpp"],
     include_dirs=["./spatialgeometry/core/", numpy.get_include()],
 )
 
