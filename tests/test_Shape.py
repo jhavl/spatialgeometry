@@ -73,9 +73,9 @@ class TestShape(unittest.TestCase):
             "radius": 1.0,
             "length": 1.0,
             "t": [0.0, 0.0, 0.0],
-            "q": [0.7071067811865475, 0.0, 0.0, 0.7071067811865476],
+            "q": [0, 0, 0, 1.0],
             "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "color": 15892287,
+            "color": 5000268,
             "opacity": 1.0,
         }
 
@@ -93,7 +93,7 @@ class TestShape(unittest.TestCase):
             "t": [0.0, 0.0, 0.0],
             "q": [0, 0.0, 0.0, 1.0],
             "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "color": 15892287,
+            "color": 5000268,
             "opacity": 1.0,
         }
 
@@ -104,7 +104,7 @@ class TestShape(unittest.TestCase):
 
         ans = {
             "t": [0.0, 0.0, 0.0],
-            "q": [0.7071067811865475, 0.0, 0.0, 0.7071067811865476],
+            "q": [0, 0, 0, 1.0],
         }
 
         nt.assert_almost_equal(s1.fk_dict()["t"], ans["t"])
@@ -126,6 +126,10 @@ class TestShape(unittest.TestCase):
         s0 = gm.Cuboid([1, 1, 1], base=sm.SE3(0, 0, 0))
         s1 = gm.Cuboid([1, 1, 1], base=sm.SE3(0.5, 0, 0))
         s2 = gm.Cuboid([1, 1, 1], base=sm.SE3(3, 0, 0))
+
+        s0._propogate_scene_children()
+        s1._propogate_scene_children()
+        s2._propogate_scene_children()
 
         c0 = s0.collided(s1)
         c1 = s0.collided(s2)
@@ -174,7 +178,7 @@ class TestShape(unittest.TestCase):
             "t": [0.0, 0.0, 0.0],
             "q": [0.0, 0.0, 0.0, 1],
             "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "color": 15892287,
+            "color": 5000268,
             "opacity": 1.0,
         }
 
@@ -191,7 +195,7 @@ class TestShape(unittest.TestCase):
 
         d1, _, _ = r.closest_point(r.q, b)
         r.q = r.qr
-        r._set_link_fk(r.q)
+        # r._set_link_fk(r.q)
         d2, _, _ = r.closest_point(r.q, b)
 
         self.assertAlmostEqual(d1, 0.38356973581205467)
@@ -221,7 +225,7 @@ class TestShape(unittest.TestCase):
             "t": [0.0, 0.0, 0.0],
             "q": [0.0, 0.0, 0.0, 1],
             "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "color": 15892287,
+            "color": 5000268,
             "opacity": 1.0,
         }
 

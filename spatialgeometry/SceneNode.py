@@ -55,6 +55,9 @@ class SceneNode:
         if scene_parent is not None:
             scene_parent._update_scene_children(self)
 
+        # Update scene tree
+        self._propogate_scene_children()
+
     # --------------------------------------------------------------------- #
 
     def __init_c(self):

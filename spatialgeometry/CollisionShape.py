@@ -158,7 +158,7 @@ class CollisionShape(Shape):
         :returns: True if shapes have collided
         :rtype: bool
         """
-        warn("base kwarg is deprecated, use pose instead", FutureWarning)
+        warn("collided is deprecated, use iscollided instead", FutureWarning)
         return self.iscollided(shape)
 
 
