@@ -121,7 +121,6 @@ class Shape(SceneNode):
         memo[id(self)] = result
 
         for k, v in self.__dict__.items():
-            print(k)
             if not k.lower().startswith("_scene"):
                 setattr(result, k, deepcopy(v, memo))
 
