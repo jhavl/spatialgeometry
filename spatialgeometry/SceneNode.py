@@ -60,6 +60,45 @@ class SceneNode:
 
     # --------------------------------------------------------------------- #
 
+    def _custom_scene_node_init(
+        self,
+        T: ndarray = eye(4),
+        scene_parent: Union["SceneNode", None] = None,
+        scene_children: Union[List["SceneNode"], None] = None,
+    ):
+        # The world transform
+        self.__wT = eye(4).copy(order="F")
+
+        # The quaternion extracted from wT
+        self.__wq = array([0.0, 0.0, 0.0, 1.0])
+
+        # The local transform
+        self.__T = eye(4).copy(order="F")
+        self.__T[:] = T.copy(order="F")
+
+        if scene_children is None:
+            self._scene_children = []
+        else:
+            self._scene_children = scene_children
+
+        self._scene_parent = scene_parent
+
+        # Set up the c object
+        self.__scene = self.__init_c()
+
+        # Update childs parent
+        for child in self.scene_children:
+            child._update_scene_parent(self)
+
+        # Update parents child
+        if scene_parent is not None:
+            scene_parent._update_scene_children(self)
+
+        # Update scene tree
+        self._propogate_scene_children()
+
+    # --------------------------------------------------------------------- #
+
     def __init_c(self):
         """
         Super Private method which initialises a C object to hold Data

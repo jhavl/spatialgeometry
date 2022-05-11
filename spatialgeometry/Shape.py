@@ -8,7 +8,7 @@ from spatialgeometry.SceneNode import SceneNode
 from spatialmath import SE3
 from spatialmath.base.argcheck import getvector
 from spatialmath.base import r2q
-from copy import copy as ccopy
+from copy import copy as ccopy, deepcopy
 from numpy import (
     ndarray,
     copy as npcopy,
@@ -93,6 +93,8 @@ class Shape(SceneNode):
 
         self._collision = False
 
+    # --------------------------------------------------------------------- #
+
     def copy(self) -> "Shape":
         """
         Copy of Shape object
@@ -108,6 +110,29 @@ class Shape(SceneNode):
                 setattr(new, k, npcopy(v))
 
         return new
+
+    def __copy__(self):
+        return deepcopy(self)
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+
+        memo[id(self)] = result
+
+        for k, v in self.__dict__.items():
+            print(k)
+            if not k.lower().startswith("_scene"):
+                setattr(result, k, deepcopy(v, memo))
+
+        result._custom_scene_node_init(T=deepcopy(self.T))
+
+        return result
+
+    def __str__(self) -> str:
+        return f"stype: {self.stype} \n pose: {SE3(self._T).t}"
+
+    # --------------------------------------------------------------------- #
 
     def _to_hex(self, rgb) -> int:
         rgb = (array(rgb) * 255).astype(int)
