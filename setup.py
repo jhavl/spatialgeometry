@@ -9,12 +9,12 @@ import numpy
 
 here = path.abspath(path.dirname(__file__))
 
-req = ["spatialmath-python>=0.9.2"]
+req = ["spatialmath-python~=1.0.0"]
 
 collision_req = ["pybullet"]
 
 dev_req = [
-    "roboticstoolbox-python>=0.11.0",
+    "roboticstoolbox-python~=1.0.0",
     "swift-sim",
     "pytest",
     "pytest-cov",
@@ -41,7 +41,7 @@ scene = Extension(
 
 setup(
     name="spatialgeometry",
-    version="0.2.0",
+    version="1.0.0",
     description="A Shape and Geometry Package",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -52,7 +52,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         # Indicate who your project is intended for
         "Intended Audience :: Developers",
         # Pick your license as you wish (should match "license" above)
@@ -63,6 +63,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     python_requires=">=3.6",
     ext_modules=[scene],
