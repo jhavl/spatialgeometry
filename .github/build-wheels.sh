@@ -12,7 +12,7 @@ function repair_wheel {
 
 cd ./io
 
-sudo apt-get install gfortran libopenblas-dev liblapack-dev
+apt-get install gfortran libopenblas-dev liblapack-dev
 
 # Compile wheels
 ls /opt/python/cp3*
