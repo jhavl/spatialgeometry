@@ -12,13 +12,13 @@ function repair_wheel {
 
 cd ./io
 
-yum install gfortran libopenblas-dev liblapack-dev
+# yum install gfortran libopenblas-dev liblapack-dev
 
 # Compile wheels
 ls /opt/python/cp3*
 for PYBIN in /opt/python/cp3*/bin; do
-    "${PYBIN}/pip" install .
-    "${PYBIN}/pip" install pytest
+#     "${PYBIN}/pip" install .
+#     "${PYBIN}/pip" install pytest
     "${PYBIN}/pip" wheel /io/ --no-deps -w wheelhouse/
 done
 
