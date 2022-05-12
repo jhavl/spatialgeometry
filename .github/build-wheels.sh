@@ -14,7 +14,7 @@ cd ./io
 
 # Compile wheels
 ls /opt/python/cp3*
-for PYBIN in /opt/python/cp3[7-10]*/bin; do
+for PYBIN in /opt/python/cp3*/bin; do
     "${PYBIN}/pip" install .
     "${PYBIN}/pip" install pytest
     "${PYBIN}/pip" wheel /io/ --no-deps -w wheelhouse/
