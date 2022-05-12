@@ -13,6 +13,7 @@ function repair_wheel {
 cd ./io
 
 # Compile wheels
+ls /opt/python/cp3*
 for PYBIN in /opt/python/cp3[7-10]*/bin; do
     "${PYBIN}/pip" install .
     "${PYBIN}/pip" install pytest
