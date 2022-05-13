@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages, Extension
 from os import path
+import os
 
 # fmt: off
 import pip
