@@ -32,6 +32,22 @@ docs_req = [
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
+def package_files(directory):
+    paths = []
+    for (pathhere, _, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join("..", pathhere, filename))
+    return paths
+
+
+extra_folders = [
+    "spatialgeometry/core",
+]
+
+extra_files = []
+for extra_folder in extra_folders:
+    extra_files += package_files(extra_folder)
+    
 scene = Extension(
     "scene",
     sources=["./spatialgeometry/core/scene.cpp"],
@@ -66,6 +82,7 @@ setup(
         "Programming Language :: Python :: 3.10",
     ],
     python_requires=">=3.6",
+    package_data={"spatialgeometry": extra_files},
     ext_modules=[scene],
     keywords="python robotics robotics-toolbox kinematics dynamics"
     " motion-planning trajectory-generation jacobian hessian"
