@@ -73,6 +73,10 @@ class Shape(SceneNode):
         **kwargs,
     ):
 
+        # Swift related attributes
+        self._added_to_swift = False
+        self._changed = False
+
         if base is not None:
             warn("base kwarg is deprecated, use pose instead", FutureWarning)
 
@@ -106,9 +110,6 @@ class Shape(SceneNode):
         self.attached = True
 
         self._collision = False
-
-        self._added_to_swift = False
-        self._changed = False
 
     # --------------------------------------------------------------------- #
 
