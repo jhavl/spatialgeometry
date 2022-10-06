@@ -3,6 +3,7 @@
 @author: Jesse Haviland
 """
 
+from functools import wraps
 from multiprocessing.sharedctypes import Value
 from spatialgeometry.SceneNode import SceneNode
 from spatialmath import SE3
@@ -29,6 +30,19 @@ import numpy as np
 ArrayLike = Union[list, ndarray, tuple, set]
 _mpl = False
 # _rtb = False
+
+
+def update(func):  # pragma nocover
+    @wraps(func)
+    def wrapper_update(*args, **kwargs):
+
+        if args[0]._added_to_swift:
+            args[0]._changed = True
+
+        return func(*args, **kwargs)
+
+    return wrapper_update
+
 
 try:
     from matplotlib import colors as mpc
@@ -92,6 +106,9 @@ class Shape(SceneNode):
         self.attached = True
 
         self._collision = False
+
+        self._added_to_swift = False
+        self._changed = False
 
     # --------------------------------------------------------------------- #
 
@@ -198,6 +215,7 @@ class Shape(SceneNode):
         return self._color
 
     @color.setter
+    @update
     def color(self, value: ArrayLike):
         """
         shape.color(new_color) sets the color of a shape.
@@ -293,6 +311,7 @@ class Axes(Shape):
         return self._length
 
     @length.setter
+    @update
     def length(self, value):
         self._length = float(value)
 
@@ -353,6 +372,7 @@ class Arrow(Shape):
         return self._length
 
     @length.setter
+    @update
     def length(self, value):
         self._length = float(value)
 
@@ -361,6 +381,7 @@ class Arrow(Shape):
         return self._radius
 
     @radius.setter
+    @update
     def radius(self, value):
         self._radius = float(value)
 
@@ -369,6 +390,7 @@ class Arrow(Shape):
         return self._head_length
 
     @head_length.setter
+    @update
     def head_length(self, value):
         self._head_length = float(value)
 
@@ -377,6 +399,7 @@ class Arrow(Shape):
         return self._head_radius
 
     @head_radius.setter
+    @update
     def head_radius(self, value):
         self._head_radius = float(value)
 
