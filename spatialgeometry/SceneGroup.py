@@ -18,12 +18,9 @@ class SceneGroup(SceneNode, UserList):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def __getitem__(self, i: int):
+    def __getitem__(self, i: int) -> SceneNode:
         return self._scene_children[i]
 
     @property
     def data(self):
         return self._scene_children
-
-    def hello(self):
-        print("HEllo")

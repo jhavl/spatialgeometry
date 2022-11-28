@@ -13,6 +13,8 @@ import os
 import copy
 from warnings import warn
 
+from typing import Tuple, Union
+
 p = None
 _pyb = None
 
@@ -85,7 +87,9 @@ class CollisionShape(Shape):
         if _pyb is None:
             _import_pyb()
 
-    def closest_point(self, shape, inf_dist=1.0):
+    def closest_point(
+        self, shape: "CollisionShape", inf_dist: float = 1.0
+    ) -> Tuple[Union[float, None], Union[np.ndarray, None], Union[np.ndarray, None]]:
         """
         closest_point(shape, inf_dist) returns the minimum euclidean
         distance between self and shape, provided it is less than inf_dist.
