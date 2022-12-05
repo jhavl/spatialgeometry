@@ -9,6 +9,7 @@ from spatialmath.base import r2q
 from spatialmath.base.argcheck import getvector
 from spatialmath import SE3
 from spatialgeometry import Shape
+from spatialgeometry.Shape import update
 import os
 import copy
 from warnings import warn
@@ -209,6 +210,7 @@ class Mesh(CollisionShape):
         return self._scale
 
     @scale.setter
+    @update
     def scale(self, value):
         if value is not None:
             value = getvector(value, 3)
@@ -221,6 +223,7 @@ class Mesh(CollisionShape):
         return self._filename
 
     @filename.setter
+    @update
     def filename(self, value):
         self._filename = value
 
@@ -276,6 +279,7 @@ class Cylinder(CollisionShape):
         return self._radius
 
     @radius.setter
+    @update
     def radius(self, value):
         self._radius = float(value)
 
@@ -284,6 +288,7 @@ class Cylinder(CollisionShape):
         return self._length
 
     @length.setter
+    @update
     def length(self, value):
         self._length = float(value)
 
@@ -334,6 +339,7 @@ class Sphere(CollisionShape):
         return self._radius
 
     @radius.setter
+    @update
     def radius(self, value):
         self._radius = float(value)
 
@@ -386,6 +392,7 @@ class Cuboid(CollisionShape):
         return self._scale
 
     @scale.setter
+    @update
     def scale(self, value):
         if value is not None:
             value = getvector(value, 3)
