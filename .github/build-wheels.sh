@@ -20,7 +20,7 @@ for PYBIN in /opt/python/cp3[1,7-9][-,0]*/bin; do
 done
 
 # Bundle external shared libraries into the wheels
-for whl in wheelhouse/*.whl; do
+for whl in build/*.whl; do
     repair_wheel "$whl"
 done
 
