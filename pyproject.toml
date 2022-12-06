@@ -72,7 +72,7 @@ docs = [
 
 requires = [
     "setuptools",
-    "numpy>=1.17.4"
+    "numpy >= 1.17.4",
 ]
 build-backend = "setuptools.build_meta"
 
