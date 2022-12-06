@@ -19,6 +19,7 @@ ls /opt/python/cp3*
 for PYBIN in /opt/python/cp3*/bin; do
 #     "${PYBIN}/pip" install .
 #     "${PYBIN}/pip" install pytest
+    "${PYBIN}/pip" install numpy==1.17.4
     "${PYBIN}/pip" wheel /io/ --no-deps -w wheelhouse/
 done
 
