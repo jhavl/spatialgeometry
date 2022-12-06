@@ -1,5 +1,10 @@
 name: Build all Wheels
 
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
