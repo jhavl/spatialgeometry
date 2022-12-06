@@ -15,10 +15,8 @@ cd ./io
 # yum install gfortran libopenblas-dev liblapack-dev
 
 # Compile wheels
-ls /opt/python/cp3*
-for PYBIN in /opt/python/cp3*/bin; do
-#     "${PYBIN}/pip" install .
-#     "${PYBIN}/pip" install pytest
+# cp3[1,7-9][-,0] == cp37-cp37 to cp310-cp310
+for PYBIN in /opt/python/cp3[1,7-9][-,0]*/bin; do
     "${PYBIN}/pip" install numpy==1.17.4
     "${PYBIN}/pip" wheel /io/ --no-deps -w wheelhouse/
 done
