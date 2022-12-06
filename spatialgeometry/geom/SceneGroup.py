@@ -11,7 +11,7 @@ from collections import UserList
 # from roboticstoolbox.robot.ETS import ETS
 from typing import Type
 
-from spatialgeometry.SceneNode import SceneNode
+from spatialgeometry.geom.SceneNode import SceneNode
 
 
 class SceneGroup(SceneNode, UserList):

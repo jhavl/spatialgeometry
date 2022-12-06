@@ -1,0 +1,111 @@
+[project]
+
+name = "spatialgeometry"
+
+description = "A Shape and Geometry Description Package"
+
+version = "1.0.2"
+
+authors = [
+    { name = "Jesse Haviland", email = "j.haviland@qut.edu.au" },
+    { name = "Peter Corke", email = "rvc@petercorke.com" },
+]
+
+dependencies = [
+    "spatialmath-python~=1.0.0",
+]
+
+license = {file = "LICENSE"}
+
+readme = "README.md"
+
+requires-python = ">=3.7"
+
+keywords = ["python", "robotics", "robotics-toolbox", "kinematics", "dynamics", "motion-planning", "trajectory-generation", "jacobian", "hessian", "control", "simulation", "robot-manipulator", "mobile-robot"]
+
+classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        # Indicate who your project is intended for
+        "Intended Audience :: Developers",
+        # Pick your license as you wish (should match "license" above)
+        "License :: OSI Approved :: MIT License",
+        # Specify the Python versions you support here.
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+]
+
+
+[project.urls]
+homepage = "https://github.com/jhavl/spatialgeometry"
+documentation = "https://jhavl.github.io/spatialgeometry/"
+repository = "https://github.com/jhavl/spatialgeometry"
+
+
+
+[project.optional-dependencies]
+
+collision = [
+    "pybullet"
+]
+
+dev = [
+    "black",
+    "roboticstoolbox-python~=1.0.0",
+    "swift-sim",
+    "pytest",
+    "pytest-cov",
+    "flake8",
+    "pyyaml",
+]
+
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinx-autorun", 
+]
+
+
+
+[build-system]
+
+requires = [
+    "setuptools",
+    "numpy>=1.17.4"
+]
+build-backend = "setuptools.build_meta"
+
+
+
+[tool.black]
+
+line-length = 88
+target_version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | \.github
+    | _build
+    | buck-out
+    | build
+    | dist
+    | docs
+  )/
+)
+'''
+
+
+
+[tool.flake8]
+
+max-line-length = 88
+extend-ignore = 'E203'

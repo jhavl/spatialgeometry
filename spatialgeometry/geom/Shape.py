@@ -5,7 +5,7 @@
 
 from functools import wraps
 from multiprocessing.sharedctypes import Value
-from spatialgeometry.SceneNode import SceneNode
+from spatialgeometry.geom.SceneNode import SceneNode
 from spatialmath import SE3
 from spatialmath.base.argcheck import getvector
 from spatialmath.base import r2q

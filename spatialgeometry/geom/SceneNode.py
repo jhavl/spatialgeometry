@@ -6,7 +6,7 @@
 from numpy import ndarray, eye, copy as npcopy, array
 from spatialmath.base import r2q
 from abc import ABC
-from scene import node_init, node_update, scene_graph_children, scene_graph_tree
+from spatialgeometry.scene import node_init, node_update, scene_graph_children, scene_graph_tree
 from spatialmath import SE3
 from copy import deepcopy
 

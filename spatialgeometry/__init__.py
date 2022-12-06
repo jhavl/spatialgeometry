@@ -1,16 +1,11 @@
-from spatialgeometry.SceneNode import SceneNode
-from spatialgeometry.SceneGroup import SceneGroup
-from spatialgeometry.Shape import Shape, Axes, Arrow
-from spatialgeometry.CollisionShape import (
-    CollisionShape,
-    Mesh,
-    Cylinder,
-    Cuboid,
-    Box,
-    Sphere,
-)
+from spatialgeometry.geom import *
+from spatialgeometry import tools
+
 
 __all__ = [
+    # aliased
+    "tools",
+    # geom
     "Shape",
     "CollisionShape",
     "Mesh",

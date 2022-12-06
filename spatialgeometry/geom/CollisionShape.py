@@ -8,8 +8,8 @@ from io import StringIO
 from spatialmath.base import r2q
 from spatialmath.base.argcheck import getvector
 from spatialmath import SE3
-from spatialgeometry import Shape
-from spatialgeometry.Shape import update
+from spatialgeometry.geom import Shape
+from spatialgeometry.geom.Shape import update
 import os
 import copy
 from warnings import warn
