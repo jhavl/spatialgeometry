@@ -26,22 +26,9 @@ jobs:
         with:
           platforms: arm64
       - uses: actions/checkout@v3
-      
-      # Set up for win32
-      - name: setup rtools for 32-bit
-        run: |
-          echo "PLAT=i686" >> $env:GITHUB_ENV
-          echo "MSYSTEM=MINGW32" >> $env:GITHUB_ENV
-          echo "PATH=$env:RTOOLS40_HOME\mingw32\bin;$env:PATH" >> $env:GITHUB_ENV
-          gfortran --version
-        if: ${{ matrix.buildplat[1] == 'win32' }}
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.11.3
-        # with:
-        #   package-dir: .
-        #   output-dir: wheelhouse
-        #   config-file: "{package}/pyproject.toml"
 
       - uses: actions/upload-artifact@v3
         with:
