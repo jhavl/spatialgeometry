@@ -4,7 +4,7 @@ name = "spatialgeometry"
 
 description = "A Shape and Geometry Description Package"
 
-version = "1.0.2"
+version = "1.0.3"
 
 authors = [
     { name = "Jesse Haviland", email = "j.haviland@qut.edu.au" },
