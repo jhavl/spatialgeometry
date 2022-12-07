@@ -72,7 +72,7 @@ docs = [
 
 requires = [
     "setuptools",
-    "numpy >= 1.17.4",
+    "numpy == 1.17.4",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -80,7 +80,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 
-packages = ["spatialgeometry"]
+packages = ["spatialgeometry", "spatialgeometry.geom", "spatialgeometry.tools"]
 
 
 
