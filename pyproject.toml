@@ -121,9 +121,9 @@ extend-ignore = 'E203'
 [tool.cibuildwheel]
 
 # Will cause the wheel to be installed with `pip install <wheel_file>[dev,collision]`
-test-extras = ["dev", "collision"]
-test-requires = "pytest"
-test-command = "pytest {project}/tests"
+# test-extras = ["dev", "collision"]
+# test-requires = "pytest"
+# test-command = "pytest {project}/tests"
 
 manylinux-x86_64-image = "manylinux2014"
 manylinux-aarch64-image = "manylinux2014"
