@@ -11,7 +11,7 @@ authors = [
     { name = "Peter Corke", email = "rvc@petercorke.com" },
 ]
 
-dependencies = ["spatialmath-python>=1.1.0"]
+dependencies = ["spatialmath-python~=1.1.0"]
 
 
 license = { file = "LICENSE" }
