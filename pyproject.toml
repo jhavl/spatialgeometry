@@ -13,6 +13,7 @@ authors = [
 
 dependencies = ["spatialmath-python>=1.1.0"]
 
+
 license = { file = "LICENSE" }
 
 readme = "README.md"
