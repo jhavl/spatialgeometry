@@ -4,37 +4,49 @@ name = "spatialgeometry"
 
 description = "A Shape and Geometry Description Package"
 
-version = "1.0.3"
+version = "1.1.0"
 
 authors = [
     { name = "Jesse Haviland", email = "j.haviland@qut.edu.au" },
     { name = "Peter Corke", email = "rvc@petercorke.com" },
 ]
 
-dependencies = [
-    "spatialmath-python~=1.0.0",
-]
+dependencies = ["spatialmath-python>=1.1.0"]
 
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 
 readme = "README.md"
 
 requires-python = ">=3.7"
 
-keywords = ["python", "robotics", "robotics-toolbox", "kinematics", "dynamics", "motion-planning", "trajectory-generation", "jacobian", "hessian", "control", "simulation", "robot-manipulator", "mobile-robot"]
+keywords = [
+    "python",
+    "robotics",
+    "robotics-toolbox",
+    "kinematics",
+    "dynamics",
+    "motion-planning",
+    "trajectory-generation",
+    "jacobian",
+    "hessian",
+    "control",
+    "simulation",
+    "robot-manipulator",
+    "mobile-robot",
+]
 
 classifiers = [
-        "Development Status :: 5 - Production/Stable",
-        # Indicate who your project is intended for
-        "Intended Audience :: Developers",
-        # Pick your license as you wish (should match "license" above)
-        "License :: OSI Approved :: MIT License",
-        # Specify the Python versions you support here.
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
+    "Development Status :: 5 - Production/Stable",
+    # Indicate who your project is intended for
+    "Intended Audience :: Developers",
+    # Pick your license as you wish (should match "license" above)
+    "License :: OSI Approved :: MIT License",
+    # Specify the Python versions you support here.
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
 
 
@@ -44,12 +56,9 @@ documentation = "https://jhavl.github.io/spatialgeometry/"
 repository = "https://github.com/jhavl/spatialgeometry"
 
 
-
 [project.optional-dependencies]
 
-collision = [
-    "pybullet"
-]
+collision = ["pybullet"]
 
 dev = [
     "black",
@@ -61,29 +70,22 @@ dev = [
     "pyyaml",
 ]
 
-docs = [
-    "sphinx",
-    "sphinx_rtd_theme",
-    "sphinx-autorun", 
-]
-
+docs = ["sphinx", "sphinx_rtd_theme", "sphinx-autorun"]
 
 
 [build-system]
 
 requires = [
     "setuptools",
-    "oldest-supported-numpy"
+    "oldest-supported-numpy",
     # "numpy == 1.17.4",
 ]
 build-backend = "setuptools.build_meta"
 
 
-
 [tool.setuptools]
 
 packages = ["spatialgeometry", "spatialgeometry.geom", "spatialgeometry.tools"]
-
 
 
 [tool.black]
@@ -110,7 +112,6 @@ exclude = '''
   )/
 )
 '''
-
 
 
 [tool.flake8]
@@ -151,6 +152,3 @@ archs = ["x86_64", "aarch64"]
 
 # On an Windows Intel runner build wheels
 archs = ["AMD64", "x86"]
-
-
-

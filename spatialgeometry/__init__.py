@@ -1,4 +1,16 @@
-from spatialgeometry.geom import *
+from spatialgeometry.geom import (
+    SceneNode,
+    SceneGroup,
+    Shape,
+    Axes,
+    Arrow,
+    CollisionShape,
+    Mesh,
+    Cylinder,
+    Cuboid,
+    Box,
+    Sphere)
+
 from spatialgeometry import tools
 
 
