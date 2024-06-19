@@ -4,7 +4,7 @@ name = "spatialgeometry"
 
 description = "A Shape and Geometry Description Package"
 
-version = "1.1.0"
+version = "1.2.0"
 
 authors = [
     { name = "Jesse Haviland", email = "j.haviland@qut.edu.au" },
@@ -43,11 +43,11 @@ classifiers = [
     # Pick your license as you wish (should match "license" above)
     "License :: OSI Approved :: MIT License",
     # Specify the Python versions you support here.
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 
@@ -78,7 +78,7 @@ docs = ["sphinx", "sphinx_rtd_theme", "sphinx-autorun"]
 
 requires = [
     "setuptools",
-    "oldest-supported-numpy",
+    "numpy>=2.0.0",
     # "numpy == 1.17.4",
 ]
 build-backend = "setuptools.build_meta"
@@ -92,7 +92,6 @@ packages = ["spatialgeometry", "spatialgeometry.geom", "spatialgeometry.tools"]
 [tool.black]
 
 line-length = 88
-target_version = ['py37']
 include = '\.pyi?$'
 exclude = '''
 
@@ -131,8 +130,8 @@ extend-ignore = 'E203'
 manylinux-x86_64-image = "manylinux2014"
 manylinux-aarch64-image = "manylinux2014"
 
-# Build CPython 3.7 - 3.11
-build = ["cp37-*", "cp38-*", "cp39-*", "cp310-*", "cp311-*"]
+# Build CPython
+build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*"]
 
 # Disable building musllinux wheels on all platforms
 skip = ["pp*", "*musllinux*"]
