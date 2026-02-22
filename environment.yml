@@ -8,4 +8,5 @@ dependencies:
   - pybullet          # only available as a pre-built binary on conda-forge for macOS/arm64
   - pip
   - pip:
+    - editables
     - -e ".[dev,collision]"
