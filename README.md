@@ -23,3 +23,43 @@ A Python Shape and Geometry Package
 </td>
 </tr>
 </table>
+
+## Installation
+
+### pip (standard)
+
+```shell
+pip install spatialgeometry
+```
+
+For collision support (requires [PyBullet](https://pybullet.org)):
+
+```shell
+pip install spatialgeometry[collision]
+```
+
+> **Note for macOS (Apple Silicon / arm64):** PyBullet cannot be built from
+> source on macOS with recent Xcode/clang toolchains.  Install it via
+> conda-forge **before** installing the collision extra (see below).
+
+### conda / conda-forge
+
+The recommended approach for development, and the only reliable way to get
+PyBullet on macOS/arm64, is to use the provided `environment.yml`:
+
+```shell
+conda env create -f environment.yml
+conda activate spatialgeometry-dev
+```
+
+This creates an environment named `spatialgeometry-dev` with:
+- numpy ≥ 2.0 (from conda-forge)
+- pybullet pre-built binary (from conda-forge – avoids the macOS/clang build issue)
+- the package itself installed in editable mode with all dev and collision extras
+
+Alternatively, install pybullet manually from conda-forge into an existing environment before using pip:
+
+```shell
+conda install -c conda-forge pybullet
+pip install spatialgeometry[collision]
+```

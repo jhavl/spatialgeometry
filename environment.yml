@@ -1,0 +1,11 @@
+name: spatialgeometry-dev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.9
+  - numpy>=2.0
+  - pybullet          # only available as a pre-built binary on conda-forge for macOS/arm64
+  - pip
+  - pip:
+    - -e ".[dev,collision]"
