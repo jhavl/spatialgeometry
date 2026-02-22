@@ -231,7 +231,11 @@ extern "C"
     {
         PyArray_Descr *desc;
 
-        desc = PyArray_DescrFromObject(toCheck, NULL);
+        if (!PyArray_Check(toCheck))
+        {
+            return 1;
+        }
+        desc = PyArray_DESCR((PyArrayObject *)toCheck);
 
         // Check if desc is a number or a sympy symbol
         if (!PyDataType_ISNUMBER(desc))
