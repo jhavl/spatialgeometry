@@ -77,8 +77,6 @@ docs = ["sphinx", "sphinx_rtd_theme", "sphinx-autorun"]
 
 [build-system]
 
-requires = ["setuptools", "numpy>=2.0"]
-build-backend = "setuptools.build_meta"
 requires = [
     "hatchling",
     "setuptools", # used inside hatch_build.py to compile the C extension
