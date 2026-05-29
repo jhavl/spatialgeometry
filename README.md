@@ -32,6 +32,20 @@ A Python Shape and Geometry Package
 pip install spatialgeometry
 ```
 
+### JupyterLite / Pyodide
+
+For browser runtimes (JupyterLite/Pyodide), use a pure-Python wheel build:
+
+```shell
+SPATIALGEOMETRY_BUILD_EXTENSION=0 python -m build --wheel
+```
+
+This disables native C-extension compilation and produces a wheel that uses the
+Python scene backend (`spatialgeometry.scene`).
+
+> Collision functionality depends on PyBullet and is not expected to work in
+> JupyterLite.
+
 For collision support (requires [PyBullet](https://pybullet.org)):
 
 ```shell
