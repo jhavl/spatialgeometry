@@ -36,10 +36,15 @@ static PyMethodDef sceneMethods[] = {
 static struct PyModuleDef scenemodule =
     {
         PyModuleDef_HEAD_INIT,
-        "scene",
-        "Scene Graph",
-        -1,
-        sceneMethods};
+        "scene",      /* m_name */
+        "Scene Graph", /* m_doc */
+        -1,            /* m_size */
+        sceneMethods,  /* m_methods */
+        NULL,          /* m_slots */
+        NULL,          /* m_traverse */
+        NULL,          /* m_clear */
+        NULL,          /* m_free */
+    };
 
 PyMODINIT_FUNC PyInit_scene(void)
 {
@@ -50,7 +55,7 @@ PyMODINIT_FUNC PyInit_scene(void)
 extern "C"
 {
 
-    static PyObject *scene_graph_tree(PyObject *self, PyObject *args)
+    static PyObject *scene_graph_tree(PyObject * /*self*/, PyObject *args)
     {
         Node *node;
         PyObject *py_node;
@@ -83,7 +88,7 @@ extern "C"
         Py_RETURN_NONE;
     }
 
-    static PyObject *scene_graph_children(PyObject *self, PyObject *args)
+    static PyObject *scene_graph_children(PyObject * /*self*/, PyObject *args)
     {
         Node *node;
         PyObject *py_node;
@@ -103,10 +108,10 @@ extern "C"
         Py_RETURN_NONE;
     }
 
-    static PyObject *node_update(PyObject *self, PyObject *args)
+    static PyObject *node_update(PyObject * /*self*/, PyObject *args)
     {
         Node *node, *parent;
-        PyObject *py_node, *py_parent, *py_children, *ret, *child;
+        PyObject *py_node, *py_parent, *py_children, *child;
         PyObject *iter_children;
         int n_children;
 
@@ -160,7 +165,7 @@ extern "C"
         Py_RETURN_NONE;
     }
 
-    static PyObject *node_init(PyObject *self, PyObject *args)
+    static PyObject *node_init(PyObject * /*self*/, PyObject *args)
     {
         Node *node, *parent;
         PyObject *py_parent, *py_children, *ret, *child;
@@ -315,7 +320,7 @@ extern "C"
             q[1] = (r(0, 2) - r(2, 0)) / S;
             q[2] = (r(1, 0) - r(0, 1)) / S;
         }
-        else if ((r(0, 0) > r(1, 1)) & (r(0, 0) > r(2, 2)))
+        else if ((r(0, 0) > r(1, 1)) && (r(0, 0) > r(2, 2)))
         {
             float S = sqrt(1.0 + r(0, 0) - r(1, 1) - r(2, 2)) * 2; // S=4*q[0]
             q[3] = (r(2, 1) - r(1, 2)) / S;
