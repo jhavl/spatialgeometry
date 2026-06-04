@@ -1,4 +1,4 @@
-name: Build all Wheels
+name: Publish to PyPI
 
 on:
   release:
@@ -7,24 +7,42 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Build compiled wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         # ubuntu-latest = x86_64; ubuntu-24.04-arm = native arm64 (no QEMU needed)
-        # macos-14 = arm64; cibuildwheel also cross-compiles x86_64 (see pyproject.toml)
-        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-14]
-
+        # macos-14 is arm64; add macos-13 for x86_64
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-14, macos-13]
     steps:
       - uses: actions/checkout@v4
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
+        env:
+          # Fail loudly if C++ compilation fails rather than silently falling
+          # back to a pure-Python wheel (which cibuildwheel would reject anyway).
+          CIBW_ENVIRONMENT: SPATIALGEOMETRY_STRICT_EXTENSION=1
+          CIBW_BUILD_VERBOSITY: 1
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          name: wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
+
+  build_pure_python:
+    name: Build pure-Python fallback wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build pure-Python wheel
+        run: SPATIALGEOMETRY_BUILD_EXTENSION=0 pipx run build --wheel
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-pure-python
+          path: dist/*.whl
 
   build_sdist:
     name: Build source distribution
@@ -41,13 +59,18 @@ jobs:
           path: dist/*.tar.gz
 
   upload_pypi:
-    needs: [build_wheels, build_sdist]
+    needs: [build_wheels, build_pure_python, build_sdist]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
           pattern: wheels-*
           merge-multiple: true
+          path: dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheel-pure-python
           path: dist
 
       - uses: actions/download-artifact@v4
