@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.23.3
+        uses: pypa/cibuildwheel@v3.4.1
         env:
           # Fail loudly if C++ compilation fails rather than silently falling
           # back to a pure-Python wheel (which cibuildwheel would reject anyway).
