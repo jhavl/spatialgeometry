@@ -77,4 +77,7 @@ class CustomBuildHook(BuildHookInterface):
             build_data["force_include"][str(pyd)] = "spatialgeometry/" + pyd.name
 
         # Tell hatchling to tag this as a platform wheel, not py3-none-any.
+        # pure_python=False sets Root-Is-Purelib; infer_tag=True makes hatchling
+        # call get_best_matching_tag() to produce the correct cpXY-cpXY-platform tag.
         build_data["pure_python"] = False
+        build_data["infer_tag"] = True
