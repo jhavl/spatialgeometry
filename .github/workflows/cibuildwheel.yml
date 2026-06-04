@@ -32,6 +32,9 @@ jobs:
           # back to a pure-Python wheel (which cibuildwheel would reject anyway).
           CIBW_ENVIRONMENT: SPATIALGEOMETRY_STRICT_EXTENSION=1
           CIBW_BUILD_VERBOSITY: 1
+          # Only build CPython 3.10–3.13; skip PyPy and free-threaded builds.
+          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-*"
+          CIBW_SKIP: "pp* cp313t-*"
 
       - uses: actions/upload-artifact@v4
         with:
