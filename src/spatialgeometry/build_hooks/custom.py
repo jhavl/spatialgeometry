@@ -52,6 +52,7 @@ class CustomBuildHook(BuildHookInterface):
             cmd.build_lib = str(root / "src")
             cmd.build_temp = build_temp
             cmd.inplace = False
+            cmd.force = True  # Always recompile; don't reuse stale pre-committed .so files
             cmd.run()
         except Exception as exc:
             strict_ext = os.getenv("SPATIALGEOMETRY_STRICT_EXTENSION", "0").lower()
@@ -68,13 +69,14 @@ class CustomBuildHook(BuildHookInterface):
             build_data["force_include"][str(scene_py)] = "spatialgeometry/scene.py"
             return
 
-        # Register the compiled extension so hatchling includes it in the wheel.
-        # Use force_include (absolute-src → wheel-dest) rather than artifacts —
-        # artifacts doesn't reliably trigger platform-wheel tagging in hatchling.
-        for so in src_pkg.glob("scene*.so"):
-            build_data["force_include"][str(so)] = "spatialgeometry/" + so.name
-        for pyd in src_pkg.glob("scene*.pyd"):
-            build_data["force_include"][str(pyd)] = "spatialgeometry/" + pyd.name
+        # Include only the exact .so/.pyd that setuptools just compiled for this
+        # Python version/platform.  Using a glob would accidentally pick up other
+        # pre-committed binaries (wrong arch or wrong Python version).
+        ext_rel = cmd.get_ext_filename(ext.name)   # e.g. "spatialgeometry/scene.cpython-310-darwin.so"
+        so_path = Path(cmd.build_lib) / ext_rel
+        if not so_path.exists():
+            raise RuntimeError(f"Expected compiled extension not found: {so_path}")
+        build_data["force_include"][str(so_path)] = "spatialgeometry/" + so_path.name
 
         # Tell hatchling to tag this as a platform wheel, not py3-none-any.
         # pure_python=False sets Root-Is-Purelib; infer_tag=True makes hatchling
