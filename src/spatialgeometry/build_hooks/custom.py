@@ -69,7 +69,12 @@ class CustomBuildHook(BuildHookInterface):
             return
 
         # Register the compiled extension so hatchling includes it in the wheel.
+        # Use force_include (absolute-src → wheel-dest) rather than artifacts —
+        # artifacts doesn't reliably trigger platform-wheel tagging in hatchling.
         for so in src_pkg.glob("scene*.so"):
-            build_data["artifacts"].append(str(so.relative_to(root)))
+            build_data["force_include"][str(so)] = "spatialgeometry/" + so.name
         for pyd in src_pkg.glob("scene*.pyd"):
-            build_data["artifacts"].append(str(pyd.relative_to(root)))
+            build_data["force_include"][str(pyd)] = "spatialgeometry/" + pyd.name
+
+        # Tell hatchling to tag this as a platform wheel, not py3-none-any.
+        build_data["pure_python"] = False
