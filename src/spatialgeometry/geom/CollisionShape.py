@@ -127,6 +127,8 @@ class CollisionShape(Shape):
             shape._init_pob()
             shape._update_pyb()
 
+        shape._update_pyb()
+
         ret = p.getClosestPoints(self.co, shape.co, inf_dist)  # type: ignore
 
         try:
