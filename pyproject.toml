@@ -58,7 +58,7 @@ repository = "https://github.com/jhavl/spatialgeometry"
 
 [project.optional-dependencies]
 
-collision = ["coal", "trimesh"]
+collision = ["coal; sys_platform != 'win32'", "trimesh"]
 
 dev = [
     "black",
@@ -67,7 +67,7 @@ dev = [
     "pytest-cov",
     "flake8",
     "pyyaml",
-    "coal",
+    "coal; sys_platform != 'win32'",
     "trimesh",
 ]
 

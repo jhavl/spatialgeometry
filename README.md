@@ -69,9 +69,15 @@ pip install spatialgeometry[collision]
 ```
 
 This installs [Coal](https://github.com/coal-library/coal) and
-[trimesh](https://trimesh.org), both of which publish prebuilt wheels for
-macOS (including Apple Silicon/arm64), Linux, and Windows — no conda or
-manual build steps required.
+[trimesh](https://trimesh.org). Coal publishes prebuilt wheels for macOS
+(including Apple Silicon/arm64) and Linux — no conda or manual build steps
+required there.
+
+> **Windows note:** Coal doesn't currently install via pip on Windows (one
+> of its own dependencies, `cmeel-assimp`, has no Windows wheel in the
+> version range Coal needs), so the `collision` extra skips it there and
+> collision checking is unavailable via `pip` on Windows. Everything else
+> in the package works normally.
 
 ### conda / conda-forge
 
