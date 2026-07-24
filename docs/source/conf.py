@@ -37,6 +37,7 @@ with open(os.path.join(_root, 'pyproject.toml'), encoding='utf-8') as f:
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
