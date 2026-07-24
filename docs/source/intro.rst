@@ -650,10 +650,10 @@ Collision checking
 ^^^^^^^^^^^^^^^^^^
 
 RTB-M had a simple, contributed but unsupported, collision checking capability.
-This is dramatically improved in the Python version using [PyBullet]_
+This is dramatically improved in the Python version using [Coal]_
 which supports primitive shapes such as Cylinders, Spheres and Boxes as well as
 mesh objects. Every robot link can have a collision shape in addition to the shape
-used for rendering.  
+used for rendering.
 We can conveniently perform collision checks between links as well as between
 whole robots, discrete links, and objects in the world. For example a :math:`1
 \times 1 \times 1` box centered at :math:`(1,0,0)` can be tested against all, or
@@ -738,7 +738,7 @@ to import them if the user attempts to exploit a functionality that requires it.
 
 If a dependency is not installed, a warning provides instructions on how to install it using ``pip``.
 More details are given on the project home page.
-This applies to the visualizers Vpython and Swift, as well as pybullet and ROS.
+This applies to the visualizers Vpython and Swift, as well as Coal and ROS.
 The Toolbox provides capability to import URDF-xacro files without ROS.
 The backend architecture allows a user to connect to a ROS environment if required, and only then does ROS have to be
 installed.
@@ -768,6 +768,6 @@ References
 .. [Featherstone87] R. Featherstone, Robot Dynamics Algorithms. Kluwer Academic, 1987.
 .. [Corke07] P. Corke, `“A simple and systematic approach to assigning Denavit- Hartenberg parameters,” IEEE transactions on robotics, vol. 23, no. 3, pp. 590–594, 2007, DOI 10.1109/TRO.2007.896765. <https://ieeexplore.ieee.org/document/4252158>`_.
 .. [Haviland20] `J. Haviland and P. Corke, “A systematic approach to computing the manipulator Jacobian and Hessian using the elementary transform sequence,” arXiv preprint, 2020. <https://arxiv.org/abs/2010.08696>`_
-.. [PyBullet] `PyBullet <https://pybullet.org/wordpress/>`_
+.. [Coal] `Coal <https://github.com/coal-library/coal>`_
 .. [SMTB-P] `Spatial Math Toolbox for Python <https://github.com/petercorke/spatialmath-python>`_
 .. [bdsim] `Block diagram simulator for Python <https://github.com/petercorke/bdsim>`_

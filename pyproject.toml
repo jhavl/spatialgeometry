@@ -58,7 +58,7 @@ repository = "https://github.com/jhavl/spatialgeometry"
 
 [project.optional-dependencies]
 
-collision = ["pybullet"]
+collision = ["coal", "trimesh"]
 
 dev = [
     "black",
@@ -69,6 +69,8 @@ dev = [
     "pytest-cov",
     "flake8",
     "pyyaml",
+    "coal",
+    "trimesh",
 ]
 
 docs = ["sphinx", "sphinx_rtd_theme", "sphinx-autorun"]

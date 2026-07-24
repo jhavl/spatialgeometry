@@ -44,37 +44,26 @@ SPATIALGEOMETRY_BUILD_EXTENSION=0 python -m build --wheel
 This disables native C-extension compilation and produces a wheel that uses the
 Python scene backend (`spatialgeometry.scene`).
 
-> Collision functionality depends on PyBullet and is not expected to work in
-> JupyterLite.
+> Collision functionality depends on [Coal](https://github.com/coal-library/coal)
+> and is not expected to work in JupyterLite.
 
-For collision support (requires [PyBullet](https://pybullet.org)):
+For collision support:
 
 ```shell
 pip install spatialgeometry[collision]
 ```
 
-> **Note for macOS (Apple Silicon / arm64):** PyBullet cannot be built from
-> source on macOS with recent Xcode/clang toolchains.  Install it via
-> conda-forge **before** installing the collision extra (see below).
+This installs [Coal](https://github.com/coal-library/coal) and
+[trimesh](https://trimesh.org), both of which publish prebuilt wheels for
+macOS (including Apple Silicon/arm64), Linux, and Windows — no conda or
+manual build steps required.
 
 ### conda / conda-forge
 
-The recommended approach for development, and the only reliable way to get
-PyBullet on macOS/arm64, is to use the provided `environment.yml`:
+For development, the provided `environment.yml` installs the package in
+editable mode with all dev and collision extras:
 
 ```shell
 conda env create -f environment.yml
 conda activate spatialgeometry-dev
-```
-
-This creates an environment named `spatialgeometry-dev` with:
-- numpy ≥ 2.0 (from conda-forge)
-- pybullet pre-built binary (from conda-forge – avoids the macOS/clang build issue)
-- the package itself installed in editable mode with all dev and collision extras
-
-Alternatively, install pybullet manually from conda-forge into an existing environment before using pip:
-
-```shell
-conda install -c conda-forge pybullet
-pip install spatialgeometry[collision]
 ```
