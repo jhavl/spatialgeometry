@@ -1,10 +1,12 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+# Run tests and build/deploy docs.
+# Triggers on pushes to main and on PRs targeting main.
 
 name: Run Tests and Build Docs
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
 
 jobs:
@@ -13,11 +15,11 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -28,17 +30,18 @@ jobs:
           pip install .[dev,collision]
           pip install pytest-timeout
           pytest --timeout=30 --timeout_method thread -s
+
   codecov:
     # If all tests pass:
     # Run coverage and upload to codecov
     needs: unittest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.7
+          python-version: "3.12"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -48,48 +51,52 @@ jobs:
           pytest --cov=spatialgeometry --cov-report xml:coverage.xml
           coverage report
       - name: upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml
-  sphinx:
-    # If the above worked:
-    # Build docs and upload to GH Pages
+
+  docs-build:
     needs: unittest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.7
-      - name: Install dependencies
+          python-version: "3.12"
+
+      - name: Install docs dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install .[docs]
-          pip install git+https://github.com/petercorke/sphinx-autorun.git
           pip install sympy
-          sudo apt-get install graphviz
+          sudo apt-get install -y graphviz
+
       - name: Build docs
         run: |
-          cd docs
-          make html
-          # Tell GitHub not to use jekyll to compile the docs
+          cd docs && make html
           touch build/html/.nojekyll
-          cd ../
-      - name: Commit documentation changes
-        run: |
-          git clone https://github.com/jhavl/spatialgeometry.git --branch gh-pages --single-branch gh-pages
-          cp -r docs/build/html/* gh-pages/
-          cd gh-pages
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Update documentation" -a || true
-          # The above command will fail if no changes were present, so we ignore
-          # that.
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          branch: gh-pages
-          directory: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          path: docs/build/html
+
+  # Separate job so the github-pages environment (and its deployment
+  # protection rules restricting it to main) is only ever touched on main —
+  # a job-level `environment:` triggers a deployment attempt as soon as the
+  # job starts, regardless of any step-level `if:`, so PR runs would
+  # otherwise show a false "failed to deploy to github-pages".
+  docs-deploy:
+    needs: docs-build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

@@ -155,7 +155,7 @@ Multiple values
 
 To support sequences of values each of these types inherits list properties from ``collections.UserList``
 
-.. figure:: ../figs/pose-values.png
+.. figure:: figs/pose-values.png
       :width: 600
       :alt: Any of the SMTB-P pose classes can contain a list of values
 
@@ -176,7 +176,7 @@ where the instance ``R`` contains a sequence of 100 rotation matrices.
 Composition with a single-valued (scalar) pose instance  broadcasts the scalar
 across the sequence
 
-.. figure:: ../figs/broadcasting.png
+.. figure:: figs/broadcasting.png
    :alt: Overloaded operators support broadcasting
 
    Overloaded operators support broadcasting
@@ -315,7 +315,7 @@ The default plot method::
 
 uses matplotlib to produce a "noodle robot" plot like
 
-.. figure:: ../figs/noodle+ellipsoid.png
+.. figure:: figs/noodle+ellipsoid.png
       :width: 600
       :alt: Puma560, with a velocity ellipsoid, rendered using the default matplotlib visualizer
 
@@ -418,7 +418,7 @@ detailed geometry and color.  This can be visualized using the Swift simulator:
 
 which produces the 3-D plot 
 
-.. figure:: ../figs/swift.png
+.. figure:: figs/swift.png
       :width: 600
       :alt: Panda robot rendered using the Toolbox’s Swift visualizer
 
@@ -704,7 +704,7 @@ The more general solution, and what is implemented inside ``plot`` in the exampl
 This makes it possible to animate multiple robots in the one graphical window, or the one robot in various environments either graphical
 or real.
 
-.. figure:: ../figs/vp_ss_0000-2.png
+.. figure:: figs/vp_ss_0000-2.png
       :width: 600
       :alt: Puma560 rendered using the web-based VPython visualizer.
 
