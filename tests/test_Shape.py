@@ -5,12 +5,17 @@
 
 import numpy.testing as nt
 import numpy as np
-import roboticstoolbox as rtb
 import unittest
 import spatialmath as sm
 from spatialmath.pose3d import SE3
 import spatialgeometry as gm
-import roboticstoolbox as rtb
+
+from tests import skip_no_rtb
+
+try:
+    import roboticstoolbox as rtb
+except ImportError:
+    rtb = None  # only used by the @skip_no_rtb tests below
 
 
 class TestShape(unittest.TestCase):
@@ -102,6 +107,7 @@ class TestShape(unittest.TestCase):
 
         self.assertEqual(s1.fk_dict(), ans)
 
+    @skip_no_rtb
     def test_mesh(self):
         ur = rtb.models.UR5()
         print(ur.links[1].collision[0].filename)
@@ -169,11 +175,13 @@ class TestShape(unittest.TestCase):
 
         self.assertEqual(s0.to_dict(), ans)
 
+    @skip_no_rtb
     def test_robot(self):
         r = rtb.models.UR5()
         b = gm.Cuboid([1, 1, 1], base=SE3(1.0, 0, 0))
         r.links[1].collision[0].closest_point(b)
 
+    @skip_no_rtb
     def test_robot2(self):
         r = rtb.models.Panda()
         b = gm.Cuboid([1, 1, 1], base=SE3(1.0, 0, 0))
