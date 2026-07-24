@@ -63,7 +63,7 @@ collision = ["coal", "trimesh"]
 dev = [
     "black",
     "editables",
-    "roboticstoolbox-python~=1.0.0",
+    "roboticstoolbox-python",
     "swift-sim",
     "pytest",
     "pytest-cov",
