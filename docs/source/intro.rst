@@ -67,4 +67,41 @@ Swift to describe a scene to the browser:
     >>> cube = gm.Cuboid([1, 1, 1])
     >>> cube.to_dict()
 
+
+Displaying shapes
+==================
+
+Spatial Geometry itself has no renderer -- it describes geometry, it
+doesn't draw it. To actually see a shape, add it to a `Swift
+<https://github.com/jhavl/swift>`_ environment, which opens a browser tab
+and renders whatever is added to it (robots and bare shapes alike):
+
+.. code-block:: python
+
+    # pip install swift-sim
+    import spatialgeometry as gm
+    from spatialmath import SE3
+    from swift import Swift
+
+    env = Swift()
+    env.launch(realtime=True)
+
+    cube = gm.Cuboid([1, 1, 1], pose=SE3(0, 0, 0.5), color="blue")
+    sphere = gm.Sphere(0.3, pose=SE3(2, 0, 0.3), color="red")
+
+    env.add(cube)
+    env.add(sphere)
+
+    env.hold()  # keep the browser tab open
+
+Swift's ``env.add()`` accepts a bare ``Shape`` directly -- internally it
+just calls the shape's ``to_dict()`` (shown above) and sends it over
+a websocket to the browser. The same ``env.add()``/``env.step()`` pattern
+works for a whole robot too; see Swift's own README for a worked example
+moving a Panda arm towards a goal pose.
+
+This example isn't executed when these docs are built (it needs a
+browser and a running websocket connection), so treat it as a starting
+point rather than verified-working output like the examples above.
+
 See the :doc:`api` page for the full class reference.

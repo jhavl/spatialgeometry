@@ -80,7 +80,6 @@ html_theme_options = {
     'analytics_id': 'G-11Q6WJM565',
     'style_external_links': True,
 }
-html_logo = 'figs/RobToolBox_RoundLogoB.png'
 html_last_updated_fmt = '%d-%b-%Y'
 show_authors = True
 

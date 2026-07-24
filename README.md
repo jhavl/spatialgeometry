@@ -1,6 +1,6 @@
 # Spatial Geometry
 
-[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
+[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/main/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
 [![PyPI version](https://badge.fury.io/py/spatialgeometry.svg)](https://badge.fury.io/py/spatialgeometry)
@@ -8,22 +8,37 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/spatialgeometry.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![Build Status](https://github.com/jhavl/spatialgeometry/workflows/build/badge.svg?branch=main)](https://github.com/jhavl/spatialgeometry/actions?query=workflow%3Abuild)
+[![Build Status](https://github.com/jhavl/spatialgeometry/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/jhavl/spatialgeometry/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/jhavl/spatialgeometry/branch/main/graph/badge.svg?token=YPmchbQi2v)](https://codecov.io/gh/jhavl/spatialgeometry)
 
-<table style="border:0px">
-<tr style="border:0px">
-<td style="border:0px">
-<img src="https://github.com/petercorke/robotics-toolbox-python/raw/master/docs/figs/RobToolBox_RoundLogoB.png" width="200"></td>
-<td style="border:0px">
-A Python Shape and Geometry Package
-<ul>
-<li><a href="https://github.com/jhavl/spatialgeometry">GitHub repository </a></li>
-<li><a href="https://jhavl.github.io/spatialgeometry">Documentation</a></li>
-</ul>
-</td>
-</tr>
-</table>
+[GitHub repository](https://github.com/jhavl/spatialgeometry) &nbsp;|&nbsp; [Documentation](https://jhavl.github.io/spatialgeometry)
+
+Spatial Geometry provides simple 3D shape primitives -- cuboids, cylinders,
+spheres, and triangle meshes -- for representing robot links, obstacles, and
+other geometry in a scene. Every shape carries a pose (position and
+orientation) and an optional colour, and can be tested for distance and
+collision against any other shape using [Coal](https://github.com/coal-library/coal).
+
+It's used by the [Robotics Toolbox for Python](https://github.com/petercorke/robotics-toolbox-python)
+to describe robot link geometry, and by [Swift](https://github.com/jhavl/swift)
+to render scenes in the browser.
+
+## Quick start
+
+```python
+import spatialgeometry as gm
+from spatialmath import SE3
+
+cube = gm.Cuboid([1, 1, 1], pose=SE3(0, 0, 0))
+sphere = gm.Sphere(0.5, pose=SE3(2, 0, 0), color="red")
+
+d, p1, p2 = cube.closest_point(sphere, inf_dist=10)
+cube.iscollided(sphere)
+```
+
+See the [documentation](https://jhavl.github.io/spatialgeometry) for the
+full API reference and more examples, including how to display shapes with
+Swift.
 
 ## Installation
 
@@ -67,3 +82,7 @@ editable mode with all dev and collision extras:
 conda env create -f environment.yml
 conda activate spatialgeometry-dev
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
