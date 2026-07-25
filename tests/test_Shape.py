@@ -10,7 +10,7 @@ import spatialmath as sm
 from spatialmath.pose3d import SE3
 import spatialgeometry as gm
 
-from tests import skip_no_rtb
+from tests import skip_no_collision_checking, skip_no_rtb
 
 try:
     import roboticstoolbox as rtb
@@ -108,11 +108,13 @@ class TestShape(unittest.TestCase):
         self.assertEqual(s1.fk_dict(), ans)
 
     @skip_no_rtb
+    @skip_no_collision_checking
     def test_mesh(self):
         ur = rtb.models.UR5()
         print(ur.links[1].collision[0].filename)
         ur.links[1].collision[0].closest_point(ur.links[2].collision[0])
 
+    @skip_no_collision_checking
     def test_collision(self):
         s0 = gm.Cuboid([1, 1, 1], base=sm.SE3(0, 0, 0))
         s1 = gm.Cuboid([1, 1, 1], base=sm.SE3(0.5, 0, 0))
@@ -176,12 +178,14 @@ class TestShape(unittest.TestCase):
         self.assertEqual(s0.to_dict(), ans)
 
     @skip_no_rtb
+    @skip_no_collision_checking
     def test_robot(self):
         r = rtb.models.UR5()
         b = gm.Cuboid([1, 1, 1], base=SE3(1.0, 0, 0))
         r.links[1].collision[0].closest_point(b)
 
     @skip_no_rtb
+    @skip_no_collision_checking
     def test_robot2(self):
         r = rtb.models.Panda()
         b = gm.Cuboid([1, 1, 1], base=SE3(1.0, 0, 0))
