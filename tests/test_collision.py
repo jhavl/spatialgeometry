@@ -217,6 +217,44 @@ class TestMixedPairs:
         assert d1 == pytest.approx(d2, abs=1e-10)
 
 
+# ── Mesh distance ─────────────────────────────────────────────────────────────
+#
+# Mesh._init_coal() builds a BVHModelOBBRSS -- a genuinely different code
+# path from the primitive shapes above (Sphere/Cuboid/Cylinder each map
+# directly onto a native Coal primitive). Generates its own unit-cube
+# fixtures via trimesh rather than depending on an external package for
+# "some real mesh files to test with".
+
+@skip_no_collision_checking
+class TestMeshDistance:
+    def _box_mesh(self, tmp_path, name, pose=None):
+        import trimesh
+
+        path = tmp_path / name
+        trimesh.creation.box(extents=[1, 1, 1]).export(str(path))
+        return gm.Mesh(str(path), pose=pose if pose is not None else SE3())
+
+    def test_mesh_to_mesh_separated(self, tmp_path):
+        # unit cubes at x=0 and x=3; faces at ±0.5 and 2.5/3.5 → gap = 2.0
+        m0 = self._box_mesh(tmp_path, "box0.stl")
+        m1 = self._box_mesh(tmp_path, "box1.stl", pose=SE3(3, 0, 0))
+        d, _, _ = m0.closest_point(m1, inf_dist=BIG)
+        assert d == pytest.approx(2.0, abs=1e-6)
+
+    def test_mesh_to_sphere(self, tmp_path):
+        # unit cube at origin (face at 0.5); sphere r=0.5 at x=2 (surface at 1.5)
+        m0 = self._box_mesh(tmp_path, "box0.stl")
+        d, _, _ = m0.closest_point(sphere_at(0.5, x=2.0), inf_dist=BIG)
+        assert d == pytest.approx(1.0, abs=1e-6)
+
+    def test_mesh_iscollided(self, tmp_path):
+        m0 = self._box_mesh(tmp_path, "box0.stl")
+        m1 = self._box_mesh(tmp_path, "box1.stl", pose=SE3(0.5, 0, 0))
+        m2 = self._box_mesh(tmp_path, "box2.stl", pose=SE3(3, 0, 0))
+        assert m0.iscollided(m1)
+        assert not m0.iscollided(m2)
+
+
 # ── iscollided ────────────────────────────────────────────────────────────────
 
 @skip_no_collision_checking

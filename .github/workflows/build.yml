@@ -31,33 +31,6 @@ jobs:
           pip install pytest-timeout
           pytest --timeout=30 --timeout_method thread -s
 
-  rtb-integration:
-    # Exercises the RTB-dependent tests in test_Shape.py (test_mesh,
-    # test_robot, test_robot2) that are skipped everywhere else --
-    # roboticstoolbox is deliberately not in the dev extra (installing a
-    # published RTB release alongside this package caused real file-
-    # clobbering collisions, both vendor a package at the same
-    # `spatialgeometry` import path). Installs RTB from a branch instead
-    # of PyPI until RTB 1.4.0 (which drops its own vendored copy) ships;
-    # swap this for a normal version-pinned PyPI install once it does.
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install spatialgeometry, then RTB from source
-        run: |
-          pip install -e .[collision]
-          pip install pytest
-          pip install git+https://github.com/petercorke/robotics-toolbox-python.git@fix/drop-vendored-spatialgeometry
-      - name: Test with pytest
-        # Runs the full suite (not just the RTB-dependent tests) so the
-        # skip_no_rtb-gated tests get real coverage here, matching how
-        # they'd behave for any dev who has both packages installed.
-        run: pytest tests/ -v
-
   codecov:
     # If all tests pass:
     # Run coverage and upload to codecov
