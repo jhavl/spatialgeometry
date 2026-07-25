@@ -1,0 +1,45 @@
+.FORCE:
+
+BLUE=\033[0;34m
+BLACK=\033[0;30m
+
+help:
+	@echo "$(BLUE) make test - run all unit tests"
+	@echo " make coverage - run unit tests and coverage report"
+	@echo " make docs - build Sphinx documentation"
+	@echo " make docupdate - upload Sphinx documentation to GitHub pages"
+	@echo " make dist - build dist files"
+	@echo " make upload - upload to PyPI"
+	@echo " make clean - remove dist and docs build files"
+	@echo " make help - this message$(BLACK)"
+
+test:
+	python -m pytest
+
+coverage:
+	coverage run --omit=\*/test_\* -m unittest
+	coverage report
+
+docs: .FORCE
+	(cd docs; make html)
+	open docs/build/html/index.html
+
+dist: .FORCE
+	#$(MAKE) test
+	python -m build
+
+pypi: .FORCE
+	validate-pyproject pyproject.toml
+	@if ! git diff --quiet || ! git diff --cached --quiet; then \
+		echo "Error: uncommitted changes present, aborting upload"; exit 1; \
+	fi
+	$(eval VERSION := $(shell grep '^version' pyproject.toml | sed 's/version = "\(.*\)"/\1/'))
+	python -m build
+	twine upload dist/*
+	git tag v$(VERSION)
+	git push origin v$(VERSION)
+
+clean: .FORCE
+	(cd docs; make clean)
+	-rm -r *.egg-info
+	-rm -r dist

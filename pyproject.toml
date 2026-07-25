@@ -4,7 +4,7 @@ name = "spatialgeometry"
 
 description = "A Shape and Geometry Description Package"
 
-version = "1.1.0"
+version = "1.2.0"
 
 authors = [
     { name = "Jesse Haviland", email = "j.haviland@qut.edu.au" },
@@ -18,7 +18,7 @@ license = { file = "LICENSE" }
 
 readme = "README.md"
 
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 
 keywords = [
     "python",
@@ -43,11 +43,10 @@ classifiers = [
     # Pick your license as you wish (should match "license" above)
     "License :: OSI Approved :: MIT License",
     # Specify the Python versions you support here.
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 
@@ -59,16 +58,17 @@ repository = "https://github.com/jhavl/spatialgeometry"
 
 [project.optional-dependencies]
 
-collision = ["pybullet"]
+collision = ["coal; sys_platform != 'win32'", "trimesh"]
 
 dev = [
     "black",
-    "roboticstoolbox-python~=1.0.0",
-    "swift-sim",
+    "editables",
     "pytest",
     "pytest-cov",
     "flake8",
     "pyyaml",
+    "coal; sys_platform != 'win32'",
+    "trimesh",
 ]
 
 docs = ["sphinx", "sphinx_rtd_theme", "sphinx-autorun"]
@@ -76,23 +76,24 @@ docs = ["sphinx", "sphinx_rtd_theme", "sphinx-autorun"]
 
 [build-system]
 
-requires = [
-    "setuptools",
-    "oldest-supported-numpy",
-    # "numpy == 1.17.4",
+requires = ["scikit-build-core>=0.9", "nanobind>=2"]
+build-backend = "scikit_build_core.build"
+
+
+[tool.scikit-build]
+wheel.packages = ["src/spatialgeometry"]
+sdist.include = [
+    "src/spatialgeometry",
+    "tests",
+    "CMakeLists.txt",
+    "README.md",
+    "LICENSE",
 ]
-build-backend = "setuptools.build_meta"
-
-
-[tool.setuptools]
-
-packages = ["spatialgeometry", "spatialgeometry.geom", "spatialgeometry.tools"]
 
 
 [tool.black]
 
 line-length = 88
-target_version = ['py37']
 include = '\.pyi?$'
 exclude = '''
 
@@ -131,8 +132,8 @@ extend-ignore = 'E203'
 manylinux-x86_64-image = "manylinux2014"
 manylinux-aarch64-image = "manylinux2014"
 
-# Build CPython 3.7 - 3.11
-build = ["cp37-*", "cp38-*", "cp39-*", "cp310-*", "cp311-*"]
+# Build CPython
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*"]
 
 # Disable building musllinux wheels on all platforms
 skip = ["pp*", "*musllinux*"]
@@ -153,3 +154,11 @@ archs = ["x86_64", "aarch64"]
 
 # On an Windows Intel runner build wheels
 archs = ["AMD64", "x86"]
+
+[tool.cibuildwheel.pyodide]
+# Pyodide (wasm32-emscripten) -- used by JupyterLite. cibuildwheel manages
+# the Emscripten SDK; scikit-build-core picks up the toolchain file
+# automatically from the PYODIDE environment. CMakeLists.txt's
+# CMAKE_SYSTEM_NAME == "Emscripten" guard skips nanobind_add_module()
+# entirely here, so this produces a genuine pure-Python wheel that falls
+# back to scene.py -- no manual env var needed to opt out of compiling.

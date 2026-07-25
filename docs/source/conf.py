@@ -23,12 +23,12 @@ project = 'Spatial Geometry'
 copyright = '2020, Jesse Haviland and Peter Corke'
 author = 'Jesse Haviland and Peter Corke'
 
-# print(__file__)
-
-# parse version number out of setup.py
-with open('../../setup.py', encoding='utf-8') as f:
-    setup_py = f.read()
-    m = re.search("version='([0-9\.]*)',", setup_py, re.MULTILINE)
+# Parse version number out of pyproject.toml
+_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+with open(os.path.join(_root, 'pyproject.toml'), encoding='utf-8') as f:
+    pyproject_src = f.read()
+    m = re.search(r'^version\s*=\s*"([0-9.]*)"', pyproject_src, re.MULTILINE)
+    version = m.group(1) if m else "unknown"
 
 # -- General configuration ---------------------------------------------------
 
@@ -37,6 +37,7 @@ with open('../../setup.py', encoding='utf-8') as f:
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
@@ -74,23 +75,13 @@ ANSITable._color = False
 html_theme = 'sphinx_rtd_theme'
 
 html_theme_options = {
-    # 'github_user': 'petercorke',
-    # 'github_repo': 'spatialmath-python',
-    # 'logo_name': False,
     'logo_only': False,
-    'display_version': True,
     'prev_next_buttons_location': 'both',
     'analytics_id': 'G-11Q6WJM565',
     'style_external_links': True,
 }
-html_logo = '../figs/RobToolBox_RoundLogoB.png'
 html_last_updated_fmt = '%d-%b-%Y'
 show_authors = True
-
-# mathjax_config = {
-#     "jax": ["input/TeX","output/HTML-CSS"],
-#     "displayAlign": "left"
-# }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -119,7 +110,7 @@ latex_elements = {
 
 # Use RVC book notation for maths
 # see https://stackoverflow.com/questions/9728292/creating-latex-math-macros-within-sphinx
-mathjax_config = {
+mathjax3_config = {
     'TeX': {
         'Macros': {
             # RVC Math notation

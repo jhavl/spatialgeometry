@@ -1,4 +1,9 @@
-name: Build all Wheels
+# Build wheels for all platforms and publish to PyPI.
+# Triggered on GitHub release creation or manually via workflow_dispatch.
+#
+# Uses OIDC trusted publishing -- no stored PyPI token required.
+
+name: Publish to PyPI
 
 on:
   release:
@@ -7,59 +12,110 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Build compiled wheels on ${{ matrix.os }} (${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
-      
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-11]
         include:
-          - os: ubuntu-20.04
-            cibw_archs: "aarch64"
-            
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+          - os: windows-latest
+            arch: x86_64
+          - os: macos-latest
+            arch: arm64
     steps:
-    
-      # Set up emulation for arm on linux
-      - name: Set up QEMU
-        if: matrix.cibw_archs == 'aarch64'
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: arm64
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.3
+        uses: pypa/cibuildwheel@v3.4.1
+        env:
+          CIBW_BUILD_VERBOSITY: 1
+          # Only build CPython 3.10-3.13; skip PyPy and free-threaded builds.
+          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-*"
+          CIBW_SKIP: "pp* cp313t-* *musllinux*"
+          # Only build for this runner's native arch (no QEMU cross-compilation).
+          CIBW_ARCHS: native
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
+
+  build_pyodide:
+    name: Build Pyodide (wasm32) wheel
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Pyodide wheel
+        uses: pypa/cibuildwheel@v3.4.1
+        env:
+          CIBW_PLATFORM: pyodide
+
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: wheels-pyodide
           path: ./wheelhouse/*.whl
 
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Build sdist
         run: pipx run build --sdist
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: sdist
           path: dist/*.tar.gz
-          
+
+  # PyPI rejects the pyodide_* platform tag, so attach it to the GitHub
+  # Release as a downloadable asset instead -- same pattern as RTB's own
+  # release.yml, which is where a future RTB fix for its own JupyterLite
+  # build (it needs a wasm spatialgeometry wheel now that it depends on
+  # the real package instead of vendoring a pure-Python copy) would fetch
+  # this from.
+  upload_pyodide_asset:
+    name: Attach Pyodide wheel to GitHub release
+    needs: build_pyodide
+    if: github.event_name == 'release' && needs.build_pyodide.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-pyodide
+          path: pyodide-dist
+
+      - name: Upload Pyodide wheel as release asset
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: pyodide-dist/*.whl
+
   upload_pypi:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write # required for OIDC trusted publishing
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          # unpacks default artifact into dist/
-          name: artifact
+          pattern: wheels-*
+          merge-multiple: true
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.5.0
+      - uses: actions/download-artifact@v4
         with:
-          user: __token__
-          password: ${{ secrets.PYPI_PASSWORD }}
-          
-          
+          name: sdist
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
