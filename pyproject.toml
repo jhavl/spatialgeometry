@@ -76,22 +76,19 @@ docs = ["sphinx", "sphinx_rtd_theme", "sphinx-autorun"]
 
 [build-system]
 
-requires = [
-    "hatchling",
-    "setuptools", # used inside hatch_build.py to compile the C extension
-    "numpy>=2.0",
+requires = ["scikit-build-core>=0.9", "nanobind>=2"]
+build-backend = "scikit_build_core.build"
+
+
+[tool.scikit-build]
+wheel.packages = ["src/spatialgeometry"]
+sdist.include = [
+    "src/spatialgeometry",
+    "tests",
+    "CMakeLists.txt",
+    "README.md",
+    "LICENSE",
 ]
-build-backend = "hatchling.build"
-
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/spatialgeometry"]
-
-[tool.hatch.build.targets.sdist]
-include = ["src/", "tests/", "LICENSE", "README.md", "pyproject.toml"]
-
-[tool.hatch.build.hooks.custom]
-path = "src/spatialgeometry/build_hooks/custom.py"
 
 
 [tool.black]
@@ -157,3 +154,11 @@ archs = ["x86_64", "aarch64"]
 
 # On an Windows Intel runner build wheels
 archs = ["AMD64", "x86"]
+
+[tool.cibuildwheel.pyodide]
+# Pyodide (wasm32-emscripten) -- used by JupyterLite. cibuildwheel manages
+# the Emscripten SDK; scikit-build-core picks up the toolchain file
+# automatically from the PYODIDE environment. CMakeLists.txt's
+# CMAKE_SYSTEM_NAME == "Emscripten" guard skips nanobind_add_module()
+# entirely here, so this produces a genuine pure-Python wheel that falls
+# back to scene.py -- no manual env var needed to opt out of compiling.
