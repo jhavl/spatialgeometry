@@ -1,5 +1,13 @@
 # Build wheels for all platforms and publish to PyPI.
-# Triggered on GitHub release creation or manually via workflow_dispatch.
+#
+# To ship a release: bump the version in pyproject.toml, merge that to
+# main, then on GitHub go to Releases -> "Draft a new release", pick a
+# tag matching the new version, and click "Publish release". That single
+# click is the only trigger for this workflow -- it builds every wheel
+# (including Pyodide/wasm32), uploads everything to PyPI, and attaches
+# the Pyodide wheel to the release as a downloadable asset. There is no
+# separate manual/workflow_dispatch path, so there's only one way to
+# publish and it always does the full job.
 #
 # Uses OIDC trusted publishing -- no stored PyPI token required.
 
@@ -7,8 +15,7 @@ name: Publish to PyPI
 
 on:
   release:
-    types: [created]
-  workflow_dispatch:
+    types: [published]
 
 jobs:
   build_wheels:
@@ -84,7 +91,7 @@ jobs:
   upload_pyodide_asset:
     name: Attach Pyodide wheel to GitHub release
     needs: build_pyodide
-    if: github.event_name == 'release' && needs.build_pyodide.result == 'success'
+    if: needs.build_pyodide.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
