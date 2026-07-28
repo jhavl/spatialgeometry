@@ -78,6 +78,14 @@ required there.
 > version range Coal needs), so the `collision` extra skips it there and
 > collision checking is unavailable via `pip` on Windows. Everything else
 > in the package works normally.
+>
+> Workaround: conda-forge publishes `coal-python` built for `win-64`
+> against its own assimp, sidestepping the missing wheel entirely:
+>
+> ```shell
+> conda install -c conda-forge coal-python
+> pip install spatialgeometry trimesh
+> ```
 
 ### conda / conda-forge
 
