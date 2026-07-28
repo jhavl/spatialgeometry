@@ -67,7 +67,7 @@ jobs:
 
       - name: Install docs dependencies
         run: |
-          pip install .[docs]
+          pip install .[docs,collision]
           pip install sympy
           sudo apt-get install -y graphviz
 
