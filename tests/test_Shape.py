@@ -101,6 +101,38 @@ class TestShape(unittest.TestCase):
 
         self.assertEqual(s1.fk_dict(), ans)
 
+    def test_wq_matches_spatialmath_r2q(self):
+        # fk_dict()'s "q" comes from _wq, populated by the C++ r2q() in
+        # scene_nb.cpp (Shepperd's method) every _propogate_scene_tree()
+        # call -- a different algorithm to spatialmath.base.r2q's Cayley's
+        # method, and never cross-checked against it before. Covers the
+        # cases quaternion-extraction methods most commonly get wrong:
+        # identity, near-identity, and 90/180/179.99 degrees about each axis.
+        cases = {
+            "identity": sm.SE3(),
+            "near_identity": sm.SE3.Rx(0.001, unit="deg"),
+            "rx_90": sm.SE3.Rx(90, unit="deg"),
+            "ry_90": sm.SE3.Ry(90, unit="deg"),
+            "rz_90": sm.SE3.Rz(90, unit="deg"),
+            "rx_180": sm.SE3.Rx(180, unit="deg"),
+            "ry_180": sm.SE3.Ry(180, unit="deg"),
+            "rz_180": sm.SE3.Rz(180, unit="deg"),
+            "rx_179.99": sm.SE3.Rx(179.99, unit="deg"),
+            "arbitrary1": sm.SE3.Rx(37) * sm.SE3.Ry(-52) * sm.SE3.Rz(101),
+            "arbitrary2": sm.SE3.Rx(-170) * sm.SE3.Ry(88) * sm.SE3.Rz(-45),
+        }
+
+        for name, T in cases.items():
+            shape = gm.Cuboid([0.1, 0.1, 0.1], pose=T)
+            shape._propogate_scene_tree()
+
+            expected = sm.base.r2q(T.R, order="xyzs")
+
+            # q and -q represent the same rotation -- accept either sign.
+            same = np.allclose(shape._wq, expected, atol=1e-9)
+            opposite = np.allclose(shape._wq, -np.array(expected), atol=1e-9)
+            self.assertTrue(same or opposite, msg=f"{name}: {shape._wq} vs {expected}")
+
     @skip_no_collision_checking
     def test_collision(self):
         s0 = gm.Cuboid([1, 1, 1], base=sm.SE3(0, 0, 0))
