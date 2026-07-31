@@ -44,8 +44,22 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
     'sphinx.ext.inheritance_diagram',
-    'sphinx_autorun',
+    'sphinx_pyrunblock',
+    'sphinx_copybutton',
+    'sphinx_codeautolink',
+    'sphinxcontrib.mermaid',
 ]
+
+# sphinx_copybutton: strip the leading '>>> '/'... ' prompts when copying
+copybutton_prompt_text = r'>>> |\.\.\. '
+copybutton_prompt_is_regexp = True
+
+# sphinx_codeautolink: link names in code blocks to their API docs
+codeautolink_autodoc_inject = False
+
+# sphinxcontrib.mermaid: size the SVG to its content instead of a fixed
+# 500px height, which pads short/wide diagrams with blank space
+mermaid_height = "auto"
 
 autosummary_generate = True
 autodoc_member_order = 'bysource'
@@ -55,12 +69,9 @@ templates_path = ['_templates']
 
 exclude_patterns = ['test_*']
 
-# options for spinx_autorun, used for inline examples
-#  choose UTF-8 encoding to allow for Unicode characters, eg. ansitable
+# options for spinx_pyrunblock, used for inline examples
 #  Python session setup, turn off color printing for SE3, set NumPy precision
 autorun_languages = {}
-autorun_languages['pycon_output_encoding'] = 'UTF-8'
-autorun_languages['pycon_input_encoding'] = 'UTF-8'
 autorun_languages['pycon_runfirst'] = """
 from spatialmath import SE3
 SE3._color = False

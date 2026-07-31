@@ -71,7 +71,7 @@ dev = [
     "trimesh",
 ]
 
-docs = ["sphinx", "sphinx_rtd_theme", "sphinx-autorun"]
+docs = ["sphinx", "sphinx_rtd_theme", "sphinx-autorun", "sphinx-copybutton", "sphinx-codeautolink", "sphinxcontrib-mermaid"]
 
 
 [build-system]
