@@ -58,7 +58,7 @@ repository = "https://github.com/jhavl/spatialgeometry"
 
 [project.optional-dependencies]
 
-collision = ["coal; sys_platform != 'win32'", "trimesh"]
+collision = ["coal; sys_platform != 'win32'", "trimesh", "pycollada"]
 
 dev = [
     "black",
@@ -71,7 +71,7 @@ dev = [
     "trimesh",
 ]
 
-docs = ["sphinx", "sphinx_rtd_theme", "sphinx-autorun", "sphinx-copybutton", "sphinx-codeautolink", "sphinxcontrib-mermaid"]
+docs = ["sphinx", "sphinx_rtd_theme", "sphinx-pyrunblock", "sphinx-copybutton", "sphinx-codeautolink", "sphinxcontrib-mermaid"]
 
 
 [build-system]
