@@ -298,14 +298,36 @@ class Axes(Shape):
 
     :param length: The length of each axis.
     :type length: float
+    :param arrows: If True, render each axis as a colored Arrow (red/
+        green/blue for X/Y/Z) instead of a plain line.
+    :type arrows: bool
+    :param radius: Shaft radius of each arrow. Only used when
+        arrows=True; passed straight through to each constituent Arrow
+        (see Arrow's own radius/linewidth docs -- they are mutually
+        exclusive, radius > 0 takes precedence).
+    :type radius: float
+    :param linewidth: Shaft width in pixels, only used when arrows=True
+        and radius == 0. Passed straight through to each constituent
+        Arrow.
+    :type linewidth: float
     :param pose: Local reference frame of the shape
     :type pose: SE3
 
     """
 
-    def __init__(self, length, **kwargs):
+    def __init__(
+        self,
+        length,
+        arrows: bool = False,
+        radius: float = 0.0,
+        linewidth: float = 1.0,
+        **kwargs,
+    ):
         super(Axes, self).__init__(stype="axes", **kwargs)
         self.length = length
+        self.arrows = arrows
+        self.radius = radius
+        self.linewidth = linewidth
 
     @property
     def length(self):
@@ -315,6 +337,33 @@ class Axes(Shape):
     @update
     def length(self, value):
         self._length = float(value)
+
+    @property
+    def arrows(self):
+        return self._arrows
+
+    @arrows.setter
+    @update
+    def arrows(self, value):
+        self._arrows = bool(value)
+
+    @property
+    def radius(self):
+        return self._radius
+
+    @radius.setter
+    @update
+    def radius(self, value):
+        self._radius = float(value)
+
+    @property
+    def linewidth(self):
+        return self._linewidth
+
+    @linewidth.setter
+    @update
+    def linewidth(self, value):
+        self._linewidth = float(value)
 
     def to_dict(self):
         """
@@ -326,6 +375,9 @@ class Axes(Shape):
 
         shape = super().to_dict()
         shape["length"] = self.length
+        shape["arrows"] = self.arrows
+        shape["radius"] = self.radius
+        shape["linewidth"] = self.linewidth
         return shape
 
 
@@ -338,8 +390,13 @@ class Arrow(Shape):
     Parameters
 
     :param length: The total length of the arrow.
-    :param radius: The radius of the arrow body. If radius is 0, then the
-        arrow is made with a line.
+    :param radius: The radius of the arrow shaft. If radius is 0, the
+        shaft is rendered as a line instead of a cylinder -- see
+        linewidth. radius and linewidth are mutually exclusive: radius
+        > 0 always takes precedence, and linewidth is ignored in that
+        case (a real cylinder mesh has no notion of a pixel width).
+    :param linewidth: Width of the shaft in pixels. Only used when
+        radius == 0.
     :param head_length: The lenght of the cone (head of the arrow). This is
         represented as a fraction of the lenght. Must be a value between 0
         and 1.
@@ -355,6 +412,7 @@ class Arrow(Shape):
         self,
         length: float,
         radius: float = 0.0,
+        linewidth: float = 1.0,
         head_length: float = 0.2,
         head_radius: float = 0.2,
         **kwargs,
@@ -365,6 +423,7 @@ class Arrow(Shape):
         super(Arrow, self).__init__(stype="arrow", **kwargs)
         self.length = length
         self.radius = radius
+        self.linewidth = linewidth
         self.head_length = head_length
         self.head_radius = head_radius
 
@@ -385,6 +444,15 @@ class Arrow(Shape):
     @update
     def radius(self, value):
         self._radius = float(value)
+
+    @property
+    def linewidth(self):
+        return self._linewidth
+
+    @linewidth.setter
+    @update
+    def linewidth(self, value):
+        self._linewidth = float(value)
 
     @property
     def head_length(self):
@@ -415,6 +483,7 @@ class Arrow(Shape):
         shape = super().to_dict()
         shape["length"] = self.length
         shape["radius"] = self.radius
+        shape["linewidth"] = self.linewidth
         shape["head_length"] = self.head_length
         shape["head_radius"] = self.head_radius
         return shape
