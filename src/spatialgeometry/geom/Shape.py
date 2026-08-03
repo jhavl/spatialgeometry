@@ -252,7 +252,16 @@ class Shape(SceneNode):
         elif value is None:
             value = default_color
         else:
-            value = array(value)
+            # dtype=float forced explicitly -- an all-integer input (e.g.
+            # the very natural color=[1, 0, 0, 1] for opaque red) would
+            # otherwise stay int64 whenever nothing needs 0-255
+            # normalisation below, and self.color[3] (opacity) being a
+            # numpy.int64 rather than a float breaks real (non-mocked)
+            # json.dumps() sends in SwiftRoute.py -- TypeError: Object of
+            # type int64 is not JSON serializable. Never caught by the
+            # existing protocol tests since they're FakeBrowser-mocked and
+            # never actually round-trip through json.dumps().
+            value = array(value, dtype=float)
 
             if any(value > 1.0):
                 value = value / 255.0

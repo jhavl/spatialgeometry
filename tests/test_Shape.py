@@ -49,6 +49,23 @@ class TestShape(unittest.TestCase):
         self.assertAlmostEqual(shape.color[2], 250 / 255)
         self.assertEqual(shape.color[3], 100 / 255)
 
+    def test_color_setter_all_integer_input_stays_json_serializable(self):
+        # Regression test: color=[1, 0, 0, 1] (a natural way to write
+        # "opaque red") used to leave self._color as numpy int64 -- nothing
+        # here needs 0-255 normalisation (all values <= 1), so the only
+        # thing that made 3-length int input safe by accident was
+        # concatenate()'s promotion when appending the alpha default; a
+        # fully-specified 4-length int color skipped that entirely.
+        # self.color[3] (opacity) being int64 broke real (non-mocked)
+        # json.dumps() sends in SwiftRoute.py, uncaught by any existing
+        # test since they're all FakeBrowser-mocked.
+        import json
+
+        shape = gm.Cuboid([1, 1, 1], color=[1, 0, 0, 1])
+
+        self.assertIsInstance(shape.color[3], float)
+        json.dumps(shape.to_dict())  # must not raise TypeError
+
     def test_to_dict(self):
         s1 = gm.Cylinder(1, 1)
 
