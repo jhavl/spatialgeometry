@@ -280,6 +280,16 @@ class SceneNode:
 
         self.__wq[:] = r2q(self.__wT[:3, :3], order="xyzs")
 
+    @property
+    def T(self) -> ndarray:
+        return self._T
+
+    @T.setter
+    def T(self, T_new: ndarray | SE3) -> None:
+        if isinstance(T_new, SE3):
+            T_new = T_new.A
+        self._T = T_new
+
     # --------------------------------------------------------------------- #
     # Scene transform propogation methods
     #

@@ -277,20 +277,6 @@ class Shape(SceneNode, ABC):
         self._color = tuple(new_color)
 
     # --------------------------------------------------------------------- #
-    # SceneNode properties
-    # These relate to how scene node operates
-
-    @property
-    def T(self) -> ndarray:
-        return self._T
-
-    @T.setter
-    def T(self, T_new: ndarray | SE3) -> None:
-        if isinstance(T_new, SE3):
-            T_new = T_new.A
-        self._T = T_new
-
-    # --------------------------------------------------------------------- #
 
 
 class Axes(Shape):
