@@ -112,6 +112,8 @@ class Mesh(CollisionShape):
     :param collision: Whether this shape participates in collision checking.
     """
 
+    _repr_params = ("filename", "scale")
+
     def __init__(
         self, filename: str | None = None, scale: ArrayLike = [1, 1, 1], **kwargs
     ) -> None:
@@ -180,6 +182,8 @@ class Cylinder(CollisionShape):
     :param collision: Whether this shape participates in collision checking.
     """
 
+    _repr_params = ("radius", "length")
+
     def __init__(self, radius: float, length: float, **kwargs) -> None:
         super().__init__(stype="cylinder", **kwargs)
         self.radius = radius
@@ -228,6 +232,8 @@ class Sphere(CollisionShape):
     :param collision: Whether this shape participates in collision checking.
     """
 
+    _repr_params = ("radius",)
+
     def __init__(self, radius: float, **kwargs) -> None:
         super().__init__(stype="sphere", **kwargs)
         self.radius = radius
@@ -262,6 +268,8 @@ class Cuboid(CollisionShape):
     :param scale: [length, width, height] in metres.
     :param collision: Whether this shape participates in collision checking.
     """
+
+    _repr_params = ("scale",)
 
     def __init__(self, scale: ArrayLike, **kwargs) -> None:
         super().__init__(stype="cuboid", **kwargs)

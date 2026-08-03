@@ -146,15 +146,7 @@ class SceneNode:
         return result
 
     def __str__(self) -> str:
-        if self._scene_parent is not None:
-            parent = f"{SE3(self._scene_parent._T, check=False).t}"
-        else:
-            parent = "None"
-
-        return f"parent: {parent} \n self: {SE3(self._T).t} \n children: {[SE3(child._T).t for child in self._scene_children]}"
-
-        # parent = self.scene_parent
-        # return f"parent: {hex(id(parent)) if parent is not None else None} \n self: {hex(id(self))} \n children: {[hex(id(child)) for child in self.scene_children]}"
+        return f"{type(self).__name__} at {SE3(self._T, check=False).strline()}"
 
     # --------------------------------------------------------------------- #
 

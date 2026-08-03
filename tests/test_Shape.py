@@ -294,6 +294,38 @@ class TestShape(unittest.TestCase):
         self.assertEqual(d["radius"], 0.1)
         self.assertEqual(d["linewidth"], 5.0)
 
+    def test_repr_distinguishes_deprecated_alias_from_its_base(self):
+        # Box is a deprecated alias of Cuboid sharing the same stype --
+        # repr must still tell them apart (it used to show "cuboid" for
+        # both, making them indistinguishable).
+        cuboid = gm.Cuboid([1, 2, 3])
+        box = gm.Box([1, 2, 3])
+
+        self.assertTrue(repr(cuboid).startswith("Cuboid("))
+        self.assertTrue(repr(box).startswith("Box("))
+        self.assertNotEqual(repr(cuboid), repr(box))
+
+    def test_repr_is_single_line_and_shows_constructor_params(self):
+        s0 = gm.Cylinder(1.0, 2.0)
+        r = repr(s0)
+
+        self.assertNotIn("\n", r)
+        self.assertEqual(r, "Cylinder(radius=1.0, length=2.0, pose='t = 0, 0, 0; rpy/zyx = 0°, 0°, 0°')")
+
+    def test_str_is_single_line(self):
+        s0 = gm.Cuboid([1, 1, 1], pose=sm.SE3.Trans(1, 2, 3))
+        s = str(s0)
+
+        self.assertNotIn("\n", s)
+        self.assertEqual(s, "Cuboid at t = 1, 2, 3; rpy/zyx = 0°, 0°, 0°")
+
+    def test_scene_group_repr_and_str(self):
+        group = gm.SceneGroup()
+        group.append(gm.Sphere(1.0))
+
+        self.assertEqual(repr(group), f"SceneGroup([{gm.Sphere(1.0)!r}])")
+        self.assertTrue(str(group).startswith("SceneGroup at "))
+
 
 if __name__ == "__main__":  # pragma nocover
     unittest.main()

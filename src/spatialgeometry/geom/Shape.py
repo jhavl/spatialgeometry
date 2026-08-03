@@ -64,6 +64,10 @@ CONST_RX = SE3.Rx(pi / 2).A
 
 
 class Shape(SceneNode, ABC):
+    #: Names of this class's own constructor arguments to include in
+    #: :meth:`__repr__`, in the order they should appear.
+    _repr_params: tuple[str, ...] = ()
+
     def __init__(
         self,
         pose: ndarray | SE3 = eye(4),
@@ -146,9 +150,6 @@ class Shape(SceneNode, ABC):
 
         return result
 
-    def __str__(self) -> str:
-        return f"stype: {self.stype} \n pose: {SE3(self._T).t}"
-
     # --------------------------------------------------------------------- #
 
     def _to_hex(self, rgb: ArrayLike) -> int:
@@ -192,9 +193,15 @@ class Shape(SceneNode, ABC):
 
         return shape
 
-    def __repr__(self) -> str:  # pragma nocover
-        return f"{self.stype},\n{self.T[:3, -1]}"
-        # return f"{hex(id(self.stype))}"
+    def __repr__(self) -> str:
+        args = []
+        for name in self._repr_params:
+            value = getattr(self, name)
+            if isinstance(value, ndarray):
+                value = value.tolist()
+            args.append(f"{name}={value!r}")
+        args.append(f"pose={SE3(self._T, check=False).strline()!r}")
+        return f"{type(self).__name__}({', '.join(args)})"
 
     @property
     def collision(self) -> bool:
@@ -302,6 +309,8 @@ class Axes(Shape):
 
     """
 
+    _repr_params = ("length", "arrows", "radius", "linewidth")
+
     def __init__(
         self,
         length: float,
@@ -394,6 +403,8 @@ class Arrow(Shape):
     :type pose: SE3
 
     """
+
+    _repr_params = ("length", "radius", "linewidth", "head_length", "head_radius")
 
     def __init__(
         self,

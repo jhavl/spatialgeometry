@@ -20,3 +20,6 @@ class SceneGroup(SceneNode, UserList):
     @property
     def data(self) -> list[SceneNode]:
         return self._scene_children
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self.data!r})"
