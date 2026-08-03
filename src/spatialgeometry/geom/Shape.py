@@ -64,6 +64,15 @@ CONST_RX = SE3.Rx(pi / 2).A
 
 
 class Shape(SceneNode, ABC):
+    """
+    Base class for a renderable 3D shape.
+
+    It is a :class:`SceneNode` instance with atributes for its type, shape, and color.
+    The ``collision`` attribute is a read-only bool, used for objects that are drawn in
+    the scene but take no part in collision detection (see :class:`CollisionShape` for
+    that).
+    """
+
     #: Names of this class's own constructor arguments to include in
     #: :meth:`__repr__`, in the order they should appear.
     _repr_params: tuple[str, ...] = ()
@@ -205,10 +214,29 @@ class Shape(SceneNode, ABC):
 
     @property
     def collision(self) -> bool:
+        """
+        True if this shape is used for collision checking rather than
+        (or as well as) visual rendering, as set by the ``collision``
+        argument of a :class:`CollisionShape` subclass' constructor.
+
+        This is a read-only property.
+
+        :rtype: bool
+        """
         return self._collision
 
     @property
     def v(self) -> ndarray:
+        """
+        Spatial velocity of the shape as a 6-vector: linear velocity
+        ``v[:3]`` followed by angular velocity ``v[3:6]``. Used to
+        integrate the shape's pose between frames, e.g. by
+        ``Swift.step()`` when no per-step callback is supplied.
+
+        This is a read/write property.
+
+        :rtype: ndarray(6)
+        """
         return self._v
 
     @v.setter
@@ -336,6 +364,14 @@ class Axes(Shape):
 
     @property
     def length(self) -> float:
+        """
+        The length of each axis, as set by ``length`` in the
+        constructor.
+
+        This is a read/write property.
+
+        :rtype: float
+        """
         return self._length
 
     @length.setter
@@ -345,6 +381,15 @@ class Axes(Shape):
 
     @property
     def arrows(self) -> bool:
+        """
+        If ``True``, each axis is rendered as a colored :class:`Arrow`
+        (red/green/blue for X/Y/Z) instead of a plain line, as set by
+        ``arrows`` in the constructor.
+
+        This is a read/write property.
+
+        :rtype: bool
+        """
         return self._arrows
 
     @arrows.setter
@@ -354,6 +399,17 @@ class Axes(Shape):
 
     @property
     def radius(self) -> float:
+        """
+        Shaft radius of each arrow. Only used when ``arrows`` is
+        ``True``; passed straight through to each constituent
+        :class:`Arrow` (``radius`` and ``linewidth`` are mutually
+        exclusive -- ``radius`` > 0 takes precedence). Set by
+        ``radius`` in the constructor.
+
+        This is a read/write property.
+
+        :rtype: float
+        """
         return self._radius
 
     @radius.setter
@@ -363,6 +419,16 @@ class Axes(Shape):
 
     @property
     def linewidth(self) -> float:
+        """
+        Shaft width in pixels, only used when ``arrows`` is ``True``
+        and ``radius`` is 0. Passed straight through to each
+        constituent :class:`Arrow`. Set by ``linewidth`` in the
+        constructor.
+
+        This is a read/write property.
+
+        :rtype: float
+        """
         return self._linewidth
 
     @linewidth.setter
@@ -402,8 +468,8 @@ class Arrow(Shape):
         case (a real cylinder mesh has no notion of a pixel width).
     :param linewidth: Width of the shaft in pixels. Only used when
         radius == 0.
-    :param head_length: The lenght of the cone (head of the arrow). This is
-        represented as a fraction of the lenght. Must be a value between 0
+    :param head_length: The length of the cone (head of the arrow). This is
+        represented as a fraction of the length. Must be a value between 0
         and 1.
     :param head_radius: The width of the cone (head of the arrow). This is
         represented as a fraction of the head_length.
@@ -436,6 +502,14 @@ class Arrow(Shape):
 
     @property
     def length(self) -> float:
+        """
+        The total length of the arrow, as set by ``length`` in the
+        constructor.
+
+        This is a read/write property.
+
+        :rtype: float
+        """
         return self._length
 
     @length.setter
@@ -445,6 +519,17 @@ class Arrow(Shape):
 
     @property
     def radius(self) -> float:
+        """
+        The radius of the arrow shaft. If 0, the shaft is rendered as
+        a line instead of a cylinder -- see ``linewidth``. ``radius``
+        and ``linewidth`` are mutually exclusive: ``radius`` > 0
+        always takes precedence. Set by ``radius`` in the
+        constructor.
+
+        This is a read/write property.
+
+        :rtype: float
+        """
         return self._radius
 
     @radius.setter
@@ -454,6 +539,14 @@ class Arrow(Shape):
 
     @property
     def linewidth(self) -> float:
+        """
+        Width of the shaft in pixels. Only used when ``radius`` is 0.
+        Set by ``linewidth`` in the constructor.
+
+        This is a read/write property.
+
+        :rtype: float
+        """
         return self._linewidth
 
     @linewidth.setter
@@ -463,6 +556,15 @@ class Arrow(Shape):
 
     @property
     def head_length(self) -> float:
+        """
+        The length of the cone forming the arrow head, as a fraction
+        of ``length`` in the range [0, 1]. Set by ``head_length`` in
+        the constructor.
+
+        This is a read/write property.
+
+        :rtype: float
+        """
         return self._head_length
 
     @head_length.setter
@@ -472,6 +574,15 @@ class Arrow(Shape):
 
     @property
     def head_radius(self) -> float:
+        """
+        The width of the cone forming the arrow head, as a fraction
+        of ``head_length``. Set by ``head_radius`` in the
+        constructor.
+
+        This is a read/write property.
+
+        :rtype: float
+        """
         return self._head_radius
 
     @head_radius.setter
@@ -550,6 +661,16 @@ class Path(Shape):
 
     @property
     def radius(self) -> float:
+        """
+        Tube radius; if 0, rendered as a line instead of a tube --
+        see ``linewidth``. ``radius`` and ``linewidth`` are mutually
+        exclusive: ``radius`` > 0 always takes precedence. Set by
+        ``radius`` in the constructor.
+
+        This is a read/write property.
+
+        :rtype: float
+        """
         return self._radius
 
     @radius.setter
@@ -559,6 +680,14 @@ class Path(Shape):
 
     @property
     def linewidth(self) -> float:
+        """
+        Width of the line in pixels. Only used when ``radius`` is 0.
+        Set by ``linewidth`` in the constructor.
+
+        This is a read/write property.
+
+        :rtype: float
+        """
         return self._linewidth
 
     @linewidth.setter
@@ -568,7 +697,7 @@ class Path(Shape):
 
     def to_dict(self) -> dict[str, Any]:
         """
-        to_dict() returns the shapes information in dictionary form
+        Returns the shape's information in dictionary form
 
         :returns: All information about the shape
         :rtype: dict

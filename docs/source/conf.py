@@ -64,6 +64,10 @@ mermaid_height = "auto"
 autosummary_generate = True
 autodoc_member_order = 'bysource'
 
+# Show "Shape" rather than "spatialgeometry.geom.Shape.Shape" in class
+# headers, signatures and cross-references.
+add_module_names = False
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

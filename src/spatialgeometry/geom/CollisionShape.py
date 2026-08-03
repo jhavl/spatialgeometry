@@ -40,6 +40,13 @@ def _require_coal() -> None:
 
 
 class CollisionShape(Shape):
+    """
+    Base class for a :class:`Shape` that also has an associated
+    collision geometry, so instances can be used for collision
+    checking (via `coal <https://github.com/coal-library/coal>`_) as
+    well as being rendered in the scene.
+    """
+
     def __init__(self, collision: bool = True, **kwargs) -> None:
         self.co = None      # coal.CollisionObject, created on first use
         self._cinit = False
@@ -105,9 +112,9 @@ class CollisionShape(Shape):
 
 class Mesh(CollisionShape):
     """
-    A mesh object described by an STL, OBJ, or DAE file.
+    A triangular mesh object.
 
-    :param filename: Absolute path to the mesh file.
+    :param filename: Absolute path to an STL, OBJ, or DAE mesh file.
     :param scale: Scale factors along XYZ axes (default [1, 1, 1]).
     :param collision: Whether this shape participates in collision checking.
     """
@@ -302,6 +309,14 @@ class Cuboid(CollisionShape):
 
 
 class Box(Cuboid):
+    """
+    Deprecated alias for :class:`Cuboid` -- a rectangular prism whose
+    centre is at the local origin.
+
+    :param scale: [length, width, height] in metres.
+    :param collision: Whether this shape participates in collision checking.
+    """
+
     def __init__(self, scale: ArrayLike, **kwargs) -> None:
         warn("Box is deprecated, use Cuboid instead", FutureWarning)
         super().__init__(scale, **kwargs)
