@@ -3,24 +3,20 @@
 @author: Jesse Haviland
 """
 
-from numpy import ndarray, eye, zeros, copy as npcopy
-from spatialmath.base import r2q
-from abc import ABC
-from collections import UserList
+from __future__ import annotations
 
-# from roboticstoolbox.robot.ETS import ETS
-from typing import Type
+from collections import UserList
 
 from spatialgeometry.geom.SceneNode import SceneNode
 
 
 class SceneGroup(SceneNode, UserList):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
     def __getitem__(self, i: int) -> SceneNode:
         return self._scene_children[i]
 
     @property
-    def data(self):
+    def data(self) -> list[SceneNode]:
         return self._scene_children

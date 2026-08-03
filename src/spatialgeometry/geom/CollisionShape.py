@@ -3,22 +3,23 @@
 @author: Jesse Haviland
 """
 
+from __future__ import annotations
+
 import sys
-import os
 from abc import abstractmethod
+from typing import Any
+
 import numpy as np
 from spatialmath.base.argcheck import getvector
 from spatialgeometry.geom import Shape
-from spatialgeometry.geom.Shape import update
+from spatialgeometry.geom.Shape import ArrayLike, update
 from warnings import warn
-
-from typing import Tuple, Union
 
 # Module-level coal reference — populated on first use, never in Pyodide.
 _coal = None
 
 
-def _require_coal():
+def _require_coal() -> None:
     """Import coal on first use; raise clearly if unavailable."""
     global _coal
     if _coal is not None:
@@ -39,23 +40,23 @@ def _require_coal():
 
 
 class CollisionShape(Shape):
-    def __init__(self, collision=True, **kwargs):
+    def __init__(self, collision: bool = True, **kwargs) -> None:
         self.co = None      # coal.CollisionObject, created on first use
         self._cinit = False
         super().__init__(**kwargs)
         self._collision = collision
 
-    def _update_coal(self):
+    def _update_coal(self) -> None:
         """Push the current world transform into the Coal collision object."""
         if self.co is not None:
             self.co.setTranslation(self._wT[:3, 3])
             self.co.setRotation(self._wT[:3, :3])
 
     @abstractmethod
-    def _init_coal(self):  # overridden by each subclass
-        pass
+    def _init_coal(self) -> None:
+        """Build this shape's Coal collision geometry. Implemented by each concrete subclass."""
 
-    def _ensure_coal(self):
+    def _ensure_coal(self) -> None:
         """Guarantee Coal is loaded and this object's Coal twin is current."""
         _require_coal()
         if not self._cinit:
@@ -63,8 +64,8 @@ class CollisionShape(Shape):
         self._update_coal()
 
     def closest_point(
-        self, shape: "CollisionShape", inf_dist: float = 1.0
-    ) -> Tuple[Union[float, None], Union[np.ndarray, None], Union[np.ndarray, None]]:
+        self, shape: CollisionShape, inf_dist: float = 1.0
+    ) -> tuple[float | None, np.ndarray | None, np.ndarray | None]:
         """
         Return the minimum euclidean distance between self and shape.
 
@@ -87,7 +88,7 @@ class CollisionShape(Shape):
             return None, None, None
         return d, np.array(res.getNearestPoint1()), np.array(res.getNearestPoint2())
 
-    def iscollided(self, shape: "CollisionShape") -> bool:
+    def iscollided(self, shape: CollisionShape) -> bool:
         """
         Return True if self and shape have collided (distance ≤ 0).
 
@@ -96,7 +97,7 @@ class CollisionShape(Shape):
         d, _, _ = self.closest_point(shape)
         return d is not None and d <= 0
 
-    def collided(self, shape: "CollisionShape") -> bool:
+    def collided(self, shape: CollisionShape) -> bool:
         """Deprecated — use iscollided instead."""
         warn("collided is deprecated, use iscollided instead", FutureWarning)
         return self.iscollided(shape)
@@ -111,12 +112,14 @@ class Mesh(CollisionShape):
     :param collision: Whether this shape participates in collision checking.
     """
 
-    def __init__(self, filename=None, scale=[1, 1, 1], **kwargs):
+    def __init__(
+        self, filename: str | None = None, scale: ArrayLike = [1, 1, 1], **kwargs
+    ) -> None:
         super().__init__(stype="mesh", **kwargs)
         self.filename = filename
         self.scale = scale
 
-    def _init_coal(self):
+    def _init_coal(self) -> None:
         if not self.collision:
             raise ValueError(
                 "This shape has collision=False and cannot be used as a collision object"
@@ -148,20 +151,20 @@ class Mesh(CollisionShape):
 
     @scale.setter
     @update
-    def scale(self, value):
+    def scale(self, value: ArrayLike) -> None:
         value = getvector(value if value is not None else [1, 1, 1], 3)
         self._scale = np.array(value)
 
     @property
-    def filename(self):
+    def filename(self) -> str | None:
         return self._filename
 
     @filename.setter
     @update
-    def filename(self, value):
+    def filename(self, value: str | None) -> None:
         self._filename = value
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         shape = super().to_dict()
         shape["filename"] = self.filename
         shape["scale"] = self.scale.tolist()
@@ -177,12 +180,12 @@ class Cylinder(CollisionShape):
     :param collision: Whether this shape participates in collision checking.
     """
 
-    def __init__(self, radius, length, **kwargs):
+    def __init__(self, radius: float, length: float, **kwargs) -> None:
         super().__init__(stype="cylinder", **kwargs)
         self.radius = radius
         self.length = length
 
-    def _init_coal(self):
+    def _init_coal(self) -> None:
         if not self.collision:
             raise ValueError(
                 "This shape has collision=False and cannot be used as a collision object"
@@ -193,24 +196,24 @@ class Cylinder(CollisionShape):
         self._cinit = True
 
     @property
-    def radius(self):
+    def radius(self) -> float:
         return self._radius
 
     @radius.setter
     @update
-    def radius(self, value):
+    def radius(self, value: float) -> None:
         self._radius = float(value)
 
     @property
-    def length(self):
+    def length(self) -> float:
         return self._length
 
     @length.setter
     @update
-    def length(self, value):
+    def length(self, value: float) -> None:
         self._length = float(value)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         shape = super().to_dict()
         shape["radius"] = self.radius
         shape["length"] = self.length
@@ -225,11 +228,11 @@ class Sphere(CollisionShape):
     :param collision: Whether this shape participates in collision checking.
     """
 
-    def __init__(self, radius, **kwargs):
+    def __init__(self, radius: float, **kwargs) -> None:
         super().__init__(stype="sphere", **kwargs)
         self.radius = radius
 
-    def _init_coal(self):
+    def _init_coal(self) -> None:
         if not self.collision:
             raise ValueError(
                 "This shape has collision=False and cannot be used as a collision object"
@@ -238,15 +241,15 @@ class Sphere(CollisionShape):
         self._cinit = True
 
     @property
-    def radius(self):
+    def radius(self) -> float:
         return self._radius
 
     @radius.setter
     @update
-    def radius(self, value):
+    def radius(self, value: float) -> None:
         self._radius = float(value)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         shape = super().to_dict()
         shape["radius"] = self.radius
         return shape
@@ -260,11 +263,11 @@ class Cuboid(CollisionShape):
     :param collision: Whether this shape participates in collision checking.
     """
 
-    def __init__(self, scale, **kwargs):
+    def __init__(self, scale: ArrayLike, **kwargs) -> None:
         super().__init__(stype="cuboid", **kwargs)
         self.scale = scale
 
-    def _init_coal(self):
+    def _init_coal(self) -> None:
         if not self.collision:
             raise ValueError(
                 "This shape has collision=False and cannot be used as a collision object"
@@ -280,17 +283,17 @@ class Cuboid(CollisionShape):
 
     @scale.setter
     @update
-    def scale(self, value):
+    def scale(self, value: ArrayLike) -> None:
         value = getvector(value if value is not None else [1, 1, 1], 3)
         self._scale = np.array(value)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         shape = super().to_dict()
         shape["scale"] = self.scale.tolist()
         return shape
 
 
 class Box(Cuboid):
-    def __init__(self, scale, **kwargs):
+    def __init__(self, scale: ArrayLike, **kwargs) -> None:
         warn("Box is deprecated, use Cuboid instead", FutureWarning)
         super().__init__(scale, **kwargs)

@@ -3,24 +3,22 @@
 @author: Jesse Haviland
 """
 
+from __future__ import annotations
+
 from numpy import ndarray, eye, copy as npcopy, array
 from spatialmath.base import r2q
-from abc import ABC
 from spatialgeometry.scene import node_init, node_update, scene_graph_children, scene_graph_tree
 from spatialmath import SE3
 from copy import deepcopy
-
-# from roboticstoolbox.robot.ETS import ETS
-from typing import Type, Union, List
 
 
 class SceneNode:
     def __init__(
         self,
         T: ndarray = eye(4),
-        scene_parent: Union["SceneNode", None] = None,
-        scene_children: Union[List["SceneNode"], None] = None,
-    ):
+        scene_parent: SceneNode | None = None,
+        scene_children: list[SceneNode] | None = None,
+    ) -> None:
         # These three are static attributes which can never be changed
         # If these are directly accessed and re-written, segmentation faults
         # will follow very soon after
@@ -63,9 +61,9 @@ class SceneNode:
     def _custom_scene_node_init(
         self,
         T: ndarray = eye(4),
-        scene_parent: Union["SceneNode", None] = None,
-        scene_children: Union[List["SceneNode"], None] = None,
-    ):
+        scene_parent: SceneNode | None = None,
+        scene_children: list[SceneNode] | None = None,
+    ) -> None:
         # The world transform
         self.__wT = eye(4).copy(order="F")
 
@@ -161,7 +159,7 @@ class SceneNode:
     # --------------------------------------------------------------------- #
 
     @property
-    def scene_parent(self) -> Type["SceneNode"]:
+    def scene_parent(self) -> SceneNode | None:
         """
         Returns the parent node of this object
 
@@ -169,7 +167,7 @@ class SceneNode:
         return self._scene_parent
 
     @scene_parent.setter
-    def scene_parent(self, parent: "SceneNode"):
+    def scene_parent(self, parent: SceneNode) -> None:
         """
         Sets a new parent node of this object, will automatically update
         the parents child
@@ -184,7 +182,7 @@ class SceneNode:
         # Update c
         self.__update_c()
 
-    def _update_scene_parent(self, parent: "SceneNode"):
+    def _update_scene_parent(self, parent: SceneNode) -> None:
         """
         Sets a new parent node of this object, does NOT update
         the parents child
@@ -198,7 +196,7 @@ class SceneNode:
     # --------------------------------------------------------------------- #
 
     @property
-    def scene_children(self) -> List["SceneNode"]:
+    def scene_children(self) -> list[SceneNode]:
         """
         Returns the child nodes of this object
 
@@ -206,7 +204,7 @@ class SceneNode:
         return self._scene_children
 
     @scene_children.setter
-    def scene_children(self, children: List["SceneNode"]):
+    def scene_children(self, children: list[SceneNode]) -> None:
         """
         Sets the child nodes of this object, does not update childs
         parent
@@ -222,7 +220,7 @@ class SceneNode:
         # Update c
         self.__update_c()
 
-    def _update_scene_children(self, child: "SceneNode"):
+    def _update_scene_children(self, child: SceneNode) -> None:
         """
         Appends a new child to this object, does NOT update
         the childs parent
@@ -306,10 +304,10 @@ class SceneNode:
 
     # --------------------------------------------------------------------- #
 
-    def attach(self, object: "SceneNode"):
+    def attach(self, object: SceneNode) -> None:
         new_childs = self.scene_children
         new_childs.append(object)
         self.scene_children = new_childs
 
-    def attach_to(self, object: "SceneNode"):
+    def attach_to(self, object: SceneNode) -> None:
         self.scene_parent = object

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable, Optional
+from typing import Iterable
 
 import numpy as np
 from numpy.typing import NDArray
@@ -17,7 +17,7 @@ class _Node:
     T: ArrayF64
     wT: ArrayF64
     wq: ArrayF64
-    parent: Optional["_Node"] = None
+    parent: _Node | None = None
     children: list["_Node"] = field(default_factory=list)
 
 
@@ -53,7 +53,7 @@ def _r2q_xyzs(R: ArrayF64) -> ArrayF64:
     return q
 
 
-def _propogate_T(node: _Node, parent_wT: Optional[ArrayF64]) -> None:
+def _propogate_T(node: _Node, parent_wT: ArrayF64 | None) -> None:
     if parent_wT is None:
         node.wT[:] = node.T
     else:
@@ -70,9 +70,9 @@ def node_init(
     T: ArrayF64,
     wT: ArrayF64,
     wq: ArrayF64,
-    parent: Optional[_Node],
+    parent: _Node | None,
     children: Iterable[_Node],
-):
+) -> _Node:
     node = _Node(T=T, wT=wT, wq=wq)
     node.parent = parent
     node.children = list(children)
@@ -86,9 +86,9 @@ def node_init(
 def node_update(
     node: _Node,
     n_children: int,
-    parent: Optional[_Node],
+    parent: _Node | None,
     children: Iterable[_Node],
-):
+) -> None:
     node.parent = parent
     node.children = list(children)
 
@@ -96,11 +96,11 @@ def node_update(
         node.children = node.children[:n_children]
 
 
-def scene_graph_children(node: _Node):
+def scene_graph_children(node: _Node) -> None:
     _propogate_T(node, None)
 
 
-def scene_graph_tree(node: _Node):
+def scene_graph_tree(node: _Node) -> None:
     while node.parent is not None:
         node = node.parent
 
