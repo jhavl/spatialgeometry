@@ -226,6 +226,61 @@ class TestShape(unittest.TestCase):
 
         self.assertEqual(s0.to_dict(), ans)
 
+    def test_Axes_defaults(self):
+        s0 = gm.Axes(1.0)
+
+        ans = {
+            "stype": "axes",
+            "t": [0.0, 0.0, 0.0],
+            "q": [0.0, 0.0, 0.0, 1],
+            "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "color": 5000268,
+            "opacity": 1.0,
+            "length": 1.0,
+            "arrows": False,
+            "radius": 0.0,
+            "linewidth": 1.0,
+        }
+
+        self.assertEqual(s0.to_dict(), ans)
+
+    def test_Axes_arrows_passes_through_radius_and_linewidth(self):
+        s0 = gm.Axes(2.0, arrows=True, radius=0.05, linewidth=3.0)
+
+        d = s0.to_dict()
+        self.assertTrue(d["arrows"])
+        self.assertEqual(d["radius"], 0.05)
+        self.assertEqual(d["linewidth"], 3.0)
+
+    def test_Arrow_defaults(self):
+        s0 = gm.Arrow(1.0)
+
+        ans = {
+            "stype": "arrow",
+            "t": [0.0, 0.0, 0.0],
+            "q": [0.0, 0.0, 0.0, 1],
+            "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "color": 5000268,
+            "opacity": 1.0,
+            "length": 1.0,
+            "radius": 0.0,
+            "linewidth": 1.0,
+            "head_length": 0.2,
+            "head_radius": 0.2,
+        }
+
+        self.assertEqual(s0.to_dict(), ans)
+
+    def test_Arrow_radius_and_linewidth_are_independent_params(self):
+        # radius and linewidth are mutually exclusive at render time (see
+        # shapes.js in swift), but both are always accepted/stored here --
+        # it's the renderer's job to pick which one applies, not this class's.
+        s0 = gm.Arrow(1.0, radius=0.1, linewidth=5.0)
+
+        d = s0.to_dict()
+        self.assertEqual(d["radius"], 0.1)
+        self.assertEqual(d["linewidth"], 5.0)
+
 
 if __name__ == "__main__":  # pragma nocover
     unittest.main()
