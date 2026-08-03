@@ -183,14 +183,27 @@ class TestShape(unittest.TestCase):
         self.assertEqual(s0.color, (1.0, 1.0, 1.0, 1.0))
 
     def test_shape_wt(self):
-        s0 = gm.Shape()
+        s0 = gm.Axes(1.0)
         s0.wT = np.eye(4)
         nt.assert_almost_equal(np.eye(4), s0.wT)
 
     def test_collision_shape_wt(self):
-        s0 = gm.CollisionShape()
+        s0 = gm.Cuboid([1, 1, 1])
         s0.wT = np.eye(4)
         nt.assert_almost_equal(np.eye(4), s0.wT)
+
+    def test_set_T_on_parented_shape(self):
+        # Regression test: setting T on a shape that already has a
+        # scene_parent used to raise AttributeError -- SceneNode._T's
+        # setter referenced self.parent.wT, neither of which exist.
+        parent = gm.Cuboid([1, 1, 1], pose=sm.SE3.Trans(1, 0, 0))
+        child = gm.Cuboid([1, 1, 1])
+        parent.attach(child)
+
+        child.T = sm.SE3.Trans(0, 2, 0)
+
+        expected = sm.SE3.Trans(1, 0, 0).A @ sm.SE3.Trans(0, 2, 0).A
+        nt.assert_almost_equal(child._wT, expected)
 
     def test_mesh_collision_false(self):
         s0 = gm.Mesh("test.stl", collision=False)
@@ -297,6 +310,38 @@ class TestShape(unittest.TestCase):
         d = s0.to_dict()
         self.assertEqual(d["radius"], 0.1)
         self.assertEqual(d["linewidth"], 5.0)
+
+    def test_repr_distinguishes_deprecated_alias_from_its_base(self):
+        # Box is a deprecated alias of Cuboid sharing the same stype --
+        # repr must still tell them apart (it used to show "cuboid" for
+        # both, making them indistinguishable).
+        cuboid = gm.Cuboid([1, 2, 3])
+        box = gm.Box([1, 2, 3])
+
+        self.assertTrue(repr(cuboid).startswith("Cuboid("))
+        self.assertTrue(repr(box).startswith("Box("))
+        self.assertNotEqual(repr(cuboid), repr(box))
+
+    def test_repr_is_single_line_and_shows_constructor_params(self):
+        s0 = gm.Cylinder(1.0, 2.0)
+        r = repr(s0)
+
+        self.assertNotIn("\n", r)
+        self.assertEqual(r, "Cylinder(radius=1.0, length=2.0, pose='t = 0, 0, 0; rpy/zyx = 0°, 0°, 0°')")
+
+    def test_str_is_single_line(self):
+        s0 = gm.Cuboid([1, 1, 1], pose=sm.SE3.Trans(1, 2, 3))
+        s = str(s0)
+
+        self.assertNotIn("\n", s)
+        self.assertEqual(s, "Cuboid at t = 1, 2, 3; rpy/zyx = 0°, 0°, 0°")
+
+    def test_scene_group_repr_and_str(self):
+        group = gm.SceneGroup()
+        group.append(gm.Sphere(1.0))
+
+        self.assertEqual(repr(group), f"SceneGroup([{gm.Sphere(1.0)!r}])")
+        self.assertTrue(str(group).startswith("SceneGroup at "))
 
     def test_Path_defaults(self):
         # points is accepted/stored as 3xN (this ecosystem's own point-set

@@ -3,12 +3,13 @@
 @author: Jesse Haviland
 """
 
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
 from functools import wraps
-from multiprocessing.sharedctypes import Value
 from spatialgeometry.geom.SceneNode import SceneNode
 from spatialmath import SE3
 from spatialmath.base.argcheck import getvector
-from spatialmath.base import r2q
 from copy import copy as ccopy, deepcopy
 from numpy import (
     ndarray,
@@ -21,13 +22,12 @@ from numpy import (
     eye,
     array_equal,
 )
-from typing import Union, Tuple, Dict, Any
+from typing import Any
 from warnings import warn
 
-import spatialmath.base as smb
 import numpy as np
 
-ArrayLike = Union[list, ndarray, tuple, set]
+ArrayLike = list | ndarray | tuple | set
 _mpl = False
 # _rtb = False
 
@@ -63,15 +63,19 @@ except ImportError:  # pragma nocover
 CONST_RX = SE3.Rx(pi / 2).A
 
 
-class Shape(SceneNode):
+class Shape(SceneNode, ABC):
+    #: Names of this class's own constructor arguments to include in
+    #: :meth:`__repr__`, in the order they should appear.
+    _repr_params: tuple[str, ...] = ()
+
     def __init__(
         self,
-        pose: Union[ndarray, SE3] = eye(4),
-        color: ArrayLike = None,
-        stype: str = None,
-        base: Union[ndarray, SE3, None] = None,
+        pose: ndarray | SE3 = eye(4),
+        color: ArrayLike | None = None,
+        stype: str | None = None,
+        base: ndarray | SE3 | None = None,
         **kwargs,
-    ):
+    ) -> None:
 
         # Swift related attributes
         self._added_to_swift = False
@@ -113,7 +117,7 @@ class Shape(SceneNode):
 
     # --------------------------------------------------------------------- #
 
-    def copy(self) -> "Shape":
+    def copy(self) -> Shape:
         """
         Copy of Shape object
 
@@ -146,16 +150,14 @@ class Shape(SceneNode):
 
         return result
 
-    def __str__(self) -> str:
-        return f"stype: {self.stype} \n pose: {SE3(self._T).t}"
-
     # --------------------------------------------------------------------- #
 
-    def _to_hex(self, rgb) -> int:
+    def _to_hex(self, rgb: ArrayLike) -> int:
         rgb = (array(rgb) * 255).astype(int)
         return int("0x%02x%02x%02x" % (rgb[0], rgb[1], rgb[2]), 16)
 
-    def to_dict(self) -> Dict[str, Any]:
+    @abstractmethod
+    def to_dict(self) -> dict[str, Any]:
         """
         to_dict() returns the shapes information in dictionary form
 
@@ -175,7 +177,7 @@ class Shape(SceneNode):
 
         return shape
 
-    def fk_dict(self) -> Dict[str, Any]:
+    def fk_dict(self) -> dict[str, Any]:
         """
         fk_dict() outputs shapes pose in dictionary form
 
@@ -191,9 +193,15 @@ class Shape(SceneNode):
 
         return shape
 
-    def __repr__(self) -> str:  # pragma nocover
-        return f"{self.stype},\n{self.T[:3, -1]}"
-        # return f"{hex(id(self.stype))}"
+    def __repr__(self) -> str:
+        args = []
+        for name in self._repr_params:
+            value = getattr(self, name)
+            if isinstance(value, ndarray):
+                value = value.tolist()
+            args.append(f"{name}={value!r}")
+        args.append(f"pose={SE3(self._T, check=False).strline()!r}")
+        return f"{type(self).__name__}({', '.join(args)})"
 
     @property
     def collision(self) -> bool:
@@ -204,11 +212,11 @@ class Shape(SceneNode):
         return self._v
 
     @v.setter
-    def v(self, value: ArrayLike):
+    def v(self, value: ArrayLike) -> None:
         self._v = array(getvector(value, 6))
 
     @property
-    def color(self) -> Tuple[float, float, float, float]:
+    def color(self) -> tuple[float, float, float, float]:
         """
         shape.color returns a four length tuple representing (red, green, blue, alpha)
         where alpha represents transparency. Values returned are in the range [0-1].
@@ -217,7 +225,7 @@ class Shape(SceneNode):
 
     @color.setter
     @update
-    def color(self, value: ArrayLike):
+    def color(self, value: ArrayLike) -> None:
         """
         shape.color(new_color) sets the color of a shape.
 
@@ -273,7 +281,7 @@ class Shape(SceneNode):
 
         self._color = value
 
-    def set_alpha(self, alpha: Union[float, int]):
+    def set_alpha(self, alpha: float | int) -> None:
         """
         Convenience method to set the opacity/alpha value of the robots color.
         """
@@ -283,20 +291,6 @@ class Shape(SceneNode):
 
         new_color = concatenate([self._color[:3], [alpha]])
         self._color = tuple(new_color)
-
-    # --------------------------------------------------------------------- #
-    # SceneNode properties
-    # These relate to how scene node operates
-
-    @property
-    def T(self) -> ndarray:
-        return self._T
-
-    @T.setter
-    def T(self, T_new: Union[ndarray, SE3]):
-        if isinstance(T_new, SE3):
-            T_new = T_new.A
-        self._T = T_new
 
     # --------------------------------------------------------------------- #
 
@@ -324,14 +318,16 @@ class Axes(Shape):
 
     """
 
+    _repr_params = ("length", "arrows", "radius", "linewidth")
+
     def __init__(
         self,
-        length,
+        length: float,
         arrows: bool = False,
         radius: float = 0.0,
         linewidth: float = 1.0,
         **kwargs,
-    ):
+    ) -> None:
         super(Axes, self).__init__(stype="axes", **kwargs)
         self.length = length
         self.arrows = arrows
@@ -339,42 +335,42 @@ class Axes(Shape):
         self.linewidth = linewidth
 
     @property
-    def length(self):
+    def length(self) -> float:
         return self._length
 
     @length.setter
     @update
-    def length(self, value):
+    def length(self, value: float) -> None:
         self._length = float(value)
 
     @property
-    def arrows(self):
+    def arrows(self) -> bool:
         return self._arrows
 
     @arrows.setter
     @update
-    def arrows(self, value):
+    def arrows(self, value: bool) -> None:
         self._arrows = bool(value)
 
     @property
-    def radius(self):
+    def radius(self) -> float:
         return self._radius
 
     @radius.setter
     @update
-    def radius(self, value):
+    def radius(self, value: float) -> None:
         self._radius = float(value)
 
     @property
-    def linewidth(self):
+    def linewidth(self) -> float:
         return self._linewidth
 
     @linewidth.setter
     @update
-    def linewidth(self, value):
+    def linewidth(self, value: float) -> None:
         self._linewidth = float(value)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         """
         to_dict() returns the shapes information in dictionary form
 
@@ -417,6 +413,8 @@ class Arrow(Shape):
 
     """
 
+    _repr_params = ("length", "radius", "linewidth", "head_length", "head_radius")
+
     def __init__(
         self,
         length: float,
@@ -425,7 +423,7 @@ class Arrow(Shape):
         head_length: float = 0.2,
         head_radius: float = 0.2,
         **kwargs,
-    ):
+    ) -> None:
         if head_length > 1.0 or head_length < 0.0:
             raise ValueError("Head length must be a value between 0 and 1")
 
@@ -437,51 +435,51 @@ class Arrow(Shape):
         self.head_radius = head_radius
 
     @property
-    def length(self):
+    def length(self) -> float:
         return self._length
 
     @length.setter
     @update
-    def length(self, value):
+    def length(self, value: float) -> None:
         self._length = float(value)
 
     @property
-    def radius(self):
+    def radius(self) -> float:
         return self._radius
 
     @radius.setter
     @update
-    def radius(self, value):
+    def radius(self, value: float) -> None:
         self._radius = float(value)
 
     @property
-    def linewidth(self):
+    def linewidth(self) -> float:
         return self._linewidth
 
     @linewidth.setter
     @update
-    def linewidth(self, value):
+    def linewidth(self, value: float) -> None:
         self._linewidth = float(value)
 
     @property
-    def head_length(self):
+    def head_length(self) -> float:
         return self._head_length
 
     @head_length.setter
     @update
-    def head_length(self, value):
+    def head_length(self, value: float) -> None:
         self._head_length = float(value)
 
     @property
-    def head_radius(self):
+    def head_radius(self) -> float:
         return self._head_radius
 
     @head_radius.setter
     @update
-    def head_radius(self, value):
+    def head_radius(self, value: float) -> None:
         self._head_radius = float(value)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         """
         to_dict() returns the shapes information in dictionary form
 
@@ -517,13 +515,15 @@ class Path(Shape):
     :type pose: SE3
     """
 
+    _repr_params = ("points", "radius", "linewidth")
+
     def __init__(
         self,
         points: ArrayLike,
         radius: float = 0.0,
         linewidth: float = 1.0,
         **kwargs,
-    ):
+    ) -> None:
         super(Path, self).__init__(stype="path", **kwargs)
         self.points = points
         self.radius = radius
@@ -538,7 +538,7 @@ class Path(Shape):
 
     @points.setter
     @update
-    def points(self, value):
+    def points(self, value: ArrayLike) -> None:
         value = np.array(value, dtype=float)
         if value.ndim != 2 or value.shape[0] != 3:
             raise ValueError(
@@ -549,24 +549,24 @@ class Path(Shape):
         self._points = value
 
     @property
-    def radius(self):
+    def radius(self) -> float:
         return self._radius
 
     @radius.setter
     @update
-    def radius(self, value):
+    def radius(self, value: float) -> None:
         self._radius = float(value)
 
     @property
-    def linewidth(self):
+    def linewidth(self) -> float:
         return self._linewidth
 
     @linewidth.setter
     @update
-    def linewidth(self, value):
+    def linewidth(self, value: float) -> None:
         self._linewidth = float(value)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         """
         to_dict() returns the shapes information in dictionary form
 
