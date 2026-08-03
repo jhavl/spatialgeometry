@@ -30,3 +30,10 @@ __all__ = [
     "SceneNode",
     "SceneGroup",
 ]
+
+try:
+    import importlib.metadata
+
+    __version__ = importlib.metadata.version("spatialgeometry")
+except importlib.metadata.PackageNotFoundError:
+    pass
