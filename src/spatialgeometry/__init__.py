@@ -4,6 +4,7 @@ from spatialgeometry.geom import (
     Shape,
     Axes,
     Arrow,
+    Path,
     CollisionShape,
     Mesh,
     Cylinder,
@@ -27,6 +28,7 @@ __all__ = [
     "Sphere",
     "Axes",
     "Arrow",
+    "Path",
     "SceneNode",
     "SceneGroup",
 ]

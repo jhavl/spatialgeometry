@@ -49,6 +49,23 @@ class TestShape(unittest.TestCase):
         self.assertAlmostEqual(shape.color[2], 250 / 255)
         self.assertEqual(shape.color[3], 100 / 255)
 
+    def test_color_setter_all_integer_input_stays_json_serializable(self):
+        # Regression test: color=[1, 0, 0, 1] (a natural way to write
+        # "opaque red") used to leave self._color as numpy int64 -- nothing
+        # here needs 0-255 normalisation (all values <= 1), so the only
+        # thing that made 3-length int input safe by accident was
+        # concatenate()'s promotion when appending the alpha default; a
+        # fully-specified 4-length int color skipped that entirely.
+        # self.color[3] (opacity) being int64 broke real (non-mocked)
+        # json.dumps() sends in SwiftRoute.py, uncaught by any existing
+        # test since they're all FakeBrowser-mocked.
+        import json
+
+        shape = gm.Cuboid([1, 1, 1], color=[1, 0, 0, 1])
+
+        self.assertIsInstance(shape.color[3], float)
+        json.dumps(shape.to_dict())  # must not raise TypeError
+
     def test_to_dict(self):
         s1 = gm.Cylinder(1, 1)
 
@@ -325,6 +342,49 @@ class TestShape(unittest.TestCase):
 
         self.assertEqual(repr(group), f"SceneGroup([{gm.Sphere(1.0)!r}])")
         self.assertTrue(str(group).startswith("SceneGroup at "))
+
+    def test_Path_defaults(self):
+        # points is accepted/stored as 3xN (this ecosystem's own point-set
+        # convention), but the wire format transposes to a flat N x 3 list
+        # of [x, y, z] waypoints -- the natural shape for the JS side to
+        # build one THREE.Vector3 per point.
+        points = np.array([[0.0, 1.0, 2.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+        s0 = gm.Path(points)
+
+        ans = {
+            "stype": "path",
+            "t": [0.0, 0.0, 0.0],
+            "q": [0.0, 0.0, 0.0, 1],
+            "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "color": 5000268,
+            "opacity": 1.0,
+            "points": [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [2.0, 0.0, 0.0]],
+            "radius": 0.0,
+            "linewidth": 1.0,
+        }
+
+        self.assertEqual(s0.to_dict(), ans)
+
+    def test_Path_radius_and_linewidth_are_independent_params(self):
+        points = np.array([[0.0, 1.0], [0.0, 0.0], [0.0, 0.0]])
+        s0 = gm.Path(points, radius=0.05, linewidth=3.0)
+
+        d = s0.to_dict()
+        self.assertEqual(d["radius"], 0.05)
+        self.assertEqual(d["linewidth"], 3.0)
+
+    def test_Path_rejects_wrong_shape(self):
+        with self.assertRaises(ValueError):
+            gm.Path(np.zeros((2, 3)))  # not 3xN
+
+    def test_Path_rejects_too_few_points(self):
+        with self.assertRaises(ValueError):
+            gm.Path(np.zeros((3, 1)))  # a single point isn't a polyline
+
+    def test_Path_accepts_plain_list_input(self):
+        # points is documented as ArrayLike, not just ndarray.
+        s0 = gm.Path([[0, 1], [0, 0], [0, 0]])
+        self.assertEqual(s0.to_dict()["points"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
 
 if __name__ == "__main__":  # pragma nocover

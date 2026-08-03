@@ -260,7 +260,16 @@ class Shape(SceneNode, ABC):
         elif value is None:
             value = default_color
         else:
-            value = array(value)
+            # dtype=float forced explicitly -- an all-integer input (e.g.
+            # the very natural color=[1, 0, 0, 1] for opaque red) would
+            # otherwise stay int64 whenever nothing needs 0-255
+            # normalisation below, and self.color[3] (opacity) being a
+            # numpy.int64 rather than a float breaks real (non-mocked)
+            # json.dumps() sends in SwiftRoute.py -- TypeError: Object of
+            # type int64 is not JSON serializable. Never caught by the
+            # existing protocol tests since they're FakeBrowser-mocked and
+            # never actually round-trip through json.dumps().
+            value = array(value, dtype=float)
 
             if any(value > 1.0):
                 value = value / 255.0
@@ -484,4 +493,93 @@ class Arrow(Shape):
         shape["linewidth"] = self.linewidth
         shape["head_length"] = self.head_length
         shape["head_radius"] = self.head_radius
+        return shape
+
+
+class Path(Shape):
+    """A polyline through a sequence of waypoints -- straight segments
+    joining consecutive points, not a smoothed curve -- for drawing
+    paths and trajectories in the scene.
+
+    :param points: waypoints defining the polyline
+    :type points: ArrayLike
+    :param radius: tube radius; if 0, rendered as a line instead of a
+        tube -- see linewidth. radius and linewidth are mutually
+        exclusive: radius > 0 always takes precedence, and linewidth is
+        ignored in that case (a real tube mesh has no notion of a pixel
+        width).
+    :param linewidth: Width of the line in pixels. Only used when
+        radius == 0.
+
+    :param pose: Local reference frame of the shape
+    :type pose: SE3
+    """
+
+    _repr_params = ("points", "radius", "linewidth")
+
+    def __init__(
+        self,
+        points: ArrayLike,
+        radius: float = 0.0,
+        linewidth: float = 1.0,
+        **kwargs,
+    ) -> None:
+        super(Path, self).__init__(stype="path", **kwargs)
+        self.points = points
+        self.radius = radius
+        self.linewidth = linewidth
+
+    @property
+    def points(self) -> np.ndarray:
+        """
+        :rtype: ndarray(3,n)
+        """
+        return self._points
+
+    @points.setter
+    @update
+    def points(self, value: ArrayLike) -> None:
+        value = np.array(value, dtype=float)
+        if value.ndim != 2 or value.shape[0] != 3:
+            raise ValueError(
+                f"points must be a 3xN array of waypoints, got shape {value.shape}"
+            )
+        if value.shape[1] < 2:
+            raise ValueError("points must contain at least 2 waypoints")
+        self._points = value
+
+    @property
+    def radius(self) -> float:
+        return self._radius
+
+    @radius.setter
+    @update
+    def radius(self, value: float) -> None:
+        self._radius = float(value)
+
+    @property
+    def linewidth(self) -> float:
+        return self._linewidth
+
+    @linewidth.setter
+    @update
+    def linewidth(self, value: float) -> None:
+        self._linewidth = float(value)
+
+    def to_dict(self) -> dict[str, Any]:
+        """
+        to_dict() returns the shapes information in dictionary form
+
+        :returns: All information about the shape
+        :rtype: dict
+        """
+
+        shape = super().to_dict()
+        # Wire format is a flat list of [x, y, z] waypoints (N x 3) -- the
+        # natural shape for the JS side to consume directly (one
+        # THREE.Vector3 per point) -- even though points is stored/accepted
+        # here as 3xN, matching this ecosystem's own point-set convention.
+        shape["points"] = self.points.T.tolist()
+        shape["radius"] = self.radius
+        shape["linewidth"] = self.linewidth
         return shape
