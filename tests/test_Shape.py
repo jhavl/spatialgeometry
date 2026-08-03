@@ -175,6 +175,19 @@ class TestShape(unittest.TestCase):
         s0.wT = np.eye(4)
         nt.assert_almost_equal(np.eye(4), s0.wT)
 
+    def test_set_T_on_parented_shape(self):
+        # Regression test: setting T on a shape that already has a
+        # scene_parent used to raise AttributeError -- SceneNode._T's
+        # setter referenced self.parent.wT, neither of which exist.
+        parent = gm.Cuboid([1, 1, 1], pose=sm.SE3.Trans(1, 0, 0))
+        child = gm.Cuboid([1, 1, 1])
+        parent.attach(child)
+
+        child.T = sm.SE3.Trans(0, 2, 0)
+
+        expected = sm.SE3.Trans(1, 0, 0).A @ sm.SE3.Trans(0, 2, 0).A
+        nt.assert_almost_equal(child._wT, expected)
+
     def test_mesh_collision_false(self):
         s0 = gm.Mesh("test.stl", collision=False)
         with self.assertRaises(ValueError):

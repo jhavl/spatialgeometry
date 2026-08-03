@@ -274,7 +274,7 @@ class SceneNode:
         self.__T[:] = T.copy(order="F")
 
         if self._scene_parent is not None:
-            self.__wT[:] = self.parent.wT @ self._T
+            self.__wT[:] = self._scene_parent._wT @ self._T
         else:
             self.__wT[:] = self._T
 
