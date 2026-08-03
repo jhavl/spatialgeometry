@@ -5,6 +5,7 @@
 
 import sys
 import os
+from abc import abstractmethod
 import numpy as np
 from spatialmath.base.argcheck import getvector
 from spatialgeometry.geom import Shape
@@ -50,6 +51,7 @@ class CollisionShape(Shape):
             self.co.setTranslation(self._wT[:3, 3])
             self.co.setRotation(self._wT[:3, :3])
 
+    @abstractmethod
     def _init_coal(self):  # overridden by each subclass
         pass
 

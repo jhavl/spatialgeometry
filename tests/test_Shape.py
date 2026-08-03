@@ -166,12 +166,12 @@ class TestShape(unittest.TestCase):
         self.assertEqual(s0.color, (1.0, 1.0, 1.0, 1.0))
 
     def test_shape_wt(self):
-        s0 = gm.Shape()
+        s0 = gm.Axes(1.0)
         s0.wT = np.eye(4)
         nt.assert_almost_equal(np.eye(4), s0.wT)
 
     def test_collision_shape_wt(self):
-        s0 = gm.CollisionShape()
+        s0 = gm.Cuboid([1, 1, 1])
         s0.wT = np.eye(4)
         nt.assert_almost_equal(np.eye(4), s0.wT)
 

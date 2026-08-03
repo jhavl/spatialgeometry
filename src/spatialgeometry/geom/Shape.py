@@ -3,6 +3,7 @@
 @author: Jesse Haviland
 """
 
+from abc import ABC, abstractmethod
 from functools import wraps
 from multiprocessing.sharedctypes import Value
 from spatialgeometry.geom.SceneNode import SceneNode
@@ -63,7 +64,7 @@ except ImportError:  # pragma nocover
 CONST_RX = SE3.Rx(pi / 2).A
 
 
-class Shape(SceneNode):
+class Shape(SceneNode, ABC):
     def __init__(
         self,
         pose: Union[ndarray, SE3] = eye(4),
@@ -155,6 +156,7 @@ class Shape(SceneNode):
         rgb = (array(rgb) * 255).astype(int)
         return int("0x%02x%02x%02x" % (rgb[0], rgb[1], rgb[2]), 16)
 
+    @abstractmethod
     def to_dict(self) -> Dict[str, Any]:
         """
         to_dict() returns the shapes information in dictionary form
