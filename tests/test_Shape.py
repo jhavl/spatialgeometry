@@ -281,6 +281,49 @@ class TestShape(unittest.TestCase):
         self.assertEqual(d["radius"], 0.1)
         self.assertEqual(d["linewidth"], 5.0)
 
+    def test_Path_defaults(self):
+        # points is accepted/stored as 3xN (this ecosystem's own point-set
+        # convention), but the wire format transposes to a flat N x 3 list
+        # of [x, y, z] waypoints -- the natural shape for the JS side to
+        # build one THREE.Vector3 per point.
+        points = np.array([[0.0, 1.0, 2.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+        s0 = gm.Path(points)
+
+        ans = {
+            "stype": "path",
+            "t": [0.0, 0.0, 0.0],
+            "q": [0.0, 0.0, 0.0, 1],
+            "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "color": 5000268,
+            "opacity": 1.0,
+            "points": [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [2.0, 0.0, 0.0]],
+            "radius": 0.0,
+            "linewidth": 1.0,
+        }
+
+        self.assertEqual(s0.to_dict(), ans)
+
+    def test_Path_radius_and_linewidth_are_independent_params(self):
+        points = np.array([[0.0, 1.0], [0.0, 0.0], [0.0, 0.0]])
+        s0 = gm.Path(points, radius=0.05, linewidth=3.0)
+
+        d = s0.to_dict()
+        self.assertEqual(d["radius"], 0.05)
+        self.assertEqual(d["linewidth"], 3.0)
+
+    def test_Path_rejects_wrong_shape(self):
+        with self.assertRaises(ValueError):
+            gm.Path(np.zeros((2, 3)))  # not 3xN
+
+    def test_Path_rejects_too_few_points(self):
+        with self.assertRaises(ValueError):
+            gm.Path(np.zeros((3, 1)))  # a single point isn't a polyline
+
+    def test_Path_accepts_plain_list_input(self):
+        # points is documented as ArrayLike, not just ndarray.
+        s0 = gm.Path([[0, 1], [0, 0], [0, 0]])
+        self.assertEqual(s0.to_dict()["points"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
 
 if __name__ == "__main__":  # pragma nocover
     unittest.main()
