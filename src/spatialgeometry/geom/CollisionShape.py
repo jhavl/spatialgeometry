@@ -109,17 +109,33 @@ class Mesh(CollisionShape):
 
     :param filename: Absolute path to the mesh file.
     :param scale: Scale factors along XYZ axes (default [1, 1, 1]).
+    :param color: Flat colour override, applied to every face/vertex. If
+        not given, the renderer uses whatever per-vertex/per-face colours
+        are baked into the mesh file itself, when present.
     :param collision: Whether this shape participates in collision checking.
     """
 
     _repr_params = ("filename", "scale")
 
     def __init__(
-        self, filename: str | None = None, scale: ArrayLike = [1, 1, 1], **kwargs
+        self,
+        filename: str | None = None,
+        scale: ArrayLike = [1, 1, 1],
+        color: ArrayLike | None = None,
+        **kwargs,
     ) -> None:
-        super().__init__(stype="mesh", **kwargs)
+        super().__init__(stype="mesh", color=color, **kwargs)
         self.filename = filename
         self.scale = scale
+        self._use_vertex_colors = color is None
+
+    # Overrides Shape.color's setter (keeping its getter) purely to track
+    # whether a caller has explicitly asked for a flat colour at any point
+    # after construction too, not just via __init__'s color= above.
+    @Shape.color.setter
+    def color(self, value: ArrayLike) -> None:
+        Shape.color.fset(self, value)
+        self._use_vertex_colors = False
 
     def _init_coal(self) -> None:
         if not self.collision:
@@ -170,6 +186,7 @@ class Mesh(CollisionShape):
         shape = super().to_dict()
         shape["filename"] = self.filename
         shape["scale"] = self.scale.tolist()
+        shape["use_vertex_colors"] = self._use_vertex_colors
         return shape
 
 
