@@ -261,6 +261,47 @@ class Sphere(CollisionShape):
         return shape
 
 
+class Ellipsoid(CollisionShape):
+    """
+    An ellipsoid whose centre is at the local origin.
+
+    :param radii: Semi-axis lengths along X, Y, Z, in metres. A sphere is
+        the special case radii=[r, r, r] -- use :class:`Sphere` for that,
+        it's cheaper both to construct and to collision-check.
+    :param collision: Whether this shape participates in collision checking.
+    """
+
+    _repr_params = ("radii",)
+
+    def __init__(self, radii: ArrayLike, **kwargs) -> None:
+        super().__init__(stype="ellipsoid", **kwargs)
+        self.radii = radii
+
+    def _init_coal(self) -> None:
+        if not self.collision:
+            raise ValueError(
+                "This shape has collision=False and cannot be used as a collision object"
+            )
+        r = self.radii
+        self.co = _coal.CollisionObject(_coal.Ellipsoid(r[0], r[1], r[2]))
+        self._cinit = True
+
+    @property
+    def radii(self) -> np.ndarray:
+        return self._radii
+
+    @radii.setter
+    @update
+    def radii(self, value: ArrayLike) -> None:
+        value = getvector(value, 3)
+        self._radii = np.array(value)
+
+    def to_dict(self) -> dict[str, Any]:
+        shape = super().to_dict()
+        shape["radii"] = self.radii.tolist()
+        return shape
+
+
 class Cuboid(CollisionShape):
     """
     A rectangular prism whose centre is at the local origin.

@@ -10,7 +10,8 @@ from spatialgeometry.geom import (
     Cylinder,
     Cuboid,
     Box,
-    Sphere)
+    Sphere,
+    Ellipsoid)
 
 from spatialgeometry import tools
 
@@ -26,6 +27,7 @@ __all__ = [
     "Cuboid",
     "Box",
     "Sphere",
+    "Ellipsoid",
     "Axes",
     "Arrow",
     "Path",

@@ -27,7 +27,7 @@ import spatialgeometry.geom as gm
 import spatialgeometry.geom.CollisionShape   # ensure loaded
 _mod = sys.modules["spatialgeometry.geom.CollisionShape"]
 
-from spatialgeometry.geom.CollisionShape import Sphere, Cuboid, Cylinder, Box
+from spatialgeometry.geom.CollisionShape import Sphere, Cuboid, Cylinder, Ellipsoid, Box
 
 from tests import skip_no_collision_checking
 
@@ -49,6 +49,10 @@ def cuboid_at(sx, sy, sz, x=0.0, y=0.0, z=0.0) -> Cuboid:
 
 def cylinder_at(radius, length, x=0.0, y=0.0, z=0.0) -> Cylinder:
     return Cylinder(radius, length, pose=SE3(x, y, z))
+
+
+def ellipsoid_at(radii, x=0.0, y=0.0, z=0.0) -> Ellipsoid:
+    return Ellipsoid(radii, pose=SE3(x, y, z))
 
 
 BIG = 1e6   # inf_dist large enough to always get a result
@@ -189,6 +193,40 @@ class TestCylinder:
         assert d < 0
 
 
+# ── Ellipsoid ─────────────────────────────────────────────────────────────────
+
+@skip_no_collision_checking
+class TestEllipsoid:
+    """radii=[1, 1, 1] is a unit sphere -- reuses TestSphereSphere's ground
+    truth for the along-X case, then checks the non-uniform axes actually
+    matter (a sphere wouldn't distinguish them)."""
+
+    def test_matches_sphere_when_radii_equal(self):
+        # Same as sphere_at(1.0) vs sphere_at(1.0, x=5.0): gap = 3.0
+        d, _, _ = ellipsoid_at([1, 1, 1]).closest_point(
+            ellipsoid_at([1, 1, 1], x=5.0), inf_dist=BIG)
+        assert d == pytest.approx(3.0, abs=1e-5)
+
+    def test_touching_along_longest_axis(self):
+        # centres 0.5 apart along X, radii[0]=0.3 each -> faces touch exactly
+        d, _, _ = ellipsoid_at([0.3, 0.1, 0.1]).closest_point(
+            ellipsoid_at([0.3, 0.1, 0.1], x=0.6), inf_dist=BIG)
+        assert d == pytest.approx(0.0, abs=1e-5)
+
+    def test_non_uniform_radii_along_shorter_axis(self):
+        # Same centre separation as the touching case above, but measured
+        # along Y where radii[1]=0.1 each -- a sphere of radius 0.3 would
+        # report touching here too; the ellipsoid must not.
+        d, _, _ = ellipsoid_at([0.3, 0.1, 0.1]).closest_point(
+            ellipsoid_at([0.3, 0.1, 0.1], y=0.6), inf_dist=BIG)
+        assert d == pytest.approx(0.4, abs=1e-5)
+
+    def test_penetrating(self):
+        d, _, _ = ellipsoid_at([1, 1, 1]).closest_point(
+            ellipsoid_at([1, 1, 1], x=1.0), inf_dist=BIG)
+        assert d < 0
+
+
 # ── Mixed shape pairs ─────────────────────────────────────────────────────────
 
 @skip_no_collision_checking
@@ -215,6 +253,13 @@ class TestMixedPairs:
         d1, _, _ = s.closest_point(c, inf_dist=BIG)
         d2, _, _ = c.closest_point(s, inf_dist=BIG)
         assert d1 == pytest.approx(d2, abs=1e-10)
+
+    def test_sphere_ellipsoid(self):
+        # sphere r=0.2 at origin; ellipsoid radii=[0.3,0.2,0.15] at (0.5,0,0)
+        # gap along X = 0.5 - 0.2 - 0.3 = 0.0 (exactly touching)
+        d, _, _ = sphere_at(0.2).closest_point(
+            ellipsoid_at([0.3, 0.2, 0.15], x=0.5), inf_dist=BIG)
+        assert d == pytest.approx(0.0, abs=1e-5)
 
 
 # ── Mesh distance ─────────────────────────────────────────────────────────────
@@ -442,6 +487,13 @@ class TestToDict:
     def test_cuboid_none_scale_defaults(self):
         d = gm.Cuboid(None).to_dict()
         assert d["scale"] == [1.0, 1.0, 1.0]
+
+    def test_ellipsoid_stype(self):
+        assert gm.Ellipsoid([1, 1, 1]).to_dict()["stype"] == "ellipsoid"
+
+    def test_ellipsoid_radii(self):
+        d = gm.Ellipsoid([0.3, 0.2, 0.15]).to_dict()
+        assert d["radii"] == [0.3, 0.2, 0.15]
 
     def test_mesh_stype(self):
         assert gm.Mesh("robot.stl").to_dict()["stype"] == "mesh"

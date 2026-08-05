@@ -8,6 +8,7 @@ from spatialgeometry.geom.CollisionShape import (
     Cuboid,
     Box,
     Sphere,
+    Ellipsoid,
 )
 
 
@@ -19,6 +20,7 @@ __all__ = [
     "Cuboid",
     "Box",
     "Sphere",
+    "Ellipsoid",
     "Axes",
     "Arrow",
     "Path",
