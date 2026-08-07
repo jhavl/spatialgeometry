@@ -254,6 +254,29 @@ class TestMeshDistance:
         assert m0.iscollided(m1)
         assert not m0.iscollided(m2)
 
+    def test_mesh_y_up_rotates_collision_geometry(self, tmp_path):
+        # An asymmetric box (not a cube) so an axis mix-up is actually
+        # detectable -- swaps Y and Z, matching the +Y-up -> +Z-up
+        # correction (see the LOUD WARNING on CollisionShape._Y_UP_TO_Z_UP,
+        # which must stay identical to Swift's shapes.js correction).
+        import trimesh
+
+        path = tmp_path / "asym.stl"
+        trimesh.creation.box(extents=[1, 2, 3]).export(str(path))
+
+        m0 = gm.Mesh(str(path))
+        m0._ensure_coal()
+        m0.co.computeAABB()
+        extent0 = m0.co.getAABB().max_ - m0.co.getAABB().min_
+
+        m1 = gm.Mesh(str(path), y_up=True)
+        m1._ensure_coal()
+        m1.co.computeAABB()
+        extent1 = m1.co.getAABB().max_ - m1.co.getAABB().min_
+
+        np.testing.assert_allclose(extent0, [1.0, 2.0, 3.0], atol=1e-6)
+        np.testing.assert_allclose(extent1, [1.0, 3.0, 2.0], atol=1e-6)
+
 
 # ── iscollided ────────────────────────────────────────────────────────────────
 
