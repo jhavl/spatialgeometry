@@ -188,6 +188,25 @@ class TestCylinder:
             cylinder_at(1.0, 2.0, x=1.0), inf_dist=BIG)
         assert d < 0
 
+    def test_separated_axially(self):
+        # Every test above only probes radially (offset along X) -- none of
+        # them exercise the cylinder's own axis (Z) at all, which is
+        # exactly how a "length was silently halved" bug in _init_coal()
+        # went undetected. length=4 -> each cylinder spans z in [-2, 2]
+        # locally; centres 5 apart along Z -> gap = (5 - 2) - 2 = 1.0.
+        d, _, _ = cylinder_at(1.0, 4.0, z=0.0).closest_point(
+            cylinder_at(1.0, 4.0, z=5.0), inf_dist=BIG)
+        assert d == pytest.approx(1.0, abs=1e-5)
+
+    def test_full_length_not_halved(self):
+        # Direct check on the collision geometry itself: a length=4
+        # cylinder's collision AABB must be 4 units tall, not 2.
+        c = cylinder_at(1.0, 4.0)
+        c._ensure_coal()
+        c.co.computeAABB()
+        aabb = c.co.getAABB()
+        assert (aabb.max_[2] - aabb.min_[2]) == pytest.approx(4.0, abs=1e-6)
+
 
 # ── Mixed shape pairs ─────────────────────────────────────────────────────────
 
