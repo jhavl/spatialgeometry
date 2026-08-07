@@ -205,6 +205,41 @@ class TestShape(unittest.TestCase):
         expected = sm.SE3.Trans(1, 0, 0).A @ sm.SE3.Trans(0, 2, 0).A
         nt.assert_almost_equal(child._wT, expected)
 
+    def test_scene_parent_rejects_self_parenting(self):
+        a = gm.Cuboid([1, 1, 1])
+        with self.assertRaises(ValueError):
+            a.scene_parent = a
+
+    def test_scene_parent_rejects_two_node_cycle(self):
+        a = gm.Cuboid([1, 1, 1])
+        b = gm.Cuboid([1, 1, 1])
+        b.scene_parent = a
+        with self.assertRaises(ValueError):
+            a.scene_parent = b
+
+    def test_scene_parent_rejects_longer_cycle(self):
+        x = gm.Cuboid([1, 1, 1])
+        y = gm.Cuboid([1, 1, 1])
+        z = gm.Cuboid([1, 1, 1])
+        y.scene_parent = x
+        z.scene_parent = y
+        with self.assertRaises(ValueError):
+            x.scene_parent = z
+
+    def test_attach_to_rejects_cycle(self):
+        # attach_to() goes through scene_parent -- same protection applies.
+        m = gm.Cuboid([1, 1, 1])
+        n = gm.Cuboid([1, 1, 1])
+        n.attach_to(m)
+        with self.assertRaises(ValueError):
+            m.attach_to(n)
+
+    def test_valid_reparenting_still_works(self):
+        p = gm.Cuboid([1, 1, 1])
+        q = gm.Cuboid([1, 1, 1])
+        q.scene_parent = p
+        self.assertIs(q.scene_parent, p)
+
     def test_mesh_collision_false(self):
         s0 = gm.Mesh("test.stl", collision=False)
         with self.assertRaises(ValueError):
