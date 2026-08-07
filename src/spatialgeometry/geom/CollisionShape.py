@@ -12,7 +12,7 @@ from typing import Any
 import numpy as np
 from spatialmath.base.argcheck import getvector
 from spatialgeometry.geom import Shape
-from spatialgeometry.geom.Shape import ArrayLike, update
+from spatialgeometry.geom.Shape import ArrayLike, aabb_corners, update
 from warnings import warn
 
 # Module-level coal reference — populated on first use, never in Pyodide.
@@ -179,6 +179,22 @@ class Mesh(CollisionShape):
         shape["scale"] = self.scale.tolist()
         return shape
 
+    def _local_corners(self) -> np.ndarray:
+        # Independent of self.collision/_init_coal() -- a mesh's bounding
+        # box is a plain geometric fact, not a collision-only concern, so
+        # this loads via trimesh itself rather than reusing _init_coal()
+        # (which raises ValueError when collision=False).
+        try:
+            import trimesh
+        except ImportError:
+            raise ImportError(
+                "The 'trimesh' package is required to compute a Mesh's "
+                "bounding box. Install with:  pip install trimesh"
+            )
+        mesh = trimesh.load(self.filename, force="mesh")
+        mn, mx = mesh.bounds
+        return aabb_corners(mn * self.scale, mx * self.scale)
+
 
 class Cylinder(CollisionShape):
     """
@@ -230,6 +246,10 @@ class Cylinder(CollisionShape):
         shape["length"] = self.length
         return shape
 
+    def _local_corners(self) -> np.ndarray:
+        r, h = self.radius, self.length / 2.0
+        return aabb_corners([-r, -r, -h], [r, r, h])
+
 
 class Sphere(CollisionShape):
     """
@@ -266,6 +286,10 @@ class Sphere(CollisionShape):
         shape = super().to_dict()
         shape["radius"] = self.radius
         return shape
+
+    def _local_corners(self) -> np.ndarray:
+        r = self.radius
+        return aabb_corners([-r, -r, -r], [r, r, r])
 
 
 class Cuboid(CollisionShape):
@@ -306,6 +330,10 @@ class Cuboid(CollisionShape):
         shape = super().to_dict()
         shape["scale"] = self.scale.tolist()
         return shape
+
+    def _local_corners(self) -> np.ndarray:
+        h = self.scale / 2.0
+        return aabb_corners(-h, h)
 
 
 class Box(Cuboid):
