@@ -343,6 +343,71 @@ class TestShape(unittest.TestCase):
         self.assertEqual(repr(group), f"SceneGroup([{gm.Sphere(1.0)!r}])")
         self.assertTrue(str(group).startswith("SceneGroup at "))
 
+    def test_scene_group_constructor_accepts_initial_elements(self):
+        cube = gm.Cuboid([1, 1, 1])
+        sphere = gm.Sphere(1.0)
+        group = gm.SceneGroup([cube, sphere])
+
+        self.assertEqual(len(group), 2)
+        self.assertIs(cube.scene_parent, group)
+        self.assertIs(sphere.scene_parent, group)
+
+    def test_scene_group_mutators_set_and_clear_scene_parent(self):
+        group = gm.SceneGroup()
+
+        box = gm.Cuboid([1, 1, 1])
+        group.append(box)
+        self.assertIs(box.scene_parent, group)
+
+        extra = gm.Sphere(0.5)
+        group.extend([extra])
+        self.assertIs(extra.scene_parent, group)
+
+        mid = gm.Sphere(0.3)
+        group.insert(1, mid)
+        self.assertEqual(list(group), [box, mid, extra])
+        self.assertIs(mid.scene_parent, group)
+
+        group.remove(box)
+        self.assertIsNone(box.scene_parent)
+        self.assertEqual(len(group), 2)
+
+        popped = group.pop()
+        self.assertIs(popped, extra)
+        self.assertIsNone(popped.scene_parent)
+
+        group.clear()
+        self.assertEqual(len(group), 0)
+
+    def test_scene_group_setitem_and_delitem_set_and_clear_scene_parent(self):
+        group = gm.SceneGroup([gm.Cuboid([1, 1, 1]), gm.Sphere(1.0)])
+        old_item = group[0]
+        new_item = gm.Sphere(2.0)
+
+        group[0] = new_item
+        self.assertIs(group[0], new_item)
+        self.assertIs(new_item.scene_parent, group)
+        self.assertIsNone(old_item.scene_parent)
+
+        del group[0]
+        self.assertEqual(len(group), 1)
+
+    def test_scene_group_scene_parent_does_not_flatten_its_elements(self):
+        # Setting a SceneGroup's own scene_parent should only affect the
+        # group itself -- its own elements must stay its elements, not get
+        # reparented to the new parent too.
+        parent = gm.Cuboid([1, 1, 1])
+        group = gm.SceneGroup([gm.Cuboid([1, 1, 1])])
+
+        group.scene_parent = parent
+        self.assertIs(group.scene_parent, parent)
+        self.assertEqual(len(group), 1)
+
+        parent.T = sm.SE3(5, 0, 0)
+        parent._propogate_scene_tree()
+        nt.assert_almost_equal(group._wT[:3, 3], [5, 0, 0])
+        nt.assert_almost_equal(group[0]._wT[:3, 3], [5, 0, 0])
+
     def test_Path_defaults(self):
         # points is accepted/stored as 3xN (this ecosystem's own point-set
         # convention), but the wire format transposes to a flat N x 3 list
