@@ -6,11 +6,13 @@ from spatialgeometry.geom import (
     Arrow,
     Path,
     CollisionShape,
+    CollisionShapeGroup,
     Mesh,
     Cylinder,
     Cuboid,
     Box,
-    Sphere)
+    Sphere,
+    Ellipsoid)
 
 from spatialgeometry import tools
 
@@ -21,11 +23,13 @@ __all__ = [
     # geom
     "Shape",
     "CollisionShape",
+    "CollisionShapeGroup",
     "Mesh",
     "Cylinder",
     "Cuboid",
     "Box",
     "Sphere",
+    "Ellipsoid",
     "Axes",
     "Arrow",
     "Path",

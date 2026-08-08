@@ -98,6 +98,17 @@ class Shape(SceneNode, ABC):
         base: ndarray | SE3 | None = None,
         **kwargs,
     ) -> None:
+        """
+        :param pose: Local reference frame of the shape, defaults to the
+            identity transform.
+        :param color: Colour as (r, g, b) or (r, g, b, a) in [0-1] (or
+            [0-255], auto-normalised), or a matplotlib colour name. Defaults
+            to a mid-grey ``(0.3, 0.3, 0.3, 1.0)``.
+        :param stype: Shape type identifier used by the renderer/wire
+            protocol (e.g. ``"cuboid"``, ``"mesh"``) -- set by each concrete
+            subclass, not normally passed directly by a caller.
+        :param base: Deprecated alias for ``pose``.
+        """
 
         # Swift related attributes
         self._added_to_swift = False
@@ -222,6 +233,16 @@ class Shape(SceneNode, ABC):
             if isinstance(value, ndarray):
                 value = value.tolist()
             args.append(f"{name}={value!r}")
+
+        # float(...) here, not just tuple(self.color[:3]) -- self._color's
+        # elements are sometimes numpy.float64 (e.g. after color=[...] with
+        # a list/array input), which reprs as "np.float64(1.0)" instead of
+        # a plain "1.0". Harmless for JSON (float64 genuinely subclasses
+        # float, unlike int64), but ugly here specifically.
+        args.append(f"color={tuple(float(c) for c in self.color[:3])!r}")
+        if self.color[3] != 1.0:
+            args.append(f"opacity={float(self.color[3])!r}")
+
         args.append(f"pose={SE3(self._T, check=False).strline()!r}")
         return f"{type(self).__name__}({', '.join(args)})"
 

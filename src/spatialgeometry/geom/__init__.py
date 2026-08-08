@@ -3,22 +3,26 @@ from spatialgeometry.geom.SceneGroup import SceneGroup
 from spatialgeometry.geom.Shape import Shape, Axes, Arrow, Path
 from spatialgeometry.geom.CollisionShape import (
     CollisionShape,
+    CollisionShapeGroup,
     Mesh,
     Cylinder,
     Cuboid,
     Box,
     Sphere,
+    Ellipsoid,
 )
 
 
 __all__ = [
     "Shape",
     "CollisionShape",
+    "CollisionShapeGroup",
     "Mesh",
     "Cylinder",
     "Cuboid",
     "Box",
     "Sphere",
+    "Ellipsoid",
     "Axes",
     "Arrow",
     "Path",

@@ -27,7 +27,15 @@ import spatialgeometry.geom as gm
 import spatialgeometry.geom.CollisionShape   # ensure loaded
 _mod = sys.modules["spatialgeometry.geom.CollisionShape"]
 
-from spatialgeometry.geom.CollisionShape import Sphere, Cuboid, Cylinder, Box
+from spatialgeometry.geom.CollisionShape import (
+    Sphere,
+    Cuboid,
+    Cylinder,
+    Ellipsoid,
+    Box,
+    CollisionShapeGroup,
+)
+from spatialgeometry.geom.Shape import Axes
 
 from tests import skip_no_collision_checking
 
@@ -49,6 +57,10 @@ def cuboid_at(sx, sy, sz, x=0.0, y=0.0, z=0.0) -> Cuboid:
 
 def cylinder_at(radius, length, x=0.0, y=0.0, z=0.0) -> Cylinder:
     return Cylinder(radius, length, pose=SE3(x, y, z))
+
+
+def ellipsoid_at(radii, x=0.0, y=0.0, z=0.0) -> Ellipsoid:
+    return Ellipsoid(radii, pose=SE3(x, y, z))
 
 
 BIG = 1e6   # inf_dist large enough to always get a result
@@ -188,6 +200,59 @@ class TestCylinder:
             cylinder_at(1.0, 2.0, x=1.0), inf_dist=BIG)
         assert d < 0
 
+    def test_separated_axially(self):
+        # Every test above only probes radially (offset along X) -- none of
+        # them exercise the cylinder's own axis (Z) at all, which is
+        # exactly how a "length was silently halved" bug in _init_coal()
+        # went undetected. length=4 -> each cylinder spans z in [-2, 2]
+        # locally; centres 5 apart along Z -> gap = (5 - 2) - 2 = 1.0.
+        d, _, _ = cylinder_at(1.0, 4.0, z=0.0).closest_point(
+            cylinder_at(1.0, 4.0, z=5.0), inf_dist=BIG)
+        assert d == pytest.approx(1.0, abs=1e-5)
+
+    def test_full_length_not_halved(self):
+        # Direct check on the collision geometry itself: a length=4
+        # cylinder's collision AABB must be 4 units tall, not 2.
+        c = cylinder_at(1.0, 4.0)
+        c._ensure_coal()
+        c.co.computeAABB()
+        aabb = c.co.getAABB()
+        assert (aabb.max_[2] - aabb.min_[2]) == pytest.approx(4.0, abs=1e-6)
+
+
+# ── Ellipsoid ─────────────────────────────────────────────────────────────────
+
+@skip_no_collision_checking
+class TestEllipsoid:
+    """radii=[1, 1, 1] is a unit sphere -- reuses TestSphereSphere's ground
+    truth for the along-X case, then checks the non-uniform axes actually
+    matter (a sphere wouldn't distinguish them)."""
+
+    def test_matches_sphere_when_radii_equal(self):
+        # Same as sphere_at(1.0) vs sphere_at(1.0, x=5.0): gap = 3.0
+        d, _, _ = ellipsoid_at([1, 1, 1]).closest_point(
+            ellipsoid_at([1, 1, 1], x=5.0), inf_dist=BIG)
+        assert d == pytest.approx(3.0, abs=1e-5)
+
+    def test_touching_along_longest_axis(self):
+        # centres 0.5 apart along X, radii[0]=0.3 each -> faces touch exactly
+        d, _, _ = ellipsoid_at([0.3, 0.1, 0.1]).closest_point(
+            ellipsoid_at([0.3, 0.1, 0.1], x=0.6), inf_dist=BIG)
+        assert d == pytest.approx(0.0, abs=1e-5)
+
+    def test_non_uniform_radii_along_shorter_axis(self):
+        # Same centre separation as the touching case above, but measured
+        # along Y where radii[1]=0.1 each -- a sphere of radius 0.3 would
+        # report touching here too; the ellipsoid must not.
+        d, _, _ = ellipsoid_at([0.3, 0.1, 0.1]).closest_point(
+            ellipsoid_at([0.3, 0.1, 0.1], y=0.6), inf_dist=BIG)
+        assert d == pytest.approx(0.4, abs=1e-5)
+
+    def test_penetrating(self):
+        d, _, _ = ellipsoid_at([1, 1, 1]).closest_point(
+            ellipsoid_at([1, 1, 1], x=1.0), inf_dist=BIG)
+        assert d < 0
+
 
 # ── Mixed shape pairs ─────────────────────────────────────────────────────────
 
@@ -215,6 +280,13 @@ class TestMixedPairs:
         d1, _, _ = s.closest_point(c, inf_dist=BIG)
         d2, _, _ = c.closest_point(s, inf_dist=BIG)
         assert d1 == pytest.approx(d2, abs=1e-10)
+
+    def test_sphere_ellipsoid(self):
+        # sphere r=0.2 at origin; ellipsoid radii=[0.3,0.2,0.15] at (0.5,0,0)
+        # gap along X = 0.5 - 0.2 - 0.3 = 0.0 (exactly touching)
+        d, _, _ = sphere_at(0.2).closest_point(
+            ellipsoid_at([0.3, 0.2, 0.15], x=0.5), inf_dist=BIG)
+        assert d == pytest.approx(0.0, abs=1e-5)
 
 
 # ── Mesh distance ─────────────────────────────────────────────────────────────
@@ -253,6 +325,29 @@ class TestMeshDistance:
         m2 = self._box_mesh(tmp_path, "box2.stl", pose=SE3(3, 0, 0))
         assert m0.iscollided(m1)
         assert not m0.iscollided(m2)
+
+    def test_mesh_y_up_rotates_collision_geometry(self, tmp_path):
+        # An asymmetric box (not a cube) so an axis mix-up is actually
+        # detectable -- swaps Y and Z, matching the +Y-up -> +Z-up
+        # correction (see the LOUD WARNING on CollisionShape._Y_UP_TO_Z_UP,
+        # which must stay identical to Swift's shapes.js correction).
+        import trimesh
+
+        path = tmp_path / "asym.stl"
+        trimesh.creation.box(extents=[1, 2, 3]).export(str(path))
+
+        m0 = gm.Mesh(str(path))
+        m0._ensure_coal()
+        m0.co.computeAABB()
+        extent0 = m0.co.getAABB().max_ - m0.co.getAABB().min_
+
+        m1 = gm.Mesh(str(path), y_up=True)
+        m1._ensure_coal()
+        m1.co.computeAABB()
+        extent1 = m1.co.getAABB().max_ - m1.co.getAABB().min_
+
+        np.testing.assert_allclose(extent0, [1.0, 2.0, 3.0], atol=1e-6)
+        np.testing.assert_allclose(extent1, [1.0, 3.0, 2.0], atol=1e-6)
 
 
 # ── iscollided ────────────────────────────────────────────────────────────────
@@ -411,6 +506,173 @@ class TestClosestChain:
         assert (d, p1, p2) == (None, None, None)
 
 
+# ── SceneGroup collision (first-principles, SG only) ────────────────────────
+#
+# Not "do pose values propagate" (see TestShape's scene-graph tests) but "does
+# Coal-backed iscollided()/closest_point() give correct, currently-live
+# results for elements inside a SceneGroup built via the normal list
+# interface (append()), not just via scene_children= at construction time."
+# This is exactly the code path that had a scene_parent wiring bug before
+# this fix -- append() only mutated the raw list, never wired the element's
+# own scene_parent or refreshed the group's cached scene-graph children, so a
+# moved/reparented group's elements kept reporting stale collision geometry.
+
+@skip_no_collision_checking
+class TestSceneGroupCollision:
+    def test_append_built_group_tracks_reparenting(self):
+        # Parent established BEFORE the append, not after -- appending to an
+        # already-parented group is the scenario that actually exposes a
+        # stale/never-refreshed scene-graph cache; appending before parenting
+        # would incidentally get swept up by the group's own
+        # scene_parent-setter refresh regardless of whether append() itself
+        # is wired correctly, silently defeating this as a regression test.
+        anchor = cuboid_at(0.1, 0.1, 0.1)
+        group = gm.SceneGroup()
+        group.scene_parent = anchor
+        col = Cuboid([1, 1, 1])
+        group.append(col)
+
+        probe = cuboid_at(1, 1, 1, x=13)
+
+        # col at world x=0 (identity offset through group -> anchor): faces
+        # at 0.5 and 12.5 -> gap 12.0
+        d0, _, _ = col.closest_point(probe, BIG)
+        assert d0 == pytest.approx(12.0, abs=1e-6)
+
+        anchor.T = SE3(10, 0, 0)
+        anchor._propogate_scene_tree()
+
+        # col now at world x=10: faces at 10.5 and 12.5 -> gap 2.0. If the
+        # group's append() hadn't wired col into the propagated scene graph,
+        # col._wT would still read as it did before the move and this would
+        # incorrectly still be 12.0.
+        d1, _, _ = col.closest_point(probe, BIG)
+        assert d1 == pytest.approx(2.0, abs=1e-6)
+
+    def test_multiple_appended_elements_all_tracked_independently(self):
+        anchor = cuboid_at(0.1, 0.1, 0.1)
+        group = gm.SceneGroup()
+        group.scene_parent = anchor
+        c1 = Cuboid([1, 1, 1])              # local offset 0
+        c2 = cuboid_at(1, 1, 1, x=5)         # local offset +5
+        group.append(c1)
+        group.append(c2)
+
+        anchor.T = SE3(20, 0, 0)
+        anchor._propogate_scene_tree()
+
+        # c1 -> world x=20, c2 -> world x=25 (its own local +5 composed on
+        # top of anchor's move)
+        assert c1.iscollided(cuboid_at(1, 1, 1, x=20))
+        assert c2.iscollided(cuboid_at(1, 1, 1, x=25))
+
+        # cross-check both directions, so a bug that only wires the *last*
+        # (or *first*) appended element can't hide behind a single passing
+        # assertion above
+        assert not c1.iscollided(cuboid_at(1, 1, 1, x=25))
+        assert not c2.iscollided(cuboid_at(1, 1, 1, x=20))
+
+
+# ── CollisionShapeGroup ──────────────────────────────────────────────────────
+
+@skip_no_collision_checking
+class TestCollisionShapeGroup:
+    def test_rejects_non_collision_shape_types(self):
+        with pytest.raises(TypeError):
+            CollisionShapeGroup([Axes(1.0)])
+
+        group = CollisionShapeGroup()
+        with pytest.raises(TypeError):
+            group.append("not a shape")
+        with pytest.raises(TypeError):
+            group.append(Axes(1.0))
+
+    def test_scene_parent_wiring_matches_scenegroup(self):
+        # Same regression shape as TestSceneGroupCollision above: parent
+        # established before append, so a wiring bug in append() would
+        # leave col's world pose stale after the anchor moves.
+        anchor = cuboid_at(0.1, 0.1, 0.1)
+        col = Cuboid([1, 1, 1])
+        group = CollisionShapeGroup()
+        group.scene_parent = anchor
+        group.append(col)
+
+        assert col.scene_parent is group
+
+        anchor.T = SE3(10, 0, 0)
+        anchor._propogate_scene_tree()
+
+        probe = cuboid_at(1, 1, 1, x=13)
+        d, _, _ = col.closest_point(probe, BIG)
+        assert d == pytest.approx(2.0, abs=1e-6)
+
+        group.remove(col)
+        assert col.scene_parent is None
+
+    def test_shape_x_shape_is_unaffected(self):
+        # Baseline: adding group-awareness to CollisionShape.iscollided()/
+        # closest_point() must not change plain shape-vs-shape behaviour.
+        assert not cuboid_at(1, 1, 1).iscollided(cuboid_at(1, 1, 1, x=5))
+        d, _, _ = cuboid_at(1, 1, 1).closest_point(cuboid_at(1, 1, 1, x=5), BIG)
+        assert d == pytest.approx(4.0, abs=1e-6)
+
+    def test_group_x_shape_and_shape_x_group_agree(self):
+        group = CollisionShapeGroup(
+            [cuboid_at(1, 1, 1), sphere_at(1.0, x=10)]
+        )
+        near = cuboid_at(1, 1, 1, x=0.5)   # overlaps group[0]
+        far = cuboid_at(1, 1, 1, x=50)
+
+        assert group.iscollided(near)
+        assert near.iscollided(group)      # shape-side delegates to group
+        assert not group.iscollided(far)
+        assert not far.iscollided(group)
+
+    def test_closest_point_p1_p2_swap_correctly_between_directions(self):
+        group = CollisionShapeGroup([cuboid_at(1, 1, 1)])
+        other = cuboid_at(1, 1, 1, x=5)
+
+        d_a, p1_a, p2_a = other.closest_point(group, BIG)
+        d_b, p1_b, p2_b = group.closest_point(other, BIG)
+
+        # Same distance either way, but p1/p2 (on self, on other) must be
+        # swapped between the two calls, not identical.
+        assert d_a == pytest.approx(d_b, abs=1e-6)
+        np.testing.assert_allclose(p1_a, p2_b)
+        np.testing.assert_allclose(p2_a, p1_b)
+
+    def test_group_x_group_and_nested_groups(self):
+        group_a = CollisionShapeGroup([cuboid_at(1, 1, 1)])
+        group_b = CollisionShapeGroup([cuboid_at(1, 1, 1, x=0.5)])
+        assert group_a.iscollided(group_b)
+
+        far_group = CollisionShapeGroup([cuboid_at(1, 1, 1, x=50)])
+        assert not group_a.iscollided(far_group)
+
+        nested = CollisionShapeGroup([group_b])
+        assert group_a.iscollided(nested)
+
+    def test_and_operator_both_directions(self):
+        group = CollisionShapeGroup([cuboid_at(1, 1, 1)])
+        near = cuboid_at(1, 1, 1, x=0.5)
+        far = cuboid_at(1, 1, 1, x=50)
+
+        assert (group & near) is True
+        assert (near & group) is True
+        assert (group & far) is False
+
+    def test_and_operator_unrelated_type_raises_type_error(self):
+        with pytest.raises(TypeError):
+            cuboid_at(1, 1, 1) & 5
+
+    def test_to_dict_and_init_coal_raise(self):
+        group = CollisionShapeGroup([cuboid_at(1, 1, 1)])
+        with pytest.raises(NotImplementedError):
+            group.to_dict()
+        with pytest.raises(NotImplementedError):
+            group._init_coal()
+
+
 # ── to_dict ───────────────────────────────────────────────────────────────────
 
 class TestToDict:
@@ -442,6 +704,13 @@ class TestToDict:
     def test_cuboid_none_scale_defaults(self):
         d = gm.Cuboid(None).to_dict()
         assert d["scale"] == [1.0, 1.0, 1.0]
+
+    def test_ellipsoid_stype(self):
+        assert gm.Ellipsoid([1, 1, 1]).to_dict()["stype"] == "ellipsoid"
+
+    def test_ellipsoid_radii(self):
+        d = gm.Ellipsoid([0.3, 0.2, 0.15]).to_dict()
+        assert d["radii"] == [0.3, 0.2, 0.15]
 
     def test_mesh_stype(self):
         assert gm.Mesh("robot.stl").to_dict()["stype"] == "mesh"
