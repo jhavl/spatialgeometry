@@ -295,6 +295,26 @@ class TestShape(unittest.TestCase):
         with self.assertRaises(ValueError):
             s0._init_coal()
 
+    def test_ellipsoid(self):
+        s0 = gm.Ellipsoid([1, 1, 1], collision=False)
+        with self.assertRaises(ValueError):
+            s0._init_coal()
+
+    def test_ellipsoid2(self):
+        s0 = gm.Ellipsoid([1, 1, 1])
+
+        ans = {
+            "stype": "ellipsoid",
+            "radii": [1.0, 1.0, 1.0],
+            "t": [0.0, 0.0, 0.0],
+            "q": [0.0, 0.0, 0.0, 1],
+            "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "color": 5000268,
+            "opacity": 1.0,
+        }
+
+        self.assertEqual(s0.to_dict(), ans)
+
     def test_Cuboid(self):
         s0 = gm.Cuboid(None, collision=False)
         with self.assertRaises(ValueError):
