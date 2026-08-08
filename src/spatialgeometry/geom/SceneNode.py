@@ -165,14 +165,11 @@ class SceneNode:
         the parents child
 
         """
-        # Set our parent
-        self._scene_parent = parent
+        # Set our parent (also validates this won't create a cycle)
+        self._update_scene_parent(parent)
 
         # Update our parents children
         parent._update_scene_children(self)
-
-        # Update c
-        self.__update_c()
 
     def _update_scene_parent(self, parent: SceneNode) -> None:
         """
@@ -180,6 +177,26 @@ class SceneNode:
         the parents child
 
         """
+        # A node can't become its own ancestor -- walk the new parent's own
+        # chain of parents; if self shows up (or parent is self), this
+        # reparenting would create a cycle. Nothing downstream checks for
+        # this: _propogate_scene_tree()'s root-finding walk (SceneNode.py,
+        # also mirrored in scene.py and the compiled scene_nb.cpp) has no
+        # cycle detection of its own -- a parent-chain cycle makes it spin
+        # forever (an infinite loop, not a catchable exception), and
+        # Swift's env.step() calls it every step. O(depth) per call here;
+        # fine for how small these graphs actually get, see tech-debt
+        # issue for a cheaper approach if that ever stops being true.
+        ancestor = parent
+        while ancestor is not None:
+            if ancestor is self:
+                raise ValueError(
+                    f"Cannot set {self!r}'s scene_parent to {parent!r} -- "
+                    f"{parent!r} is already a descendant of {self!r}, this "
+                    "would create a cycle in the scene graph"
+                )
+            ancestor = ancestor.scene_parent
+
         self._scene_parent = parent
 
         # Update c
