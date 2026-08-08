@@ -29,6 +29,16 @@ Distance and collision checking need the ``collision`` extra (`Coal
 
     pip install spatialgeometry[collision]
 
+If you don't need collision checking but do want to work with mesh files --
+e.g. :meth:`~spatialgeometry.Mesh.corners`/``bounds``/``extents`` for a
+mesh's bounding box, which reads the file via trimesh but never touches Coal
+at all -- install just that piece::
+
+    pip install spatialgeometry[mesh]
+
+Unlike ``collision``, this works on Windows too: trimesh has no Windows-wheel
+problem of its own, only Coal does.
+
 
 Quick start
 ===========
