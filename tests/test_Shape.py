@@ -210,12 +210,21 @@ class TestShape(unittest.TestCase):
         with self.assertRaises(ValueError):
             s0._init_coal()
 
+    def test_mesh_scalar_scale(self):
+        s0 = gm.Mesh("test.stl", scale=2.0)
+        nt.assert_almost_equal(s0.scale, [2.0, 2.0, 2.0])
+
+    def test_mesh_list_scale_still_works(self):
+        s0 = gm.Mesh("test.stl", scale=[1.0, 2.0, 3.0])
+        nt.assert_almost_equal(s0.scale, [1.0, 2.0, 3.0])
+
     def test_mesh2(self):
         s0 = gm.Mesh("test.stl")
 
         ans = {
             "stype": "mesh",
             "scale": [1.0, 1.0, 1.0],
+            "y_up": False,
             "filename": "test.stl",
             "t": [0.0, 0.0, 0.0],
             "q": [0.0, 0.0, 0.0, 1],
