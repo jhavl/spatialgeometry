@@ -87,6 +87,18 @@ required there.
 > pip install spatialgeometry trimesh
 > ```
 
+If you don't need collision checking but do want to work with mesh files --
+e.g. `Mesh.corners()`/`bounds()`/`extents()` for a mesh's bounding box, which
+reads the file via [trimesh](https://trimesh.org) but never touches Coal at
+all -- install just that piece:
+
+```shell
+pip install spatialgeometry[mesh]
+```
+
+Unlike `collision`, this works on Windows too: trimesh has no Windows-wheel
+problem of its own, only Coal does.
+
 ### conda / conda-forge
 
 For development, the provided `environment.yml` installs the package in

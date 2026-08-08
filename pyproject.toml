@@ -58,7 +58,14 @@ repository = "https://github.com/jhavl/spatialgeometry"
 
 [project.optional-dependencies]
 
-collision = ["coal; sys_platform != 'win32'", "trimesh", "pycollada"]
+# trimesh has no Windows-wheel problem of its own -- split out from collision
+# so mesh-only functionality (e.g. Mesh.corners()/bounds()/extents(), which
+# needs trimesh to read a mesh file's vertices but never touches Coal at
+# all) doesn't force in coal, which currently has no Windows wheel at all
+# (see coal-library/coal#793).
+mesh = ["trimesh"]
+
+collision = ["spatialgeometry[mesh]", "coal; sys_platform != 'win32'", "pycollada"]
 
 dev = [
     "black",
