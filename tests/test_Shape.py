@@ -266,9 +266,24 @@ class TestShape(unittest.TestCase):
             "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             "color": 5000268,
             "opacity": 1.0,
+            "use_vertex_colors": True,
         }
 
         self.assertEqual(s0.to_dict(), ans)
+
+    def test_mesh_use_vertex_colors(self):
+        # No explicit color -- defer to whatever's baked into the file.
+        s0 = gm.Mesh("test.stl")
+        self.assertTrue(s0.to_dict()["use_vertex_colors"])
+
+        # Explicit color at construction -- always overrides.
+        s1 = gm.Mesh("test.stl", color=[1.0, 0.0, 0.0, 1.0])
+        self.assertFalse(s1.to_dict()["use_vertex_colors"])
+
+        # Explicit color set after construction -- also overrides.
+        s2 = gm.Mesh("test.stl")
+        s2.color = [0.0, 1.0, 0.0, 1.0]
+        self.assertFalse(s2.to_dict()["use_vertex_colors"])
 
     def test_cylinder(self):
         s0 = gm.Cylinder(1, 1, collision=False)

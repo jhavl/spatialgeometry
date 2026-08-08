@@ -77,6 +77,13 @@ CONST_RX = SE3.Rx(pi / 2).A
 
 
 class Shape(SceneNode, ABC):
+    """
+    Abstract base class for a single renderable/collidable object in the
+    scene (a primitive, a mesh, or a Path). Not instantiated directly --
+    see the concrete subclasses in this module and in
+    :class:`~spatialgeometry.geom.CollisionShape.CollisionShape`.
+    """
+
     #: Names of this class's own constructor arguments to include in
     #: :meth:`__repr__`, in the order they should appear.
     _repr_params: tuple[str, ...] = ()
@@ -89,6 +96,17 @@ class Shape(SceneNode, ABC):
         base: ndarray | SE3 | None = None,
         **kwargs,
     ) -> None:
+        """
+        :param pose: Local reference frame of the shape, defaults to the
+            identity transform.
+        :param color: Colour as (r, g, b) or (r, g, b, a) in [0-1] (or
+            [0-255], auto-normalised), or a matplotlib colour name. Defaults
+            to a mid-grey ``(0.3, 0.3, 0.3, 1.0)``.
+        :param stype: Shape type identifier used by the renderer/wire
+            protocol (e.g. ``"cuboid"``, ``"mesh"``) -- set by each concrete
+            subclass, not normally passed directly by a caller.
+        :param base: Deprecated alias for ``pose``.
+        """
 
         # Swift related attributes
         self._added_to_swift = False
