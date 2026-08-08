@@ -461,5 +461,76 @@ class TestShape(unittest.TestCase):
         self.assertEqual(s0.to_dict()["points"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
 
+class TestBoundingBox(unittest.TestCase):
+    def test_cuboid_local_corners_bounds_extents(self):
+        s0 = gm.Cuboid([1, 2, 3])
+        self.assertEqual(s0.corners().shape, (3, 8))
+        nt.assert_almost_equal(s0.bounds(), [[-0.5, 0.5], [-1, 1], [-1.5, 1.5]])
+        nt.assert_almost_equal(s0.extents(), [1, 2, 3])
+
+    def test_sphere_local_extents(self):
+        s0 = gm.Sphere(2.0)
+        nt.assert_almost_equal(s0.extents(), [4, 4, 4])
+
+    def test_cylinder_local_extents(self):
+        # radius=1, length=4 -- axis along Z (see Cylinder's own docstring)
+        s0 = gm.Cylinder(1.0, 4.0)
+        nt.assert_almost_equal(s0.extents(), [2, 2, 4])
+
+    def test_local_extents_are_pose_independent(self):
+        # Rotating a shape must not change its own local extents -- that's
+        # the whole distinction between world=False (default) and
+        # world=True.
+        s0 = gm.Cuboid([1, 2, 3], pose=sm.SE3.Rz(45, unit="deg"))
+        nt.assert_almost_equal(s0.extents(), [1, 2, 3])
+
+    def test_world_extents_reflect_current_pose(self):
+        # A 1x2x3 cuboid rotated 45 degrees about Z has a larger axis-
+        # aligned footprint in x/y, unchanged in z.
+        s0 = gm.Cuboid([1, 2, 3], pose=sm.SE3.Rz(45, unit="deg"))
+        world_extents = s0.extents(world=True)
+        self.assertGreater(world_extents[0], 1)
+        self.assertGreater(world_extents[1], 2)
+        nt.assert_almost_equal(world_extents[2], 3)
+
+    def test_world_corners_shape(self):
+        s0 = gm.Cuboid([1, 2, 3], pose=sm.SE3.Rz(45, unit="deg") * sm.SE3.Trans(5, 0, 0))
+        self.assertEqual(s0.corners(world=True).shape, (3, 8))
+
+    def test_unimplemented_shape_raises_not_implemented(self):
+        # Axes/Arrow/Path don't implement _local_corners() yet -- corners()
+        # must fail loudly, not silently return a wrong value.
+        s0 = gm.Axes(1.0)
+        with self.assertRaises(NotImplementedError):
+            s0.corners()
+
+    def test_mesh_extents(self):
+        import tempfile
+        import trimesh
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = f"{tmp}/asym.stl"
+            trimesh.creation.box(extents=[1, 2, 3]).export(path)
+
+            s0 = gm.Mesh(path)
+            nt.assert_almost_equal(s0.extents(), [1, 2, 3], decimal=6)
+
+            s1 = gm.Mesh(path, scale=[2, 2, 2])
+            nt.assert_almost_equal(s1.extents(), [2, 4, 6], decimal=6)
+
+    def test_mesh_extents_independent_of_collision_flag(self):
+        # Unlike _init_coal(), the bounding box is a plain geometric fact
+        # and must work even when collision=False.
+        import tempfile
+        import trimesh
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = f"{tmp}/box.stl"
+            trimesh.creation.box(extents=[1, 1, 1]).export(path)
+
+            s0 = gm.Mesh(path, collision=False)
+            nt.assert_almost_equal(s0.extents(), [1, 1, 1], decimal=6)
+
+
 if __name__ == "__main__":  # pragma nocover
     unittest.main()
