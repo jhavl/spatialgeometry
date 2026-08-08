@@ -323,6 +323,48 @@ class SceneNode:
 
     # --------------------------------------------------------------------- #
 
+    def _render_tree_lines(
+        self, depth: int = 0, highlight: SceneNode | None = None
+    ) -> list[str]:
+        marker = "  <==" if self is highlight else ""
+        lines = ["    " * depth + repr(self) + marker]
+        for child in self.scene_children:
+            lines.extend(child._render_tree_lines(depth + 1, highlight))
+        return lines
+
+    def tree_children(self) -> str:
+        """
+        Render this node's own subtree as indented text (one ``repr()`` per
+        line), not walking through parents -- the same "not through
+        parents" scope as :meth:`_propogate_scene_children`.
+
+        Nodes have no ``.name`` in this package, so each line is that
+        node's own ``repr()`` (type, constructor params, color, pose) --
+        usually enough to tell siblings apart, since it's rare for two
+        distinct nodes to share an identical pose as well as everything
+        else.
+
+        :rtype: str
+        """
+        return "\n".join(self._render_tree_lines())
+
+    def tree(self) -> str:
+        """
+        Render the whole tree this node lives in as indented text -- walks
+        up to the root first (the same root-finding as
+        :meth:`_propogate_scene_tree`), then renders down from there, with
+        this node marked with a trailing ``<==`` so its position in the tree
+        is visible.
+
+        :rtype: str
+        """
+        root = self
+        while root.scene_parent is not None:
+            root = root.scene_parent
+        return "\n".join(root._render_tree_lines(highlight=self))
+
+    # --------------------------------------------------------------------- #
+
     def attach(self, object: SceneNode) -> None:
         new_childs = self.scene_children
         new_childs.append(object)

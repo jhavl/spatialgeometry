@@ -422,5 +422,77 @@ class TestShape(unittest.TestCase):
         self.assertEqual(s0.to_dict()["points"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
 
+class TestSceneTreePrint(unittest.TestCase):
+    def test_leaf_tree_children_is_a_single_line(self):
+        leaf = gm.Sphere(1.0)
+        self.assertEqual(leaf.tree_children(), repr(leaf))
+
+    def test_tree_children_shows_only_this_subtree_not_siblings(self):
+        parent = gm.Cuboid([1, 1, 1])
+        child = gm.Sphere(1.0)
+        sibling = gm.Cylinder(2.0, 3.0)  # distinguishable repr from child
+        child.scene_parent = parent
+        sibling.scene_parent = parent
+
+        # From the child's own perspective, tree_children() must not walk
+        # back up through its parent (matching _propogate_scene_children()'s
+        # "not through parents" scope) or sideways to its sibling.
+        result = child.tree_children()
+        self.assertEqual(result, repr(child))
+        self.assertNotIn(repr(sibling), result)
+
+    def test_tree_children_indentation_reflects_depth(self):
+        root = gm.Cuboid([1, 1, 1])
+        mid = gm.Sphere(1.0)
+        leaf = gm.Cylinder(1.0, 1.0)
+        mid.scene_parent = root
+        leaf.scene_parent = mid
+
+        lines = root.tree_children().split("\n")
+        self.assertEqual(lines, [repr(root), "    " + repr(mid), "        " + repr(leaf)])
+
+    def test_tree_walks_to_root_regardless_of_which_node_it_is_called_on(self):
+        root = gm.Cuboid([1, 1, 1])
+        mid = gm.Sphere(1.0)
+        leaf = gm.Cylinder(1.0, 1.0)
+        mid.scene_parent = root
+        leaf.scene_parent = mid
+
+        # Calling .tree() from the leaf must produce the same whole-tree
+        # rendering as calling it from the root (minus the "<==" marker,
+        # checked separately below).
+        from_root = root.tree().replace("  <==", "")
+        from_leaf = leaf.tree().replace("  <==", "")
+        self.assertEqual(from_root, from_leaf)
+
+    def test_tree_marks_the_calling_node(self):
+        root = gm.Cuboid([1, 1, 1])
+        leaf = gm.Sphere(1.0)
+        leaf.scene_parent = root
+
+        result = leaf.tree()
+        lines = result.split("\n")
+        self.assertFalse(lines[0].endswith("<=="))  # root, not the caller
+        self.assertTrue(lines[1].endswith("<=="))   # leaf, the caller
+
+    def test_tree_on_an_unparented_node_is_just_itself(self):
+        alone = gm.Sphere(1.0)
+        self.assertEqual(alone.tree(), repr(alone) + "  <==")
+
+    def test_scene_group_needs_no_special_casing(self):
+        # A SceneGroup's list elements and its scene-graph children are the
+        # same underlying list -- the walker needs no SceneGroup-specific
+        # branch, it just recurses into scene_children like any other node.
+        anchor = gm.Cuboid([1, 1, 1])
+        s0 = gm.Sphere(1.0)
+        s1 = gm.Cylinder(1.0, 1.0)
+        group = gm.SceneGroup(scene_children=[s0, s1])
+        group.scene_parent = anchor
+
+        result = anchor.tree_children()
+        self.assertIn(repr(s0), result)
+        self.assertIn(repr(s1), result)
+
+
 if __name__ == "__main__":  # pragma nocover
     unittest.main()
