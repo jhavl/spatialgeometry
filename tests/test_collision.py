@@ -27,7 +27,14 @@ import spatialgeometry.geom as gm
 import spatialgeometry.geom.CollisionShape   # ensure loaded
 _mod = sys.modules["spatialgeometry.geom.CollisionShape"]
 
-from spatialgeometry.geom.CollisionShape import Sphere, Cuboid, Cylinder, Box
+from spatialgeometry.geom.CollisionShape import (
+    Sphere,
+    Cuboid,
+    Cylinder,
+    Box,
+    CollisionShapeGroup,
+)
+from spatialgeometry.geom.Shape import Axes
 
 from tests import skip_no_collision_checking
 
@@ -476,6 +483,106 @@ class TestSceneGroupCollision:
         # assertion above
         assert not c1.iscollided(cuboid_at(1, 1, 1, x=25))
         assert not c2.iscollided(cuboid_at(1, 1, 1, x=20))
+
+
+# ── CollisionShapeGroup ──────────────────────────────────────────────────────
+
+@skip_no_collision_checking
+class TestCollisionShapeGroup:
+    def test_rejects_non_collision_shape_types(self):
+        with pytest.raises(TypeError):
+            CollisionShapeGroup([Axes(1.0)])
+
+        group = CollisionShapeGroup()
+        with pytest.raises(TypeError):
+            group.append("not a shape")
+        with pytest.raises(TypeError):
+            group.append(Axes(1.0))
+
+    def test_scene_parent_wiring_matches_scenegroup(self):
+        # Same regression shape as TestSceneGroupCollision above: parent
+        # established before append, so a wiring bug in append() would
+        # leave col's world pose stale after the anchor moves.
+        anchor = cuboid_at(0.1, 0.1, 0.1)
+        col = Cuboid([1, 1, 1])
+        group = CollisionShapeGroup()
+        group.scene_parent = anchor
+        group.append(col)
+
+        assert col.scene_parent is group
+
+        anchor.T = SE3(10, 0, 0)
+        anchor._propogate_scene_tree()
+
+        probe = cuboid_at(1, 1, 1, x=13)
+        d, _, _ = col.closest_point(probe, BIG)
+        assert d == pytest.approx(2.0, abs=1e-6)
+
+        group.remove(col)
+        assert col.scene_parent is None
+
+    def test_shape_x_shape_is_unaffected(self):
+        # Baseline: adding group-awareness to CollisionShape.iscollided()/
+        # closest_point() must not change plain shape-vs-shape behaviour.
+        assert not cuboid_at(1, 1, 1).iscollided(cuboid_at(1, 1, 1, x=5))
+        d, _, _ = cuboid_at(1, 1, 1).closest_point(cuboid_at(1, 1, 1, x=5), BIG)
+        assert d == pytest.approx(4.0, abs=1e-6)
+
+    def test_group_x_shape_and_shape_x_group_agree(self):
+        group = CollisionShapeGroup(
+            [cuboid_at(1, 1, 1), sphere_at(1.0, x=10)]
+        )
+        near = cuboid_at(1, 1, 1, x=0.5)   # overlaps group[0]
+        far = cuboid_at(1, 1, 1, x=50)
+
+        assert group.iscollided(near)
+        assert near.iscollided(group)      # shape-side delegates to group
+        assert not group.iscollided(far)
+        assert not far.iscollided(group)
+
+    def test_closest_point_p1_p2_swap_correctly_between_directions(self):
+        group = CollisionShapeGroup([cuboid_at(1, 1, 1)])
+        other = cuboid_at(1, 1, 1, x=5)
+
+        d_a, p1_a, p2_a = other.closest_point(group, BIG)
+        d_b, p1_b, p2_b = group.closest_point(other, BIG)
+
+        # Same distance either way, but p1/p2 (on self, on other) must be
+        # swapped between the two calls, not identical.
+        assert d_a == pytest.approx(d_b, abs=1e-6)
+        np.testing.assert_allclose(p1_a, p2_b)
+        np.testing.assert_allclose(p2_a, p1_b)
+
+    def test_group_x_group_and_nested_groups(self):
+        group_a = CollisionShapeGroup([cuboid_at(1, 1, 1)])
+        group_b = CollisionShapeGroup([cuboid_at(1, 1, 1, x=0.5)])
+        assert group_a.iscollided(group_b)
+
+        far_group = CollisionShapeGroup([cuboid_at(1, 1, 1, x=50)])
+        assert not group_a.iscollided(far_group)
+
+        nested = CollisionShapeGroup([group_b])
+        assert group_a.iscollided(nested)
+
+    def test_and_operator_both_directions(self):
+        group = CollisionShapeGroup([cuboid_at(1, 1, 1)])
+        near = cuboid_at(1, 1, 1, x=0.5)
+        far = cuboid_at(1, 1, 1, x=50)
+
+        assert (group & near) is True
+        assert (near & group) is True
+        assert (group & far) is False
+
+    def test_and_operator_unrelated_type_raises_type_error(self):
+        with pytest.raises(TypeError):
+            cuboid_at(1, 1, 1) & 5
+
+    def test_to_dict_and_init_coal_raise(self):
+        group = CollisionShapeGroup([cuboid_at(1, 1, 1)])
+        with pytest.raises(NotImplementedError):
+            group.to_dict()
+        with pytest.raises(NotImplementedError):
+            group._init_coal()
 
 
 # ── to_dict ───────────────────────────────────────────────────────────────────
