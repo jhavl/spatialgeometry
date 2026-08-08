@@ -223,6 +223,17 @@ class SceneNode:
         # Update c
         self.__update_c()
 
+    def _remove_scene_child(self, child: SceneNode) -> None:
+        """
+        Removes a child from this object, does NOT clear the
+        child's own scene_parent reference
+
+        """
+        self.scene_children.remove(child)
+
+        # Update c
+        self.__update_c()
+
     # --------------------------------------------------------------------- #
 
     @property
