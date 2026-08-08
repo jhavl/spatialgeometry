@@ -165,14 +165,11 @@ class SceneNode:
         the parents child
 
         """
-        # Set our parent
-        self._scene_parent = parent
+        # Set our parent (also validates this won't create a cycle)
+        self._update_scene_parent(parent)
 
         # Update our parents children
         parent._update_scene_children(self)
-
-        # Update c
-        self.__update_c()
 
     def _update_scene_parent(self, parent: SceneNode) -> None:
         """
@@ -180,6 +177,26 @@ class SceneNode:
         the parents child
 
         """
+        # A node can't become its own ancestor -- walk the new parent's own
+        # chain of parents; if self shows up (or parent is self), this
+        # reparenting would create a cycle. Nothing downstream checks for
+        # this: _propogate_scene_tree()'s root-finding walk (SceneNode.py,
+        # also mirrored in scene.py and the compiled scene_nb.cpp) has no
+        # cycle detection of its own -- a parent-chain cycle makes it spin
+        # forever (an infinite loop, not a catchable exception), and
+        # Swift's env.step() calls it every step. O(depth) per call here;
+        # fine for how small these graphs actually get, see tech-debt
+        # issue for a cheaper approach if that ever stops being true.
+        ancestor = parent
+        while ancestor is not None:
+            if ancestor is self:
+                raise ValueError(
+                    f"Cannot set {self!r}'s scene_parent to {parent!r} -- "
+                    f"{parent!r} is already a descendant of {self!r}, this "
+                    "would create a cycle in the scene graph"
+                )
+            ancestor = ancestor.scene_parent
+
         self._scene_parent = parent
 
         # Update c
@@ -219,6 +236,17 @@ class SceneNode:
 
         """
         self.scene_children.append(child)
+
+        # Update c
+        self.__update_c()
+
+    def _remove_scene_child(self, child: SceneNode) -> None:
+        """
+        Removes a child from this object, does NOT clear the
+        child's own scene_parent reference
+
+        """
+        self.scene_children.remove(child)
 
         # Update c
         self.__update_c()
@@ -303,6 +331,48 @@ class SceneNode:
         which this node lives
         """
         scene_graph_tree(self.__scene)
+
+    # --------------------------------------------------------------------- #
+
+    def _render_tree_lines(
+        self, depth: int = 0, highlight: SceneNode | None = None
+    ) -> list[str]:
+        marker = "  <==" if self is highlight else ""
+        lines = ["    " * depth + repr(self) + marker]
+        for child in self.scene_children:
+            lines.extend(child._render_tree_lines(depth + 1, highlight))
+        return lines
+
+    def tree_children(self) -> str:
+        """
+        Render this node's own subtree as indented text (one ``repr()`` per
+        line), not walking through parents -- the same "not through
+        parents" scope as :meth:`_propogate_scene_children`.
+
+        Nodes have no ``.name`` in this package, so each line is that
+        node's own ``repr()`` (type, constructor params, color, pose) --
+        usually enough to tell siblings apart, since it's rare for two
+        distinct nodes to share an identical pose as well as everything
+        else.
+
+        :rtype: str
+        """
+        return "\n".join(self._render_tree_lines())
+
+    def tree(self) -> str:
+        """
+        Render the whole tree this node lives in as indented text -- walks
+        up to the root first (the same root-finding as
+        :meth:`_propogate_scene_tree`), then renders down from there, with
+        this node marked with a trailing ``<==`` so its position in the tree
+        is visible.
+
+        :rtype: str
+        """
+        root = self
+        while root.scene_parent is not None:
+            root = root.scene_parent
+        return "\n".join(root._render_tree_lines(highlight=self))
 
     # --------------------------------------------------------------------- #
 

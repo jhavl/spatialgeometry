@@ -205,10 +205,53 @@ class TestShape(unittest.TestCase):
         expected = sm.SE3.Trans(1, 0, 0).A @ sm.SE3.Trans(0, 2, 0).A
         nt.assert_almost_equal(child._wT, expected)
 
+    def test_scene_parent_rejects_self_parenting(self):
+        a = gm.Cuboid([1, 1, 1])
+        with self.assertRaises(ValueError):
+            a.scene_parent = a
+
+    def test_scene_parent_rejects_two_node_cycle(self):
+        a = gm.Cuboid([1, 1, 1])
+        b = gm.Cuboid([1, 1, 1])
+        b.scene_parent = a
+        with self.assertRaises(ValueError):
+            a.scene_parent = b
+
+    def test_scene_parent_rejects_longer_cycle(self):
+        x = gm.Cuboid([1, 1, 1])
+        y = gm.Cuboid([1, 1, 1])
+        z = gm.Cuboid([1, 1, 1])
+        y.scene_parent = x
+        z.scene_parent = y
+        with self.assertRaises(ValueError):
+            x.scene_parent = z
+
+    def test_attach_to_rejects_cycle(self):
+        # attach_to() goes through scene_parent -- same protection applies.
+        m = gm.Cuboid([1, 1, 1])
+        n = gm.Cuboid([1, 1, 1])
+        n.attach_to(m)
+        with self.assertRaises(ValueError):
+            m.attach_to(n)
+
+    def test_valid_reparenting_still_works(self):
+        p = gm.Cuboid([1, 1, 1])
+        q = gm.Cuboid([1, 1, 1])
+        q.scene_parent = p
+        self.assertIs(q.scene_parent, p)
+
     def test_mesh_collision_false(self):
         s0 = gm.Mesh("test.stl", collision=False)
         with self.assertRaises(ValueError):
             s0._init_coal()
+
+    def test_mesh_scalar_scale(self):
+        s0 = gm.Mesh("test.stl", scale=2.0)
+        nt.assert_almost_equal(s0.scale, [2.0, 2.0, 2.0])
+
+    def test_mesh_list_scale_still_works(self):
+        s0 = gm.Mesh("test.stl", scale=[1.0, 2.0, 3.0])
+        nt.assert_almost_equal(s0.scale, [1.0, 2.0, 3.0])
 
     def test_mesh2(self):
         s0 = gm.Mesh("test.stl")
@@ -216,6 +259,7 @@ class TestShape(unittest.TestCase):
         ans = {
             "stype": "mesh",
             "scale": [1.0, 1.0, 1.0],
+            "y_up": False,
             "filename": "test.stl",
             "t": [0.0, 0.0, 0.0],
             "q": [0.0, 0.0, 0.0, 1],
@@ -347,7 +391,39 @@ class TestShape(unittest.TestCase):
         r = repr(s0)
 
         self.assertNotIn("\n", r)
-        self.assertEqual(r, "Cylinder(radius=1.0, length=2.0, pose='t = 0, 0, 0; rpy/zyx = 0°, 0°, 0°')")
+        self.assertEqual(
+            r,
+            "Cylinder(radius=1.0, length=2.0, color=(0.3, 0.3, 0.3), "
+            "pose='t = 0, 0, 0; rpy/zyx = 0°, 0°, 0°')",
+        )
+
+    def test_repr_shows_color_always_opacity_only_if_not_1(self):
+        opaque = gm.Cuboid([1, 1, 1], color=[1, 0, 0, 1])
+        self.assertIn("color=(1.0, 0.0, 0.0)", repr(opaque))
+        self.assertNotIn("opacity=", repr(opaque))
+
+        transparent = gm.Cuboid([1, 1, 1], color=[1, 0, 0, 0.5])
+        self.assertIn("color=(1.0, 0.0, 0.0)", repr(transparent))
+        self.assertIn("opacity=0.5", repr(transparent))
+
+    def test_repr_color_is_plain_float_not_numpy_scalar(self):
+        # self._color's elements can be numpy.float64 after color=[...]
+        # with a list/array input -- repr() must show a plain "1.0", not
+        # numpy's own "np.float64(1.0)".
+        s0 = gm.Sphere(1.0, color=[1, 0, 0, 1])
+        self.assertNotIn("np.float64", repr(s0))
+
+    def test_repr_handles_all_integer_3_tuple_color(self):
+        # color=(1, 0, 0) -- all-integer, 3-length (no alpha), a natural
+        # way to write opaque red. Must not be misread as 0-255 range
+        # (only normalises if any component > 1.0), must pad alpha to
+        # 1.0 (so opacity is correctly omitted), and must not leak
+        # numpy scalars into the repr.
+        s0 = gm.Cuboid([1, 1, 1], color=(1, 0, 0))
+        r = repr(s0)
+        self.assertIn("color=(1.0, 0.0, 0.0)", r)
+        self.assertNotIn("opacity=", r)
+        self.assertNotIn("np.float64", r)
 
     def test_str_is_single_line(self):
         s0 = gm.Cuboid([1, 1, 1], pose=sm.SE3.Trans(1, 2, 3))
@@ -362,6 +438,71 @@ class TestShape(unittest.TestCase):
 
         self.assertEqual(repr(group), f"SceneGroup([{gm.Sphere(1.0)!r}])")
         self.assertTrue(str(group).startswith("SceneGroup at "))
+
+    def test_scene_group_constructor_accepts_initial_elements(self):
+        cube = gm.Cuboid([1, 1, 1])
+        sphere = gm.Sphere(1.0)
+        group = gm.SceneGroup([cube, sphere])
+
+        self.assertEqual(len(group), 2)
+        self.assertIs(cube.scene_parent, group)
+        self.assertIs(sphere.scene_parent, group)
+
+    def test_scene_group_mutators_set_and_clear_scene_parent(self):
+        group = gm.SceneGroup()
+
+        box = gm.Cuboid([1, 1, 1])
+        group.append(box)
+        self.assertIs(box.scene_parent, group)
+
+        extra = gm.Sphere(0.5)
+        group.extend([extra])
+        self.assertIs(extra.scene_parent, group)
+
+        mid = gm.Sphere(0.3)
+        group.insert(1, mid)
+        self.assertEqual(list(group), [box, mid, extra])
+        self.assertIs(mid.scene_parent, group)
+
+        group.remove(box)
+        self.assertIsNone(box.scene_parent)
+        self.assertEqual(len(group), 2)
+
+        popped = group.pop()
+        self.assertIs(popped, extra)
+        self.assertIsNone(popped.scene_parent)
+
+        group.clear()
+        self.assertEqual(len(group), 0)
+
+    def test_scene_group_setitem_and_delitem_set_and_clear_scene_parent(self):
+        group = gm.SceneGroup([gm.Cuboid([1, 1, 1]), gm.Sphere(1.0)])
+        old_item = group[0]
+        new_item = gm.Sphere(2.0)
+
+        group[0] = new_item
+        self.assertIs(group[0], new_item)
+        self.assertIs(new_item.scene_parent, group)
+        self.assertIsNone(old_item.scene_parent)
+
+        del group[0]
+        self.assertEqual(len(group), 1)
+
+    def test_scene_group_scene_parent_does_not_flatten_its_elements(self):
+        # Setting a SceneGroup's own scene_parent should only affect the
+        # group itself -- its own elements must stay its elements, not get
+        # reparented to the new parent too.
+        parent = gm.Cuboid([1, 1, 1])
+        group = gm.SceneGroup([gm.Cuboid([1, 1, 1])])
+
+        group.scene_parent = parent
+        self.assertIs(group.scene_parent, parent)
+        self.assertEqual(len(group), 1)
+
+        parent.T = sm.SE3(5, 0, 0)
+        parent._propogate_scene_tree()
+        nt.assert_almost_equal(group._wT[:3, 3], [5, 0, 0])
+        nt.assert_almost_equal(group[0]._wT[:3, 3], [5, 0, 0])
 
     def test_Path_defaults(self):
         # points is accepted/stored as 3xN (this ecosystem's own point-set
@@ -405,6 +546,149 @@ class TestShape(unittest.TestCase):
         # points is documented as ArrayLike, not just ndarray.
         s0 = gm.Path([[0, 1], [0, 0], [0, 0]])
         self.assertEqual(s0.to_dict()["points"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
+
+class TestSceneTreePrint(unittest.TestCase):
+    def test_leaf_tree_children_is_a_single_line(self):
+        leaf = gm.Sphere(1.0)
+        self.assertEqual(leaf.tree_children(), repr(leaf))
+
+    def test_tree_children_shows_only_this_subtree_not_siblings(self):
+        parent = gm.Cuboid([1, 1, 1])
+        child = gm.Sphere(1.0)
+        sibling = gm.Cylinder(2.0, 3.0)  # distinguishable repr from child
+        child.scene_parent = parent
+        sibling.scene_parent = parent
+
+        # From the child's own perspective, tree_children() must not walk
+        # back up through its parent (matching _propogate_scene_children()'s
+        # "not through parents" scope) or sideways to its sibling.
+        result = child.tree_children()
+        self.assertEqual(result, repr(child))
+        self.assertNotIn(repr(sibling), result)
+
+    def test_tree_children_indentation_reflects_depth(self):
+        root = gm.Cuboid([1, 1, 1])
+        mid = gm.Sphere(1.0)
+        leaf = gm.Cylinder(1.0, 1.0)
+        mid.scene_parent = root
+        leaf.scene_parent = mid
+
+        lines = root.tree_children().split("\n")
+        self.assertEqual(lines, [repr(root), "    " + repr(mid), "        " + repr(leaf)])
+
+    def test_tree_walks_to_root_regardless_of_which_node_it_is_called_on(self):
+        root = gm.Cuboid([1, 1, 1])
+        mid = gm.Sphere(1.0)
+        leaf = gm.Cylinder(1.0, 1.0)
+        mid.scene_parent = root
+        leaf.scene_parent = mid
+
+        # Calling .tree() from the leaf must produce the same whole-tree
+        # rendering as calling it from the root (minus the "<==" marker,
+        # checked separately below).
+        from_root = root.tree().replace("  <==", "")
+        from_leaf = leaf.tree().replace("  <==", "")
+        self.assertEqual(from_root, from_leaf)
+
+    def test_tree_marks_the_calling_node(self):
+        root = gm.Cuboid([1, 1, 1])
+        leaf = gm.Sphere(1.0)
+        leaf.scene_parent = root
+
+        result = leaf.tree()
+        lines = result.split("\n")
+        self.assertFalse(lines[0].endswith("<=="))  # root, not the caller
+        self.assertTrue(lines[1].endswith("<=="))   # leaf, the caller
+
+    def test_tree_on_an_unparented_node_is_just_itself(self):
+        alone = gm.Sphere(1.0)
+        self.assertEqual(alone.tree(), repr(alone) + "  <==")
+
+    def test_scene_group_needs_no_special_casing(self):
+        # A SceneGroup's list elements and its scene-graph children are the
+        # same underlying list -- the walker needs no SceneGroup-specific
+        # branch, it just recurses into scene_children like any other node.
+        anchor = gm.Cuboid([1, 1, 1])
+        s0 = gm.Sphere(1.0)
+        s1 = gm.Cylinder(1.0, 1.0)
+        group = gm.SceneGroup([s0, s1])
+        group.scene_parent = anchor
+
+        result = anchor.tree_children()
+        self.assertIn(repr(s0), result)
+        self.assertIn(repr(s1), result)
+
+
+class TestBoundingBox(unittest.TestCase):
+    def test_cuboid_local_corners_bounds_extents(self):
+        s0 = gm.Cuboid([1, 2, 3])
+        self.assertEqual(s0.corners().shape, (3, 8))
+        nt.assert_almost_equal(s0.bounds(), [[-0.5, 0.5], [-1, 1], [-1.5, 1.5]])
+        nt.assert_almost_equal(s0.extents(), [1, 2, 3])
+
+    def test_sphere_local_extents(self):
+        s0 = gm.Sphere(2.0)
+        nt.assert_almost_equal(s0.extents(), [4, 4, 4])
+
+    def test_cylinder_local_extents(self):
+        # radius=1, length=4 -- axis along Z (see Cylinder's own docstring)
+        s0 = gm.Cylinder(1.0, 4.0)
+        nt.assert_almost_equal(s0.extents(), [2, 2, 4])
+
+    def test_local_extents_are_pose_independent(self):
+        # Rotating a shape must not change its own local extents -- that's
+        # the whole distinction between world=False (default) and
+        # world=True.
+        s0 = gm.Cuboid([1, 2, 3], pose=sm.SE3.Rz(45, unit="deg"))
+        nt.assert_almost_equal(s0.extents(), [1, 2, 3])
+
+    def test_world_extents_reflect_current_pose(self):
+        # A 1x2x3 cuboid rotated 45 degrees about Z has a larger axis-
+        # aligned footprint in x/y, unchanged in z.
+        s0 = gm.Cuboid([1, 2, 3], pose=sm.SE3.Rz(45, unit="deg"))
+        world_extents = s0.extents(world=True)
+        self.assertGreater(world_extents[0], 1)
+        self.assertGreater(world_extents[1], 2)
+        nt.assert_almost_equal(world_extents[2], 3)
+
+    def test_world_corners_shape(self):
+        s0 = gm.Cuboid([1, 2, 3], pose=sm.SE3.Rz(45, unit="deg") * sm.SE3.Trans(5, 0, 0))
+        self.assertEqual(s0.corners(world=True).shape, (3, 8))
+
+    def test_unimplemented_shape_raises_not_implemented(self):
+        # Axes/Arrow/Path don't implement _local_corners() yet -- corners()
+        # must fail loudly, not silently return a wrong value.
+        s0 = gm.Axes(1.0)
+        with self.assertRaises(NotImplementedError):
+            s0.corners()
+
+    def test_mesh_extents(self):
+        import tempfile
+        import trimesh
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = f"{tmp}/asym.stl"
+            trimesh.creation.box(extents=[1, 2, 3]).export(path)
+
+            s0 = gm.Mesh(path)
+            nt.assert_almost_equal(s0.extents(), [1, 2, 3], decimal=6)
+
+            s1 = gm.Mesh(path, scale=[2, 2, 2])
+            nt.assert_almost_equal(s1.extents(), [2, 4, 6], decimal=6)
+
+    def test_mesh_extents_independent_of_collision_flag(self):
+        # Unlike _init_coal(), the bounding box is a plain geometric fact
+        # and must work even when collision=False.
+        import tempfile
+        import trimesh
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = f"{tmp}/box.stl"
+            trimesh.creation.box(extents=[1, 1, 1]).export(path)
+
+            s0 = gm.Mesh(path, collision=False)
+            nt.assert_almost_equal(s0.extents(), [1, 1, 1], decimal=6)
 
 
 if __name__ == "__main__":  # pragma nocover

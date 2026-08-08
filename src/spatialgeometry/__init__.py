@@ -6,6 +6,7 @@ from spatialgeometry.geom import (
     Arrow,
     Path,
     CollisionShape,
+    CollisionShapeGroup,
     Mesh,
     Cylinder,
     Cuboid,
@@ -22,6 +23,7 @@ __all__ = [
     # geom
     "Shape",
     "CollisionShape",
+    "CollisionShapeGroup",
     "Mesh",
     "Cylinder",
     "Cuboid",
