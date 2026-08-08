@@ -29,6 +29,19 @@ import numpy as np
 
 ArrayLike = list | ndarray | tuple | set
 _mpl = False
+
+
+def aabb_corners(mn: ArrayLike, mx: ArrayLike) -> ndarray:
+    """
+    The 8 corners of the axis-aligned box spanning ``mn`` to ``mx``.
+
+    :param mn: minimum [x, y, z]
+    :param mx: maximum [x, y, z]
+    :rtype: ndarray(3,8)
+    """
+    return np.array(
+        [[x, y, z] for x in (mn[0], mx[0]) for y in (mn[1], mx[1]) for z in (mn[2], mx[2])]
+    ).T
 # _rtb = False
 
 
@@ -200,6 +213,16 @@ class Shape(SceneNode, ABC):
             if isinstance(value, ndarray):
                 value = value.tolist()
             args.append(f"{name}={value!r}")
+
+        # float(...) here, not just tuple(self.color[:3]) -- self._color's
+        # elements are sometimes numpy.float64 (e.g. after color=[...] with
+        # a list/array input), which reprs as "np.float64(1.0)" instead of
+        # a plain "1.0". Harmless for JSON (float64 genuinely subclasses
+        # float, unlike int64), but ugly here specifically.
+        args.append(f"color={tuple(float(c) for c in self.color[:3])!r}")
+        if self.color[3] != 1.0:
+            args.append(f"opacity={float(self.color[3])!r}")
+
         args.append(f"pose={SE3(self._T, check=False).strline()!r}")
         return f"{type(self).__name__}({', '.join(args)})"
 
@@ -291,6 +314,67 @@ class Shape(SceneNode, ABC):
 
         new_color = concatenate([self._color[:3], [alpha]])
         self._color = tuple(new_color)
+
+    # --------------------------------------------------------------------- #
+    # Bounding box
+    #
+    # _local_corners() is the one thing each subclass overrides -- the 8
+    # corners of the shape's own axis-aligned bounding box, in its local
+    # frame (pose ignored). corners()/bounds()/extents() are all derived
+    # from it here, generically, once. Not an @abstractmethod: a shape
+    # that hasn't implemented it yet (e.g. Axes/Arrow/Path, currently)
+    # raises NotImplementedError only if corners() is actually called on
+    # it, rather than making the class impossible to instantiate.
+    # --------------------------------------------------------------------- #
+
+    def _local_corners(self) -> ndarray:
+        raise NotImplementedError(
+            f"{type(self).__name__} does not implement a bounding box"
+        )
+
+    def corners(self, world: bool = False) -> ndarray:
+        """
+        The 8 corners of this shape's axis-aligned bounding box.
+
+        :param world: If True, apply this shape's current pose and return
+            the axis-aligned envelope of the posed shape (its corners will
+            move as the shape is re-posed, and a rotated shape's envelope
+            is generally larger than its own local box -- this is *not*
+            the shape's true oriented/rotated corners). If False
+            (default), return the corners in the shape's own local frame,
+            independent of pose -- constant unless the shape's own
+            parameters (radius, scale, ...) change.
+
+        :rtype: ndarray(3,8)
+        """
+        c = self._local_corners()
+        if not world:
+            return c
+
+        wc = self._wT[:3, :3] @ c + self._wT[:3, 3:4]
+        return aabb_corners(wc.min(axis=1), wc.max(axis=1))
+
+    def bounds(self, world: bool = False) -> ndarray:
+        """
+        Min/max extent of this shape's axis-aligned bounding box along
+        each axis.
+
+        :param world: See :meth:`corners`.
+        :rtype: ndarray(3,2)
+        """
+        c = self.corners(world=world)
+        return np.column_stack([c.min(axis=1), c.max(axis=1)])
+
+    def extents(self, world: bool = False) -> ndarray:
+        """
+        Dimensions (width, depth, height) of this shape's axis-aligned
+        bounding box.
+
+        :param world: See :meth:`corners`.
+        :rtype: ndarray(3,)
+        """
+        b = self.bounds(world=world)
+        return b[:, 1] - b[:, 0]
 
     # --------------------------------------------------------------------- #
 

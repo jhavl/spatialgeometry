@@ -18,7 +18,7 @@ find_package(nanobind CONFIG REQUIRED HINTS "${NB_DIR}")
 # ---------------------------------------------------------------------------
 # scene — scene-graph transform propagation
 # Eigen is vendored as header-only (Core module only -- see
-# src/spatialgeometry/core/Eigen) in src/spatialgeometry/core/Eigen/
+# src/spatialgeometry/cpp-extension/Eigen) in src/spatialgeometry/cpp-extension/Eigen/
 # scene_nb.cpp is the nanobind glue; math lives inline in that file.
 #
 # Skipped entirely under Pyodide/Emscripten: no compiler there worth
@@ -29,10 +29,10 @@ find_package(nanobind CONFIG REQUIRED HINTS "${NB_DIR}")
 # ---------------------------------------------------------------------------
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     nanobind_add_module(scene
-        src/spatialgeometry/core/scene_nb.cpp
+        src/spatialgeometry/cpp-extension/scene_nb.cpp
     )
     target_include_directories(scene PRIVATE
-        src/spatialgeometry/core
+        src/spatialgeometry/cpp-extension
     )
 
     install(TARGETS scene DESTINATION spatialgeometry)

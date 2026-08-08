@@ -12,7 +12,7 @@ from typing import Any
 import numpy as np
 from spatialmath.base.argcheck import getvector
 from spatialgeometry.geom import Shape
-from spatialgeometry.geom.Shape import ArrayLike, update
+from spatialgeometry.geom.Shape import ArrayLike, aabb_corners, update
 from warnings import warn
 
 # Module-level coal reference — populated on first use, never in Pyodide.
@@ -103,23 +103,66 @@ class CollisionShape(Shape):
         return self.iscollided(shape)
 
 
+# =====================================================================
+# LOUD WARNING -- read this before touching y_up.
+#
+# This rotation MUST stay bit-for-bit equivalent to the y_up correction
+# applied in Swift's shapes.js (search "y_up" there -- applied via
+# geometry.rotateX() on the loaded THREE.Geometry, once, at load time).
+#
+# These two implementations live in different languages in different
+# repos and NOTHING enforces they agree. If they ever diverge, there is
+# no test or type checker that will catch it -- collision geometry will
+# just silently stop matching what's actually rendered. If you change
+# one side, you MUST change the other, in the same PR pair.
+#
+# What it does: a mesh authored with +Y as "up" is reinterpreted as if
+# it were authored +Z "up" (this ecosystem's convention). Equivalent to
+# Rx(+90 degrees) applied to the mesh's own local vertex data:
+# +Y -> +Z, +Z -> -Y, +X unchanged. Baked into the static vertex data
+# itself (here, once, at load time) rather than into the shape's live
+# pose -- so it survives re-posing/animation, same reasoning as Swift's
+# existing Cylinder axis correction (three.js's CylinderGeometry
+# defaults to axis-along-Y; shapes.js corrects it the same way).
+# =====================================================================
+_Y_UP_TO_Z_UP = np.array(
+    [
+        [1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0],
+        [0.0, -1.0, 0.0],
+    ]
+)
+
+
 class Mesh(CollisionShape):
     """
     A mesh object described by an STL, OBJ, or DAE file.
 
     :param filename: Absolute path to the mesh file.
-    :param scale: Scale factors along XYZ axes (default [1, 1, 1]).
+    :param scale: Scale factor(s) along XYZ axes (default [1, 1, 1]). A
+        single number applies the same scale to all three axes.
+    :param y_up: Set True if the mesh file was authored with +Y as the
+        "up" axis -- a common convention in general 3D/graphics tooling --
+        rather than this ecosystem's +Z-up convention. See the
+        ``_Y_UP_TO_Z_UP`` comment in this module for the full story; the
+        short version is that Swift applies the matching correction on
+        its own side, and the two must be kept in sync.
     :param collision: Whether this shape participates in collision checking.
     """
 
-    _repr_params = ("filename", "scale")
+    _repr_params = ("filename", "scale", "y_up")
 
     def __init__(
-        self, filename: str | None = None, scale: ArrayLike = [1, 1, 1], **kwargs
+        self,
+        filename: str | None = None,
+        scale: ArrayLike | float = [1, 1, 1],
+        y_up: bool = False,
+        **kwargs,
     ) -> None:
         super().__init__(stype="mesh", **kwargs)
         self.filename = filename
         self.scale = scale
+        self.y_up = y_up
 
     def _init_coal(self) -> None:
         if not self.collision:
@@ -135,7 +178,12 @@ class Mesh(CollisionShape):
             )
 
         mesh = trimesh.load(self.filename, force="mesh")
-        vertices = (mesh.vertices * self.scale).astype(np.float64, order="C")
+        vertices = mesh.vertices
+        if self.y_up:
+            # See the LOUD WARNING on _Y_UP_TO_Z_UP above -- Swift's
+            # shapes.js must apply the identical correction.
+            vertices = vertices @ _Y_UP_TO_Z_UP
+        vertices = (vertices * self.scale).astype(np.float64, order="C")
         triangles = mesh.faces.astype(np.int64, order="C")
 
         bvh = _coal.BVHModelOBBRSS()
@@ -153,9 +201,12 @@ class Mesh(CollisionShape):
 
     @scale.setter
     @update
-    def scale(self, value: ArrayLike) -> None:
-        value = getvector(value if value is not None else [1, 1, 1], 3)
-        self._scale = np.array(value)
+    def scale(self, value: ArrayLike | float | None) -> None:
+        if value is None:
+            value = [1, 1, 1]
+        elif np.isscalar(value):
+            value = [value, value, value]
+        self._scale = np.array(getvector(value, 3))
 
     @property
     def filename(self) -> str | None:
@@ -166,11 +217,47 @@ class Mesh(CollisionShape):
     def filename(self, value: str | None) -> None:
         self._filename = value
 
+    @property
+    def y_up(self) -> bool:
+        """
+        True if this mesh file was authored with +Y as "up" and needs
+        the +Y -> +Z correction applied. See the ``_Y_UP_TO_Z_UP`` LOUD
+        WARNING comment above ``Mesh`` -- Swift applies the matching
+        correction on its own side, and the two must stay in sync.
+
+        This is a read/write property.
+
+        :rtype: bool
+        """
+        return self._y_up
+
+    @y_up.setter
+    @update
+    def y_up(self, value: bool) -> None:
+        self._y_up = bool(value)
+
     def to_dict(self) -> dict[str, Any]:
         shape = super().to_dict()
         shape["filename"] = self.filename
         shape["scale"] = self.scale.tolist()
+        shape["y_up"] = self.y_up
         return shape
+
+    def _local_corners(self) -> np.ndarray:
+        # Independent of self.collision/_init_coal() -- a mesh's bounding
+        # box is a plain geometric fact, not a collision-only concern, so
+        # this loads via trimesh itself rather than reusing _init_coal()
+        # (which raises ValueError when collision=False).
+        try:
+            import trimesh
+        except ImportError:
+            raise ImportError(
+                "The 'trimesh' package is required to compute a Mesh's "
+                "bounding box. Install with:  pip install trimesh"
+            )
+        mesh = trimesh.load(self.filename, force="mesh")
+        mn, mx = mesh.bounds
+        return aabb_corners(mn * self.scale, mx * self.scale)
 
 
 class Cylinder(CollisionShape):
@@ -194,8 +281,12 @@ class Cylinder(CollisionShape):
             raise ValueError(
                 "This shape has collision=False and cannot be used as a collision object"
             )
-        # Coal Cylinder(radius, halfLength)
-        geom = _coal.Cylinder(self.radius, self.length / 2.0)
+        # Coal Cylinder(radius, length) takes full length, not half length
+        # -- verified directly (coal.Cylinder(1.0, 10.0).halfLength == 5.0).
+        # Passing length/2.0 here (as this line used to) silently built a
+        # collision cylinder half as tall as gm.Cylinder's own documented
+        # "length: Total length in metres" contract promises.
+        geom = _coal.Cylinder(self.radius, self.length)
         self.co = _coal.CollisionObject(geom)
         self._cinit = True
 
@@ -222,6 +313,10 @@ class Cylinder(CollisionShape):
         shape["radius"] = self.radius
         shape["length"] = self.length
         return shape
+
+    def _local_corners(self) -> np.ndarray:
+        r, h = self.radius, self.length / 2.0
+        return aabb_corners([-r, -r, -h], [r, r, h])
 
 
 class Sphere(CollisionShape):
@@ -259,6 +354,10 @@ class Sphere(CollisionShape):
         shape = super().to_dict()
         shape["radius"] = self.radius
         return shape
+
+    def _local_corners(self) -> np.ndarray:
+        r = self.radius
+        return aabb_corners([-r, -r, -r], [r, r, r])
 
 
 class Cuboid(CollisionShape):
@@ -299,6 +398,10 @@ class Cuboid(CollisionShape):
         shape = super().to_dict()
         shape["scale"] = self.scale.tolist()
         return shape
+
+    def _local_corners(self) -> np.ndarray:
+        h = self.scale / 2.0
+        return aabb_corners(-h, h)
 
 
 class Box(Cuboid):
