@@ -281,8 +281,12 @@ class Cylinder(CollisionShape):
             raise ValueError(
                 "This shape has collision=False and cannot be used as a collision object"
             )
-        # Coal Cylinder(radius, halfLength)
-        geom = _coal.Cylinder(self.radius, self.length / 2.0)
+        # Coal Cylinder(radius, length) takes full length, not half length
+        # -- verified directly (coal.Cylinder(1.0, 10.0).halfLength == 5.0).
+        # Passing length/2.0 here (as this line used to) silently built a
+        # collision cylinder half as tall as gm.Cylinder's own documented
+        # "length: Total length in metres" contract promises.
+        geom = _coal.Cylinder(self.radius, self.length)
         self.co = _coal.CollisionObject(geom)
         self._cinit = True
 
