@@ -182,7 +182,8 @@ class Mesh(CollisionShape):
         except ImportError:
             raise ImportError(
                 "The 'trimesh' package is required to compute a Mesh's "
-                "bounding box. Install with:  pip install trimesh"
+                "bounding box. Install with:  pip install spatialgeometry[mesh]"
+                " (or just  pip install trimesh  directly)"
             )
         mesh = trimesh.load(self.filename, force="mesh")
         mn, mx = mesh.bounds
