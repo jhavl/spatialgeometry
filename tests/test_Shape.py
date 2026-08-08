@@ -327,7 +327,39 @@ class TestShape(unittest.TestCase):
         r = repr(s0)
 
         self.assertNotIn("\n", r)
-        self.assertEqual(r, "Cylinder(radius=1.0, length=2.0, pose='t = 0, 0, 0; rpy/zyx = 0°, 0°, 0°')")
+        self.assertEqual(
+            r,
+            "Cylinder(radius=1.0, length=2.0, color=(0.3, 0.3, 0.3), "
+            "pose='t = 0, 0, 0; rpy/zyx = 0°, 0°, 0°')",
+        )
+
+    def test_repr_shows_color_always_opacity_only_if_not_1(self):
+        opaque = gm.Cuboid([1, 1, 1], color=[1, 0, 0, 1])
+        self.assertIn("color=(1.0, 0.0, 0.0)", repr(opaque))
+        self.assertNotIn("opacity=", repr(opaque))
+
+        transparent = gm.Cuboid([1, 1, 1], color=[1, 0, 0, 0.5])
+        self.assertIn("color=(1.0, 0.0, 0.0)", repr(transparent))
+        self.assertIn("opacity=0.5", repr(transparent))
+
+    def test_repr_color_is_plain_float_not_numpy_scalar(self):
+        # self._color's elements can be numpy.float64 after color=[...]
+        # with a list/array input -- repr() must show a plain "1.0", not
+        # numpy's own "np.float64(1.0)".
+        s0 = gm.Sphere(1.0, color=[1, 0, 0, 1])
+        self.assertNotIn("np.float64", repr(s0))
+
+    def test_repr_handles_all_integer_3_tuple_color(self):
+        # color=(1, 0, 0) -- all-integer, 3-length (no alpha), a natural
+        # way to write opaque red. Must not be misread as 0-255 range
+        # (only normalises if any component > 1.0), must pad alpha to
+        # 1.0 (so opacity is correctly omitted), and must not leak
+        # numpy scalars into the repr.
+        s0 = gm.Cuboid([1, 1, 1], color=(1, 0, 0))
+        r = repr(s0)
+        self.assertIn("color=(1.0, 0.0, 0.0)", r)
+        self.assertNotIn("opacity=", r)
+        self.assertNotIn("np.float64", r)
 
     def test_str_is_single_line(self):
         s0 = gm.Cuboid([1, 1, 1], pose=sm.SE3.Trans(1, 2, 3))

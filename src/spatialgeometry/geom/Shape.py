@@ -200,6 +200,16 @@ class Shape(SceneNode, ABC):
             if isinstance(value, ndarray):
                 value = value.tolist()
             args.append(f"{name}={value!r}")
+
+        # float(...) here, not just tuple(self.color[:3]) -- self._color's
+        # elements are sometimes numpy.float64 (e.g. after color=[...] with
+        # a list/array input), which reprs as "np.float64(1.0)" instead of
+        # a plain "1.0". Harmless for JSON (float64 genuinely subclasses
+        # float, unlike int64), but ugly here specifically.
+        args.append(f"color={tuple(float(c) for c in self.color[:3])!r}")
+        if self.color[3] != 1.0:
+            args.append(f"opacity={float(self.color[3])!r}")
+
         args.append(f"pose={SE3(self._T, check=False).strline()!r}")
         return f"{type(self).__name__}({', '.join(args)})"
 
