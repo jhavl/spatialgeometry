@@ -10,6 +10,7 @@ from spatialmath.base import r2q
 from spatialgeometry.scene import node_init, node_update, scene_graph_children, scene_graph_tree
 from spatialmath import SE3
 from copy import deepcopy
+from warnings import warn
 
 
 class SceneNode:
@@ -23,10 +24,22 @@ class SceneNode:
 
     def __init__(
         self,
-        T: ndarray = eye(4),
+        pose: ndarray | SE3 = eye(4),
         scene_parent: SceneNode | None = None,
         scene_children: list[SceneNode] | None = None,
     ) -> None:
+        """
+        :param pose: Local reference frame of this node relative to its
+            parent in the scene graph (or the world frame if it has no
+            parent), defaults to the identity transform.
+        :param scene_parent: Parent node of this node in the scene graph.
+        :param scene_children: Child nodes of this node in the scene graph.
+        """
+        if isinstance(pose, SE3):
+            T = pose.A
+        else:
+            T = pose
+
         # These three are static attributes which can never be changed
         # If these are directly accessed and re-written, segmentation faults
         # will follow very soon after
@@ -62,7 +75,7 @@ class SceneNode:
             scene_parent._update_scene_children(self)
 
         # Update scene tree
-        self._propogate_scene_children()
+        self._propagate_scene_children()
 
     # --------------------------------------------------------------------- #
 
@@ -101,7 +114,7 @@ class SceneNode:
             scene_parent._update_scene_children(self)
 
         # Update scene tree
-        self._propogate_scene_children()
+        self._propagate_scene_children()
 
     # --------------------------------------------------------------------- #
 
@@ -144,7 +157,7 @@ class SceneNode:
 
     def __deepcopy__(self, memo):
         result = SceneNode(
-            T=self._T,
+            pose=self._T,
         )
 
         result._scene_children = self.scene_children.copy()
@@ -196,7 +209,7 @@ class SceneNode:
         # A node can't become its own ancestor -- walk the new parent's own
         # chain of parents; if self shows up (or parent is self), this
         # reparenting would create a cycle. Nothing downstream checks for
-        # this: _propogate_scene_tree()'s root-finding walk (SceneNode.py,
+        # this: update()'s root-finding walk (SceneNode.py,
         # also mirrored in scene.py and the compiled scene_nb.cpp) has no
         # cycle detection of its own -- a parent-chain cycle makes it spin
         # forever (an infinite loop, not a catchable exception), and
@@ -353,26 +366,54 @@ class SceneNode:
         self._T = T_new
 
     # --------------------------------------------------------------------- #
-    # Scene transform propogation methods
+    # Scene transform propagation methods
     #
     # The scene graph is a Forest -- A disjoint union of Rooted Trees
     # Each tree has a single root, no cycles, and each node has at most one
     # parent but unlimited children.
     # --------------------------------------------------------------------- #
 
-    def _propogate_scene_children(self):
+    def _propagate_scene_children(self) -> None:
         """
-        Propogates the world transform starting from this node going downwards
+        Propagates the world transform starting from this node going downwards
         through the tree (will not go through parents)
         """
         scene_graph_children(self.__scene)
 
-    def _propogate_scene_tree(self):
+    def update(self) -> None:
         """
-        Propogates the world transform starting from this root of the tree in
-        which this node lives
+        Recompute the world transform of every node in the scene graph
+        this node belongs to, starting from the root and working down.
+
+        Call this after changing any node's ``T``/``pose`` (or its
+        ``scene_parent``) -- nothing propagates automatically. It doesn't
+        matter which node in the graph you call it on: this always walks
+        up to the root first, then pushes fresh world transforms down
+        through the whole tree, not just this node's own subtree.
         """
         scene_graph_tree(self.__scene)
+
+    # Deprecated alias -- "_propogate_scene_tree" was this method's name
+    # before it was renamed to update() (and, before that, was a misspelling
+    # of "propagate"). Kept as a thin wrapper, not a bare rename, because
+    # despite the leading underscore it's called directly, by name, from
+    # outside this package -- RTB's Link.py/Robot.py and Swift's Swift.py
+    # both call `self._propogate_scene_tree()`, and SG's own intro.rst
+    # tutorial told end users to call it too. Remove once RTB and Swift have
+    # migrated to update().
+    def _propogate_scene_tree(self) -> None:
+        """Deprecated -- use :meth:`update` instead."""
+        warn(
+            "_propogate_scene_tree is deprecated, use update() instead",
+            FutureWarning,
+        )
+        self.update()
+
+    # _propagate_scene_children() has no public equivalent and no known
+    # external callers (unlike the tree-wide version above) -- it's an
+    # internal helper used at construction/attachment time, not something
+    # end users are expected to reach for, so no deprecated alias needed
+    # for its old misspelled name either.
 
     # --------------------------------------------------------------------- #
 
@@ -389,7 +430,7 @@ class SceneNode:
         """
         Render this node's own subtree as indented text (one ``repr()`` per
         line), not walking through parents -- the same "not through
-        parents" scope as :meth:`_propogate_scene_children`.
+        parents" scope as :meth:`_propagate_scene_children`.
 
         Nodes have no ``.name`` in this package, so each line is that
         node's own ``repr()`` (type, constructor params, color, pose) --
@@ -405,7 +446,7 @@ class SceneNode:
         """
         Render the whole tree this node lives in as indented text -- walks
         up to the root first (the same root-finding as
-        :meth:`_propogate_scene_tree`), then renders down from there, with
+        :meth:`update`), then renders down from there, with
         this node marked with a trailing ``<==`` so its position in the tree
         is visible.
 
