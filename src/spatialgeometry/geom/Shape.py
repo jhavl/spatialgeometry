@@ -623,6 +623,48 @@ class Arrow(Shape):
         self.head_length = head_length
         self.head_radius = head_radius
 
+    @classmethod
+    def FromTo(cls, start: ArrayLike, end: ArrayLike, **kwargs) -> Arrow:
+        """
+        Construct an Arrow spanning from ``start`` to ``end``.
+
+        :param start: 3-vector, world-frame point the arrow points from
+        :param end: 3-vector, world-frame point the arrow points to
+        :param kwargs: passed through to the constructor (``radius``,
+            ``linewidth``, ``head_length``, ``head_radius``, ``color``, ...)
+
+        ``length`` and ``pose`` are computed from ``start``/``end`` --
+        don't pass them directly.
+
+        :raises ValueError: if ``start`` and ``end`` are the same point
+            (the direction, and therefore the pose, would be undefined)
+
+        :rtype: Arrow
+        """
+        start = np.asarray(start, dtype=float)
+        end = np.asarray(end, dtype=float)
+        delta = end - start
+        length = float(np.linalg.norm(delta))
+        if length == 0:
+            raise ValueError("start and end must be different points")
+        direction = delta / length
+
+        # SE3.OA(o, a) constructs a frame with a as its Z-axis directly,
+        # rather than computing a delta rotation from a fixed reference --
+        # that sidesteps the antipodal singularity a naive "rotate +Z to
+        # direction" approach hits (e.g. spatialmath's own
+        # SE3.RotatedVector currently returns identity, not a 180 degree
+        # flip, when direction is exactly -Z; see
+        # bdaiinstitute/spatialmath-python fix/rotatedvector-antipodal).
+        # o only needs to be non-parallel to direction -- the arrow shaft
+        # is rotationally symmetric, so which valid o we pick is
+        # irrelevant. World Z is fine unless direction is itself close to
+        # parallel to it, in which case fall back to world X.
+        reference = [0, 0, 1] if abs(direction[2]) < 0.9 else [1, 0, 0]
+        pose = SE3.Rt(SE3.OA(reference, direction).R, (start + end) / 2)
+
+        return cls(length, pose=pose, **kwargs)
+
     @property
     def length(self) -> float:
         """

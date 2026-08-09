@@ -484,6 +484,37 @@ class TestShape(unittest.TestCase):
         self.assertEqual(d["radius"], 0.1)
         self.assertEqual(d["linewidth"], 5.0)
 
+    def test_Arrow_FromTo_length_and_pose(self):
+        cases = {
+            "general": ([0, 0, 0], [1, 1, 1]),
+            "along_+z": ([0, 0, 0], [0, 0, 5]),
+            "along_-z": ([0, 0, 0], [0, 0, -5]),  # antipodal to local +Z
+            "along_+x": ([1, 2, 3], [6, 2, 3]),
+            "along_-y": ([0, 0, 0], [0, -2, 0]),
+        }
+        for name, (start, end) in cases.items():
+            start = np.array(start, dtype=float)
+            end = np.array(end, dtype=float)
+            a = gm.Arrow.FromTo(start, end)
+
+            expected_length = np.linalg.norm(end - start)
+            self.assertAlmostEqual(a.length, expected_length, msg=name)
+
+            nt.assert_almost_equal(a.T[:3, 3], (start + end) / 2, err_msg=name)
+
+            expected_direction = (end - start) / expected_length
+            actual_direction = a.T[:3, :3] @ np.array([0.0, 0.0, 1.0])
+            nt.assert_almost_equal(actual_direction, expected_direction, err_msg=name)
+
+    def test_Arrow_FromTo_rejects_coincident_points(self):
+        with self.assertRaises(ValueError):
+            gm.Arrow.FromTo([1, 2, 3], [1, 2, 3])
+
+    def test_Arrow_FromTo_passes_through_kwargs(self):
+        a = gm.Arrow.FromTo([0, 0, 0], [1, 0, 0], color="red", radius=0.05)
+        self.assertEqual(a.color, (1.0, 0.0, 0.0, 1.0))
+        self.assertEqual(a.radius, 0.05)
+
     def test_repr_distinguishes_deprecated_alias_from_its_base(self):
         # Box is a deprecated alias of Cuboid sharing the same stype --
         # repr must still tell them apart (it used to show "cuboid" for
