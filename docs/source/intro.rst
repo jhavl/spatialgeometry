@@ -287,12 +287,12 @@ specified offsets, and moves the cube within the scene:
     # Move the parent. This updates cube's own world pose but does NOT cascade to its children 
     cube.T = SE3(5, 0, 0)
     # Tell the scene graph that something has changed and that the world poses of all children need to be updated. 
-    cube._propogate_scene_tree()
+    cube.update()
     # Now the children have been updated to reflect the new world pose of their parent
     print(sphere1._wT[:3, 3])
     print(sphere2._wT[:3, 3])
 
-The ``_propogate_scene_tree()`` method is invoked automatically by Swift's ``env.step()`` method
+The ``update()`` method is invoked automatically by Swift's ``env.step()`` method
 to handle changes in object's pose. Because we are not using Swift in this example we need to call this manually.
 This code structure can be scaled up indefintely to create complex scenes with many objects and relationships.
 See ``examples/scene_graph.py`` for a similar example working in Swift.

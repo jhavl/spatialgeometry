@@ -45,16 +45,16 @@ def aabb_corners(mn: ArrayLike, mx: ArrayLike) -> ndarray:
 # _rtb = False
 
 
-def update(func):  # pragma nocover
+def mark_changed(func):  # pragma nocover
     @wraps(func)
-    def wrapper_update(*args, **kwargs):
+    def wrapper_mark_changed(*args, **kwargs):
 
         if args[0]._added_to_swift:
             args[0]._changed = True
 
         return func(*args, **kwargs)
 
-    return wrapper_update
+    return wrapper_mark_changed
 
 
 try:
@@ -265,7 +265,7 @@ class Shape(SceneNode, ABC):
         return self._color
 
     @color.setter
-    @update
+    @mark_changed
     def color(self, value: ArrayLike) -> None:
         """
         shape.color(new_color) sets the color of a shape.
@@ -441,7 +441,7 @@ class Axes(Shape):
         return self._length
 
     @length.setter
-    @update
+    @mark_changed
     def length(self, value: float) -> None:
         self._length = float(value)
 
@@ -450,7 +450,7 @@ class Axes(Shape):
         return self._arrows
 
     @arrows.setter
-    @update
+    @mark_changed
     def arrows(self, value: bool) -> None:
         self._arrows = bool(value)
 
@@ -459,7 +459,7 @@ class Axes(Shape):
         return self._radius
 
     @radius.setter
-    @update
+    @mark_changed
     def radius(self, value: float) -> None:
         self._radius = float(value)
 
@@ -468,7 +468,7 @@ class Axes(Shape):
         return self._linewidth
 
     @linewidth.setter
-    @update
+    @mark_changed
     def linewidth(self, value: float) -> None:
         self._linewidth = float(value)
 
@@ -541,7 +541,7 @@ class Arrow(Shape):
         return self._length
 
     @length.setter
-    @update
+    @mark_changed
     def length(self, value: float) -> None:
         self._length = float(value)
 
@@ -550,7 +550,7 @@ class Arrow(Shape):
         return self._radius
 
     @radius.setter
-    @update
+    @mark_changed
     def radius(self, value: float) -> None:
         self._radius = float(value)
 
@@ -559,7 +559,7 @@ class Arrow(Shape):
         return self._linewidth
 
     @linewidth.setter
-    @update
+    @mark_changed
     def linewidth(self, value: float) -> None:
         self._linewidth = float(value)
 
@@ -568,7 +568,7 @@ class Arrow(Shape):
         return self._head_length
 
     @head_length.setter
-    @update
+    @mark_changed
     def head_length(self, value: float) -> None:
         self._head_length = float(value)
 
@@ -577,7 +577,7 @@ class Arrow(Shape):
         return self._head_radius
 
     @head_radius.setter
-    @update
+    @mark_changed
     def head_radius(self, value: float) -> None:
         self._head_radius = float(value)
 
@@ -639,7 +639,7 @@ class Path(Shape):
         return self._points
 
     @points.setter
-    @update
+    @mark_changed
     def points(self, value: ArrayLike) -> None:
         value = np.array(value, dtype=float)
         if value.ndim != 2 or value.shape[0] != 3:
@@ -655,7 +655,7 @@ class Path(Shape):
         return self._radius
 
     @radius.setter
-    @update
+    @mark_changed
     def radius(self, value: float) -> None:
         self._radius = float(value)
 
@@ -664,7 +664,7 @@ class Path(Shape):
         return self._linewidth
 
     @linewidth.setter
-    @update
+    @mark_changed
     def linewidth(self, value: float) -> None:
         self._linewidth = float(value)
 

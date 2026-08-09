@@ -120,7 +120,7 @@ class TestShape(unittest.TestCase):
 
     def test_wq_matches_spatialmath_r2q(self):
         # fk_dict()'s "q" comes from _wq, populated by the C++ r2q() in
-        # scene_nb.cpp (Shepperd's method) every _propogate_scene_tree()
+        # scene_nb.cpp (Shepperd's method) every update()
         # call -- a different algorithm to spatialmath.base.r2q's Cayley's
         # method, and never cross-checked against it before. Covers the
         # cases quaternion-extraction methods most commonly get wrong:
@@ -141,7 +141,7 @@ class TestShape(unittest.TestCase):
 
         for name, T in cases.items():
             shape = gm.Cuboid([0.1, 0.1, 0.1], pose=T)
-            shape._propogate_scene_tree()
+            shape.update()
 
             expected = sm.base.r2q(T.R, order="xyzs")
 
@@ -150,15 +150,34 @@ class TestShape(unittest.TestCase):
             opposite = np.allclose(shape._wq, -np.array(expected), atol=1e-9)
             self.assertTrue(same or opposite, msg=f"{name}: {shape._wq} vs {expected}")
 
+    def test_propogate_scene_tree_alias_warns_and_matches_update(self):
+        shape = gm.Cuboid([1, 1, 1], pose=sm.SE3(1, 2, 3))
+
+        with self.assertWarns(FutureWarning):
+            shape._propogate_scene_tree()
+
+        # Still does the real thing, not just warns.
+        shape._T = np.eye(4)
+        shape._propogate_scene_tree()
+        nt.assert_almost_equal(shape._wT, np.eye(4))
+
+    def test_propagate_scene_children_has_no_deprecated_alias(self):
+        # Unlike _propogate_scene_tree, the children-only variant has no
+        # known external callers and was never documented -- a clean
+        # rename, no back-compat shim.
+        shape = gm.Cuboid([1, 1, 1])
+        self.assertFalse(hasattr(shape, "_propogate_scene_children"))
+        shape._propagate_scene_children()
+
     @skip_no_collision_checking
     def test_collision(self):
         s0 = gm.Cuboid([1, 1, 1], base=sm.SE3(0, 0, 0))
         s1 = gm.Cuboid([1, 1, 1], base=sm.SE3(0.5, 0, 0))
         s2 = gm.Cuboid([1, 1, 1], base=sm.SE3(3, 0, 0))
 
-        s0._propogate_scene_children()
-        s1._propogate_scene_children()
-        s2._propogate_scene_children()
+        s0._propagate_scene_children()
+        s1._propagate_scene_children()
+        s2._propagate_scene_children()
 
         c0 = s0.iscollided(s1)
         c1 = s0.iscollided(s2)
@@ -523,7 +542,7 @@ class TestShape(unittest.TestCase):
         self.assertEqual(len(group), 1)
 
         parent.T = sm.SE3(5, 0, 0)
-        parent._propogate_scene_tree()
+        parent.update()
         nt.assert_almost_equal(group._wT[:3, 3], [5, 0, 0])
         nt.assert_almost_equal(group[0]._wT[:3, 3], [5, 0, 0])
 
@@ -584,7 +603,7 @@ class TestSceneTreePrint(unittest.TestCase):
         sibling.scene_parent = parent
 
         # From the child's own perspective, tree_children() must not walk
-        # back up through its parent (matching _propogate_scene_children()'s
+        # back up through its parent (matching _propagate_scene_children()'s
         # "not through parents" scope) or sideways to its sibling.
         result = child.tree_children()
         self.assertEqual(result, repr(child))
