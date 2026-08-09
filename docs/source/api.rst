@@ -16,6 +16,7 @@ Spatial geometry classes for 3D shapes and scene graph management.
    SceneGroup
    Shape
    CollisionShape
+   CollisionShapeGroup
 
 The class hierarchy for all Spatial Geometry classes is shown below:
 
@@ -25,10 +26,12 @@ The class hierarchy for all Spatial Geometry classes is shown below:
    spatialgeometry.Arrow
    spatialgeometry.Path
    spatialgeometry.CollisionShape
+   spatialgeometry.CollisionShapeGroup
    spatialgeometry.Mesh
    spatialgeometry.Cylinder
    spatialgeometry.Cuboid
    spatialgeometry.Sphere
+   spatialgeometry.Ellipsoid
    spatialgeometry.Box
    spatialgeometry.SceneNode
    spatialgeometry.SceneGroup
@@ -40,15 +43,16 @@ The class hierarchy for all Spatial Geometry classes is shown below:
 Collision shapes
 ================
 
-These are the basic 3D geometric shapes that can be embedded in a scene, and can also
+These are the basic 3D geometric shapes that can be rendered into a scene, and can also
 be used for collision detection.
 
 .. autosummary::
 
-   Mesh
-   Cylinder
    Cuboid
    Sphere
+   Ellipsoid
+   Cylinder
+   Mesh
    Box
 
 These shapes all inherit from:
@@ -57,43 +61,69 @@ These shapes all inherit from:
 * the :class:`SceneNode` base class which means they can be nodes in a scene graph to allow visualization and
   animation of complex scenes.
 
+Collision shapes also support the collision operator ``&`` which returns True if the two shapes are colliding, and False otherwise. For example:
 
-.. autoclass:: Mesh
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :inherited-members:
+.. runblock:: pycon
 
-.. autoclass:: Cylinder
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :inherited-members:
+   from spatialgeometry import Cuboid, Sphere
+   from spatialmath import SE3
+
+   c = Cuboid(scale=[1, 2, 3])
+   s1 = Sphere(1, pose=SE3(4, 0, 0))
+   s2 = Sphere(1, pose=SE3(0, 0, 0))
+
+   c & s1
+   c & s2 
+
 
 .. autoclass:: Cuboid
    :members:
    :undoc-members:
    :show-inheritance:
    :inherited-members:
+   :exclude-members: collided
 
 .. autoclass:: Sphere
    :members:
    :undoc-members:
    :show-inheritance:
    :inherited-members:
+   :exclude-members: collided
+
+.. autoclass:: Cylinder
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
+   :exclude-members: collided
+
+.. autoclass:: Ellipsoid
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
+   :exclude-members: collided
 
 .. autoclass:: Box
    :members:
    :undoc-members:
    :show-inheritance:
    :inherited-members:
+   :exclude-members: collided
+
+.. autoclass:: Mesh
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
+   :exclude-members: collided
 
 
 
 Shapes
 ======
 
-These are the basic 3D geometric shapes that can be embedded in a scene, but they cannot
+These are the basic 3D geometric shapes that can be rendered into a scene, but they cannot
 be used for collision detection. 
 
 .. autosummary::
@@ -123,15 +153,25 @@ They all inherit directly from the :class:`Shape` base class.
    :inherited-members:
 
 
-
-Scene graphs
+Scene Graphs
 ============
 
-A scene graph is a hierarchical structure of nodes that represent objects in a 3D scene.
-Each node can have child nodes, allowing for complex scenes to be built from simpler
-components.  The individual nodes can be moved, rotated, and scaled, and these transformations are inherited by their child nodes.
+.. autoclass:: SceneNode
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
-.. autosummary::
 
-   SceneNode
-   SceneGroup
+.. autoclass:: SceneGroup
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
+
+.. autoclass:: CollisionShapeGroup
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
+   :exclude-members: collided

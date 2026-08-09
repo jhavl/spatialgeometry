@@ -20,7 +20,7 @@ import re
 # -- Project information -----------------------------------------------------
 
 project = 'Spatial Geometry'
-copyright = '2020, Jesse Haviland and Peter Corke'
+copyright = '2020-present, Jesse Haviland and Peter Corke'
 author = 'Jesse Haviland and Peter Corke'
 
 # Parse version number out of pyproject.toml
@@ -62,7 +62,46 @@ codeautolink_autodoc_inject = False
 mermaid_height = "auto"
 
 autosummary_generate = True
-autodoc_member_order = 'bysource'
+
+# Merge each class's own docstring with its (MRO-resolved) __init__
+# docstring on autoclass:: pages -- most shape __init__s have no docstring
+# of their own and inherit Shape.__init__'s pose/color/stype/base docs,
+# which otherwise never surface (Sphinx's default 'class' setting shows
+# only the class docstring, never __init__'s).
+autoclass_content = 'both'
+
+# Alphabetical (Sphinx's own default) rather than 'bysource' -- this is a
+# reference page meant for looking up a member you already know the name
+# of, not a narrative to read top-to-bottom in definition order.
+autodoc_member_order = 'alphabetical'
+
+# Sphinx's own 'alphabetical' sort is plain case-sensitive string
+# comparison, so e.g. "T" (a property) sorts before "attach" rather than
+# alongside the rest of the a's. No config option controls this.
+#
+# FRAGILE: the older, semi-public sphinx.ext.autodoc.Documenter.sort_members
+# method still exists but is dead code for this build -- as of Sphinx
+# 9.1.0 the real sort lives in a private, version-specific internal
+# (sphinx.ext.autodoc._dynamic._member_finder._sort_members, called as a
+# plain same-module function, not a method). Found by grepping the
+# installed package for '.sort(' after patching the documented method had
+# no effect. If a Sphinx upgrade moves this again, this patch silently
+# stops taking effect (falls back to Sphinx's own case-sensitive order)
+# rather than erroring -- if member order looks wrong again after
+# upgrading Sphinx, this is the first place to check.
+import sphinx.ext.autodoc._dynamic._member_finder as _member_finder
+
+_orig_sort_members = _member_finder._sort_members
+
+
+def _sort_members_case_insensitive(documenters, order, **kwargs):
+    if order == 'alphabetical':
+        documenters.sort(key=lambda entry: entry[0].full_name.lower())
+        return documenters
+    return _orig_sort_members(documenters, order, **kwargs)
+
+
+_member_finder._sort_members = _sort_members_case_insensitive
 
 # Show "Shape" rather than "spatialgeometry.geom.Shape.Shape" in class
 # headers, signatures and cross-references.
@@ -72,6 +111,48 @@ add_module_names = False
 templates_path = ['_templates']
 
 exclude_patterns = ['test_*']
+
+
+# Every autoclass:: directive in api.rst uses :inherited-members:, so a
+# subclass page (e.g. Cuboid) lists CollisionShape's and Shape's members
+# indistinguishably from its own -- :show-inheritance: only adds a single
+# "Bases: X" line at the top of the page, it doesn't label individual
+# members. This hook appends an "Inherited from" note to each member's
+# docstring when it isn't actually defined on the class whose page it's
+# being rendered on.
+#
+# Relies on __qualname__ being set at the point of original definition and
+# never rewritten by inheritance (true for plain methods and for a
+# property's fget/fset individually) -- NOT reliable for a property that
+# overrides only its setter while reusing the base class's getter (e.g.
+# Mesh.color): fget.__qualname__ still points at the base class, so a
+# genuinely-overridden setter goes unlabelled. No case like that needs the
+# label anyway (the point is finding where unfamiliar members come from,
+# not ones a class visibly redefines), so this is left unhandled.
+def _label_inherited_members(app, what, name, obj, options, lines):
+    if what not in ("method", "attribute", "property"):
+        return
+
+    parts = name.rsplit(".", 2)
+    if len(parts) != 3:
+        return
+    _, cls_name, _ = parts
+
+    target = obj.fget if isinstance(obj, property) else obj
+    qualname = getattr(target, "__qualname__", None)
+    if not qualname or "." not in qualname:
+        return
+
+    defining_cls_name = qualname.rsplit(".", 1)[0]
+    if defining_cls_name == cls_name or "." in defining_cls_name:
+        return
+
+    lines.append("")
+    lines.append(f"*Inherited from* :class:`~spatialgeometry.{defining_cls_name}`.")
+
+
+def setup(app):
+    app.connect("autodoc-process-docstring", _label_inherited_members)
 
 # options for spinx_pyrunblock, used for inline examples
 #  Python session setup, turn off color printing for SE3, set NumPy precision

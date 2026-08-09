@@ -169,6 +169,8 @@ class SceneNode:
         This is a read/write property.
 
         :rtype: SceneNode | None
+
+        :seealso: :meth:`scene_children` :meth:`attach` :meth:`attach_to`
         """
         return self._scene_parent
 
@@ -230,6 +232,8 @@ class SceneNode:
         This is a read/write property.
 
         :rtype: list(SceneNode)
+
+        :seealso: :meth:`scene_parent` :meth:`attach` :meth:`attach_to`
         """
         return self._scene_children
 
@@ -238,7 +242,6 @@ class SceneNode:
         """
         Sets the child nodes of this object, does not update childs
         parent
-
         """
         # Set our children
         self._scene_children = children
@@ -329,7 +332,15 @@ class SceneNode:
         homogeneous transformation matrix. Set via the ``pose``
         argument of the constructor.
 
-        This is a read/write property.
+        This is a read/write property. The getter always returns a plain
+        ``ndarray``; the setter also accepts an :class:`~spatialmath.SE3`.
+        
+        
+        .. warning::
+            Because the getter returns an ``ndarray``, in-place operators like
+            ``shape.T *= delta`` do an elementwise multiply, not a pose
+            composition, even when ``delta`` is an ``SE3`` -- use
+            ``shape.T = shape.T * delta`` (or ``shape.T @= delta.A``) instead.
 
         :rtype: ndarray(4,4)
         """

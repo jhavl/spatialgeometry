@@ -13,7 +13,11 @@ from spatialgeometry.geom.SceneNode import SceneNode
 
 class SceneGroup(SceneNode, UserList):
     """
-    An ordered, list-like collection of :class:`SceneNode` objects.
+    An ordered, list-like collection of :class:`SceneNode` objects (nodes can
+    be nested groups, shapes, or any other :class:`SceneNode` subclass) that
+    itself behaves like a single :class:`SceneNode`.
+
+    :param initlist: Initial elements to populate the group with.
 
     A :class:`SceneGroup` is itself a :class:`SceneNode` so its elements can be
     collectively, parented or nested like any other node in the scene graph. This class
@@ -25,6 +29,13 @@ class SceneGroup(SceneNode, UserList):
     assignment) sets it, and removing one (``remove``, ``pop``, ``clear``,
     ``del``) clears it back to ``None``. This is what makes moving the group
     move its elements with it.
+
+    The reverse holds too, and isn't just a side effect -- ``append()`` is
+    nothing more than ``item.scene_parent = self``, so setting any node's
+    ``scene_parent`` to a :class:`SceneGroup` directly (with no ``append``
+    call at all) equally makes it a member of that group's list. List
+    membership and scene-graph parentage are the same relationship, not
+    two things kept in sync -- there's no way for them to disagree.
 
     .. runblock:: pycon
 

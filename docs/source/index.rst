@@ -5,4 +5,5 @@ Spatial Geometry
    :maxdepth: 2
 
    intro
+   fileformats
    api

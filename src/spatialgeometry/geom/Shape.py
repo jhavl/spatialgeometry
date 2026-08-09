@@ -78,7 +78,7 @@ CONST_RX = SE3.Rx(pi / 2).A
 
 class Shape(SceneNode, ABC):
     """
-    Base class for a renderable 3D shape.
+    Abstract base class for a renderable 3D shape in a scene graph.
 
     It is a :class:`SceneNode` instance with atributes for its type, shape, and color.
     The ``collision`` attribute is a read-only bool, used for objects that are drawn in
@@ -101,8 +101,8 @@ class Shape(SceneNode, ABC):
         """
         :param pose: Local reference frame of the shape, defaults to the
             identity transform.
-        :param color: Colour as (r, g, b) or (r, g, b, a) in [0-1] (or
-            [0-255], auto-normalised), or a matplotlib colour name. Defaults
+        :param color: Color as (r, g, b) or (r, g, b, a) in [0-1] (or
+            [0-255], auto-normalised), or a matplotlib color name. Defaults
             to a mid-grey ``(0.3, 0.3, 0.3, 1.0)``.
         :param stype: Shape type identifier used by the renderer/wire
             protocol (e.g. ``"cuboid"``, ``"mesh"``) -- set by each concrete
@@ -239,9 +239,15 @@ class Shape(SceneNode, ABC):
         # a list/array input), which reprs as "np.float64(1.0)" instead of
         # a plain "1.0". Harmless for JSON (float64 genuinely subclasses
         # float, unlike int64), but ugly here specifically.
-        args.append(f"color={tuple(float(c) for c in self.color[:3])!r}")
+        #
+        # round(..., 3) -- a named color like "green" round-trips through
+        # matplotlib as e.g. 0.5019607843137255 (128/255); this is a
+        # display repr, not a value anyone parses back, so trim it to a
+        # readable 3 decimal places rather than showing 8-bit-derived
+        # binary-fraction noise.
+        args.append(f"color={tuple(round(float(c), 3) for c in self.color[:3])!r}")
         if self.color[3] != 1.0:
-            args.append(f"opacity={float(self.color[3])!r}")
+            args.append(f"opacity={round(float(self.color[3]), 3)!r}")
 
         args.append(f"pose={SE3(self._T, check=False).strline()!r}")
         return f"{type(self).__name__}({', '.join(args)})"
@@ -419,7 +425,8 @@ class Shape(SceneNode, ABC):
 
 
 class Axes(Shape):
-    """An axes whose center is at the local origin.
+    """A set of 3D axes whose centre is at the local origin.
+    
     Parameters
 
     :param length: The length of each axis.
@@ -436,8 +443,6 @@ class Axes(Shape):
         and radius == 0. Passed straight through to each constituent
         Arrow.
     :type linewidth: float
-    :param pose: Local reference frame of the shape
-    :type pose: SE3
 
     """
 
@@ -548,12 +553,8 @@ class Axes(Shape):
 
 
 class Arrow(Shape):
-    """An arrow whose center is at the local origin, and points
-    in the positive z direction.
-
-    The arrow is made using a cylinder and a cone
-
-    Parameters
+    """An arrow whose centre is at the local origin, and points
+    in the positive z-direction.
 
     :param length: The total length of the arrow.
     :param radius: The radius of the arrow shaft. If radius is 0, the
@@ -569,8 +570,9 @@ class Arrow(Shape):
     :param head_radius: The width of the cone (head of the arrow). This is
         represented as a fraction of the head_length.
 
-    :param pose: Local reference frame of the shape
-    :type pose: SE3
+    The arrow has a cylindrical shaft and a conical head.
+
+    .. note:: This shape cannot be used for collision detection, and is only for visualisation purposes.
 
     """
 
@@ -703,9 +705,8 @@ class Arrow(Shape):
 
 
 class Path(Shape):
-    """A polyline through a sequence of waypoints -- straight segments
-    joining consecutive points, not a smoothed curve -- for drawing
-    paths and trajectories in the scene.
+    """A polyline through a sequence of waypoints defined with respect
+    to the local frame of the shape.
 
     :param points: waypoints defining the polyline
     :type points: ArrayLike
@@ -717,8 +718,11 @@ class Path(Shape):
     :param linewidth: Width of the line in pixels. Only used when
         radius == 0.
 
-    :param pose: Local reference frame of the shape
-    :type pose: SE3
+    This shape is used for drawing paths and trajectories in the scene.
+    The line comprises straight segments joining consecutive points, not a smoothed curve.
+
+    .. note:: This shape cannot be used for collision detection, and is only for visualisation purposes.
+
     """
 
     _repr_params = ("points", "radius", "linewidth")
