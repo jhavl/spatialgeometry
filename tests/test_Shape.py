@@ -271,6 +271,17 @@ class TestShape(unittest.TestCase):
 
         self.assertEqual(s0.to_dict(), ans)
 
+    def test_mesh_filename_and_y_up_are_readonly(self):
+        # Both only ever get read once, inside _init_coal() -- which is
+        # cached after first use (see self._cinit) and never re-runs -- so
+        # a setter would silently do nothing after a shape's first
+        # closest_point()/iscollided() call. Construct a new Mesh instead.
+        s0 = gm.Mesh("test.stl", y_up=True)
+        with self.assertRaises(AttributeError):
+            s0.filename = "other.stl"
+        with self.assertRaises(AttributeError):
+            s0.y_up = False
+
     def test_mesh_use_vertex_colors(self):
         # No explicit color -- defer to whatever's baked into the file.
         s0 = gm.Mesh("test.stl")
@@ -691,6 +702,26 @@ class TestBoundingBox(unittest.TestCase):
 
             s1 = gm.Mesh(path, scale=[2, 2, 2])
             nt.assert_almost_equal(s1.extents(), [2, 4, 6], decimal=6)
+
+    def test_mesh_extents_reflects_y_up_correction(self):
+        # Regression test: _local_corners() used to load the file itself
+        # via a separate trimesh.load() call and never applied the
+        # _Y_UP_TO_Z_UP correction _init_coal() applies -- so a y_up=True
+        # mesh's bounding box was silently computed in the wrong (file's
+        # own, uncorrected) frame. The correction swaps Y and Z (with a
+        # sign flip on the new Z), so a 1x2x3 (x,y,z) box becomes 1x3x2.
+        import tempfile
+        import trimesh
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = f"{tmp}/asym.stl"
+            trimesh.creation.box(extents=[1, 2, 3]).export(path)
+
+            s0 = gm.Mesh(path, y_up=False)
+            nt.assert_almost_equal(s0.extents(), [1, 2, 3], decimal=6)
+
+            s1 = gm.Mesh(path, y_up=True)
+            nt.assert_almost_equal(s1.extents(), [1, 3, 2], decimal=6)
 
     def test_mesh_extents_independent_of_collision_flag(self):
         # Unlike _init_coal(), the bounding box is a plain geometric fact

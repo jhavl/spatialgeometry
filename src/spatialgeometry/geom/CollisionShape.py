@@ -9,7 +9,7 @@ import sys
 from abc import abstractmethod
 from collections import UserList
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 from spatialmath.base.argcheck import getvector
@@ -382,10 +382,10 @@ class Mesh(CollisionShape):
         **kwargs,
     ) -> None:
         super().__init__(stype="mesh", color=color, **kwargs)
-        self.filename = filename
+        self._filename = filename
         self.scale = scale
         self._use_vertex_colors = color is None
-        self.y_up = y_up
+        self._y_up = bool(y_up)
 
     # Overrides Shape.color's setter (keeping its getter) purely to track
     # whether a caller has explicitly asked for a flat colour at any point
@@ -408,7 +408,7 @@ class Mesh(CollisionShape):
                 "Install with:  pip install trimesh"
             )
 
-        mesh = trimesh.load(self.filename, force="mesh")
+        mesh = cast(trimesh.Trimesh, trimesh.load(self.filename, force="mesh"))
         vertices = mesh.vertices
         if self.y_up:
             # See the LOUD WARNING on _Y_UP_TO_Z_UP above -- Swift's
@@ -441,12 +441,16 @@ class Mesh(CollisionShape):
 
     @property
     def filename(self) -> str | None:
-        return self._filename
+        """
+        Absolute path to this mesh's source file, as given to the
+        constructor. There's no use case for repointing an existing
+        :class:`Mesh` at a different file -- construct a new one instead.
 
-    @filename.setter
-    @update
-    def filename(self, value: str | None) -> None:
-        self._filename = value
+        This is a read-only property.
+
+        :rtype: str
+        """
+        return self._filename
 
     @property
     def y_up(self) -> bool:
@@ -456,16 +460,14 @@ class Mesh(CollisionShape):
         WARNING comment above ``Mesh`` -- Swift applies the matching
         correction on its own side, and the two must stay in sync.
 
-        This is a read/write property.
+        This describes a fact about the mesh file itself, fixed at
+        construction -- it isn't live scene state.
+
+        This is a read-only property.
 
         :rtype: bool
         """
         return self._y_up
-
-    @y_up.setter
-    @update
-    def y_up(self, value: bool) -> None:
-        self._y_up = bool(value)
 
     def to_dict(self) -> dict[str, Any]:
         shape = super().to_dict()
@@ -488,8 +490,18 @@ class Mesh(CollisionShape):
                 "bounding box. Install with:  pip install spatialgeometry[mesh]"
                 " (or just  pip install trimesh  directly)"
             )
-        mesh = trimesh.load(self.filename, force="mesh")
-        mn, mx = mesh.bounds
+        mesh = cast(trimesh.Trimesh, trimesh.load(self.filename, force="mesh"))
+        vertices = mesh.vertices
+        if self.y_up:
+            # Same correction _init_coal() applies -- see the LOUD WARNING
+            # on _Y_UP_TO_Z_UP above Mesh. Re-derive min/max from the
+            # rotated vertices rather than rotating mesh.bounds' two corner
+            # points directly -- correct either way for this particular
+            # transform (a signed permutation), but this stays correct even
+            # if _Y_UP_TO_Z_UP is ever generalised to an arbitrary rotation.
+            vertices = vertices @ _Y_UP_TO_Z_UP
+        mn = vertices.min(axis=0)
+        mx = vertices.max(axis=0)
         return aabb_corners(mn * self.scale, mx * self.scale)
 
 
