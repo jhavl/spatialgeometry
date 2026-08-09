@@ -53,7 +53,7 @@ def _r2q_xyzs(R: ArrayF64) -> ArrayF64:
     return q
 
 
-def _propogate_T(node: _Node, parent_wT: ArrayF64 | None) -> None:
+def _propagate_T(node: _Node, parent_wT: ArrayF64 | None) -> None:
     if parent_wT is None:
         node.wT[:] = node.T
     else:
@@ -62,7 +62,7 @@ def _propogate_T(node: _Node, parent_wT: ArrayF64 | None) -> None:
     node.wq[:] = _r2q_xyzs(node.wT[:3, :3])
 
     for child in node.children:
-        _propogate_T(child, node.wT)
+        _propagate_T(child, node.wT)
 
 
 def node_init(
@@ -97,11 +97,11 @@ def node_update(
 
 
 def scene_graph_children(node: _Node) -> None:
-    _propogate_T(node, None)
+    _propagate_T(node, None)
 
 
 def scene_graph_tree(node: _Node) -> None:
     while node.parent is not None:
         node = node.parent
 
-    _propogate_T(node, None)
+    _propagate_T(node, None)

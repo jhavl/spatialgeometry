@@ -63,6 +63,15 @@ def ellipsoid_at(radii, x=0.0, y=0.0, z=0.0) -> Ellipsoid:
     return Ellipsoid(radii, pose=SE3(x, y, z))
 
 
+def _placeholder_mesh_file(tmp_path, name: str = "placeholder.stl") -> str:
+    """A path that exists on disk but isn't a real mesh file -- Mesh() checks
+    existence at construction, but these tests never actually load its
+    content, so an empty file satisfies the check."""
+    path = tmp_path / name
+    path.touch()
+    return str(path)
+
+
 BIG = 1e6   # inf_dist large enough to always get a result
 
 
@@ -540,7 +549,7 @@ class TestSceneGroupCollision:
         assert d0 == pytest.approx(12.0, abs=1e-6)
 
         anchor.T = SE3(10, 0, 0)
-        anchor._propogate_scene_tree()
+        anchor.update()
 
         # col now at world x=10: faces at 10.5 and 12.5 -> gap 2.0. If the
         # group's append() hadn't wired col into the propagated scene graph,
@@ -559,7 +568,7 @@ class TestSceneGroupCollision:
         group.append(c2)
 
         anchor.T = SE3(20, 0, 0)
-        anchor._propogate_scene_tree()
+        anchor.update()
 
         # c1 -> world x=20, c2 -> world x=25 (its own local +5 composed on
         # top of anchor's move)
@@ -600,7 +609,7 @@ class TestCollisionShapeGroup:
         assert col.scene_parent is group
 
         anchor.T = SE3(10, 0, 0)
-        anchor._propogate_scene_tree()
+        anchor.update()
 
         probe = cuboid_at(1, 1, 1, x=13)
         d, _, _ = col.closest_point(probe, BIG)
@@ -712,14 +721,17 @@ class TestToDict:
         d = gm.Ellipsoid([0.3, 0.2, 0.15]).to_dict()
         assert d["radii"] == [0.3, 0.2, 0.15]
 
-    def test_mesh_stype(self):
-        assert gm.Mesh("robot.stl").to_dict()["stype"] == "mesh"
+    def test_mesh_stype(self, tmp_path):
+        path = _placeholder_mesh_file(tmp_path)
+        assert gm.Mesh(path).to_dict()["stype"] == "mesh"
 
-    def test_mesh_filename(self):
-        assert gm.Mesh("robot.stl").to_dict()["filename"] == "robot.stl"
+    def test_mesh_filename(self, tmp_path):
+        path = _placeholder_mesh_file(tmp_path)
+        assert gm.Mesh(path).to_dict()["filename"] == path
 
-    def test_mesh_scale(self):
-        assert gm.Mesh("robot.stl", scale=[2, 2, 2]).to_dict()["scale"] == [2.0, 2.0, 2.0]
+    def test_mesh_scale(self, tmp_path):
+        path = _placeholder_mesh_file(tmp_path)
+        assert gm.Mesh(path, scale=[2, 2, 2]).to_dict()["scale"] == [2.0, 2.0, 2.0]
 
 
 # ── _init_coal collision=False direct call ────────────────────────────────────
@@ -728,8 +740,9 @@ class TestToDict:
 class TestInitCoalDirect:
     """Call _init_coal() directly, matching the pattern in the original suite."""
 
-    def test_mesh_collision_false(self):
-        s = gm.Mesh("test.stl", collision=False)
+    def test_mesh_collision_false(self, tmp_path):
+        path = _placeholder_mesh_file(tmp_path)
+        s = gm.Mesh(path, collision=False)
         _mod._require_coal()   # ensure coal loaded so _init_coal can proceed
         with pytest.raises(ValueError, match="collision=False"):
             s._init_coal()

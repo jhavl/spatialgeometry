@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from abc import abstractmethod
 from collections import UserList
@@ -14,7 +15,7 @@ from typing import Any, cast
 import numpy as np
 from spatialmath.base.argcheck import getvector
 from spatialgeometry.geom import Shape
-from spatialgeometry.geom.Shape import ArrayLike, aabb_corners, update
+from spatialgeometry.geom.Shape import ArrayLike, aabb_corners, mark_changed
 from warnings import warn
 
 # Module-level coal reference — populated on first use, never in Pyodide.
@@ -42,6 +43,13 @@ def _require_coal() -> None:
 
 
 class CollisionShape(Shape):
+    """
+    Base class for a :class:`Shape` that also has associated
+    collision geometry, so instances can be used for collision
+    checking (via `coal <https://github.com/coal-library/coal>`_) as
+    well as being rendered in the scene.
+    """
+
     def __init__(self, collision: bool = True, **kwargs) -> None:
         self.co = None      # coal.CollisionObject, created on first use
         self._cinit = False
@@ -138,6 +146,10 @@ class CollisionShapeGroup(CollisionShape, UserList):
     An ordered, list-like collection of :class:`CollisionShape` (or nested
     :class:`CollisionShapeGroup`) objects that itself behaves like a single
     collision-checkable shape.
+
+    :param initlist: Initial elements to populate the group with.
+    :param collision: Whether this group participates in collision
+        checking, defaults to True.
 
     Unlike :class:`~spatialgeometry.SceneGroup`, which admits any
     :class:`SceneNode`, a :class:`CollisionShapeGroup` only accepts
@@ -354,21 +366,32 @@ _Y_UP_TO_Z_UP = np.array(
 
 class Mesh(CollisionShape):
     """
-    A mesh object described by an STL, OBJ, or DAE file.
+    A triangular mesh object.
 
-    :param filename: Absolute path to the mesh file.
+    :param filename: Absolute path to the mesh file. Checked for existence
+        at construction (raises :exc:`FileNotFoundError` if missing) --
+        this only confirms the path exists, not that it's a well-formed or
+        readable mesh file, which is still discovered lazily, the first
+        time the file is actually loaded (see :meth:`_init_coal` and
+        :meth:`_local_corners`).
     :param scale: Scale factor(s) along XYZ axes (default [1, 1, 1]). A
         single number applies the same scale to all three axes.
-    :param color: Flat colour override, applied to every face/vertex. If
-        not given, the renderer uses whatever per-vertex/per-face colours
-        are baked into the mesh file itself, when present.
     :param y_up: Set True if the mesh file was authored with +Y as the
         "up" axis -- a common convention in general 3D/graphics tooling --
-        rather than this ecosystem's +Z-up convention. See the
-        ``_Y_UP_TO_Z_UP`` comment in this module for the full story; the
-        short version is that Swift applies the matching correction on
-        its own side, and the two must be kept in sync.
+        rather than this ecosystem's +Z-up convention.
     :param collision: Whether this shape participates in collision checking.
+
+    .. note::
+        For a :class:`Mesh`, ``color`` is a flat color
+        override applied to every face/vertex. If not given, the renderer
+        uses whatever per-vertex/per-face colors are baked into the mesh
+        file itself, when present.
+
+    Unlike the primitive shapes, a mesh's local origin is not guaranteed to
+    be at its geometric centre -- it's whatever origin the file was
+    authored/exported with, which may be off-centre or even outside the
+    mesh entirely.
+
     """
 
     _repr_params = ("filename", "scale", "y_up")
@@ -381,6 +404,9 @@ class Mesh(CollisionShape):
         y_up: bool = False,
         **kwargs,
     ) -> None:
+        if filename is not None and not os.path.isfile(filename):
+            raise FileNotFoundError(f"Mesh file not found: {filename!r}")
+
         super().__init__(stype="mesh", color=color, **kwargs)
         self._filename = filename
         self.scale = scale
@@ -388,7 +414,7 @@ class Mesh(CollisionShape):
         self._y_up = bool(y_up)
 
     # Overrides Shape.color's setter (keeping its getter) purely to track
-    # whether a caller has explicitly asked for a flat colour at any point
+    # whether a caller has explicitly asked for a flat color at any point
     # after construction too, not just via __init__'s color= above.
     @Shape.color.setter
     def color(self, value: ArrayLike) -> None:
@@ -428,10 +454,18 @@ class Mesh(CollisionShape):
 
     @property
     def scale(self) -> np.ndarray:
+        """
+        Scale factors along the local X, Y, Z axes. A scalar sets all
+        three axes equally; ``None`` resets to ``[1, 1, 1]``.
+
+        This is a read/write property.
+
+        :rtype: ndarray(3)
+        """
         return self._scale
 
     @scale.setter
-    @update
+    @mark_changed
     def scale(self, value: ArrayLike | float | None) -> None:
         if value is None:
             value = [1, 1, 1]
@@ -456,9 +490,7 @@ class Mesh(CollisionShape):
     def y_up(self) -> bool:
         """
         True if this mesh file was authored with +Y as "up" and needs
-        the +Y -> +Z correction applied. See the ``_Y_UP_TO_Z_UP`` LOUD
-        WARNING comment above ``Mesh`` -- Swift applies the matching
-        correction on its own side, and the two must stay in sync.
+        the +Y -> +Z correction applied.
 
         This describes a fact about the mesh file itself, fixed at
         construction -- it isn't live scene state.
@@ -507,7 +539,7 @@ class Mesh(CollisionShape):
 
 class Cylinder(CollisionShape):
     """
-    A cylinder whose centre is at the local origin, axis along Z.
+    A cylinder whose centre is at the local origin and its axis along the z-axis.
 
     :param radius: Radius in metres.
     :param length: Total length in metres.
@@ -540,7 +572,7 @@ class Cylinder(CollisionShape):
         return self._radius
 
     @radius.setter
-    @update
+    @mark_changed
     def radius(self, value: float) -> None:
         self._radius = float(value)
 
@@ -549,7 +581,7 @@ class Cylinder(CollisionShape):
         return self._length
 
     @length.setter
-    @update
+    @mark_changed
     def length(self, value: float) -> None:
         self._length = float(value)
 
@@ -591,7 +623,7 @@ class Sphere(CollisionShape):
         return self._radius
 
     @radius.setter
-    @update
+    @mark_changed
     def radius(self, value: float) -> None:
         self._radius = float(value)
 
@@ -635,7 +667,7 @@ class Ellipsoid(CollisionShape):
         return self._radii
 
     @radii.setter
-    @update
+    @mark_changed
     def radii(self, value: ArrayLike) -> None:
         value = getvector(value, 3)
         self._radii = np.array(value)
@@ -675,7 +707,7 @@ class Cuboid(CollisionShape):
         return self._scale
 
     @scale.setter
-    @update
+    @mark_changed
     def scale(self, value: ArrayLike) -> None:
         value = getvector(value if value is not None else [1, 1, 1], 3)
         self._scale = np.array(value)
@@ -691,6 +723,14 @@ class Cuboid(CollisionShape):
 
 
 class Box(Cuboid):
+    """
+    Deprecated alias for :class:`Cuboid` -- a rectangular prism whose
+    centre is at the local origin.
+
+    :param scale: [length, width, height] in metres.
+    :param collision: Whether this shape participates in collision checking.
+    """
+
     def __init__(self, scale: ArrayLike, **kwargs) -> None:
         warn("Box is deprecated, use Cuboid instead", FutureWarning)
         super().__init__(scale, **kwargs)
