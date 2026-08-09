@@ -232,6 +232,21 @@ class TestShape(unittest.TestCase):
         s0 = gm.Sphere(1, color="sdgfsg")
         self.assertEqual(s0.color, (0.95, 0.5, 0.25, 1.0))
 
+    def test_color_invalid_name_message_mentions_matplotlib(self):
+        # Regression test: the printed message used to just say "invalid
+        # color name" with no indication of where valid names actually
+        # come from (matplotlib), or where to look them up.
+        import io
+        import contextlib
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            gm.Sphere(1, color="sdgfsg")
+
+        printed = buf.getvalue()
+        self.assertIn("matplotlib", printed)
+        self.assertIn("named_colors", printed)
+
     def test_color3(self):
         s0 = gm.Sphere(1, color=[255, 255, 255])
         self.assertEqual(s0.color, (1.0, 1.0, 1.0, 1.0))
