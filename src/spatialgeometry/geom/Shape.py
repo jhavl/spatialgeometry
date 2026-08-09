@@ -322,16 +322,32 @@ class Shape(SceneNode, ABC):
 
         self._color = value
 
+    @property
+    def opacity(self) -> float:
+        """
+        The alpha/opacity channel of :attr:`color`, in [0-1] -- 1.0 is
+        fully opaque, 0.0 fully transparent. A convenience for touching
+        just this channel without needing to know or re-specify the
+        current (r, g, b).
+
+        This is a read/write property.
+
+        :rtype: float
+        """
+        return self._color[3]
+
+    @opacity.setter
+    @update
+    def opacity(self, value: float) -> None:
+        if value > 1.0:
+            value /= 255
+
+        self._color = tuple(concatenate([self._color[:3], [value]]))
+
     def set_alpha(self, alpha: float | int) -> None:
-        """
-        Convenience method to set the opacity/alpha value of the robots color.
-        """
-
-        if alpha > 1.0:
-            alpha /= 255
-
-        new_color = concatenate([self._color[:3], [alpha]])
-        self._color = tuple(new_color)
+        """Deprecated -- use the ``opacity`` property instead."""
+        warn("set_alpha is deprecated, use the opacity property instead", FutureWarning)
+        self.opacity = alpha
 
     # --------------------------------------------------------------------- #
     # Bounding box
