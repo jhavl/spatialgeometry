@@ -374,7 +374,7 @@ class Shape(SceneNode, ABC):
         return self._color[3]
 
     @opacity.setter
-    @update
+    @mark_changed
     def opacity(self, value: float) -> None:
         if value > 1.0:
             value /= 255
