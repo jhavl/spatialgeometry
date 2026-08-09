@@ -259,8 +259,9 @@ class Shape(SceneNode, ABC):
     @property
     def color(self) -> tuple[float, float, float, float]:
         """
-        shape.color returns a four length tuple representing (red, green, blue, alpha)
-        where alpha represents transparency. Values returned are in the range [0-1].
+        shape.color returns a four length tuple representing (red, green, blue, opacity)
+        where opacity represents transparency. Values returned are in the range [0-1].
+        See :attr:`opacity` for a convenient way to get/set just this last channel.
         """
         return self._color
 
@@ -270,13 +271,13 @@ class Shape(SceneNode, ABC):
         """
         shape.color(new_color) sets the color of a shape.
 
-        The color format is (red, green, blue, alpha).
+        The color format is (red, green, blue, opacity).
 
         Color can be set with a three length list, tuple or array which
-        will only set the (r, g, b) values and alpha will be set to maximum.
+        will only set the (r, g, b) values and opacity will be set to maximum.
 
         Color can be set with a four length list, tuple or array which
-        will set the (r, g, b, a) values.
+        will set the (r, g, b, opacity) values.
 
         Note: the color is auto-normalising. If any value passed is greater than
         1.0 then all values will be normalised to the [0-1] range assuming the
@@ -325,10 +326,15 @@ class Shape(SceneNode, ABC):
     @property
     def opacity(self) -> float:
         """
-        The alpha/opacity channel of :attr:`color`, in [0-1] -- 1.0 is
-        fully opaque, 0.0 fully transparent. A convenience for touching
-        just this channel without needing to know or re-specify the
-        current (r, g, b).
+        The last channel of :attr:`color`, in [0-1] -- 1.0 is fully
+        opaque, 0.0 fully transparent. A convenience for touching just
+        this channel without needing to know or re-specify the current
+        (r, g, b).
+
+        .. note::
+            "Opacity" here is the same quantity commonly called "alpha"
+            in computer graphics (as in RGBA) -- this package uses
+            "opacity" consistently as the public name for it.
 
         This is a read/write property.
 
