@@ -540,7 +540,7 @@ class TestSceneGroupCollision:
         assert d0 == pytest.approx(12.0, abs=1e-6)
 
         anchor.T = SE3(10, 0, 0)
-        anchor._propogate_scene_tree()
+        anchor._propagate_scene_tree()
 
         # col now at world x=10: faces at 10.5 and 12.5 -> gap 2.0. If the
         # group's append() hadn't wired col into the propagated scene graph,
@@ -559,7 +559,7 @@ class TestSceneGroupCollision:
         group.append(c2)
 
         anchor.T = SE3(20, 0, 0)
-        anchor._propogate_scene_tree()
+        anchor._propagate_scene_tree()
 
         # c1 -> world x=20, c2 -> world x=25 (its own local +5 composed on
         # top of anchor's move)
@@ -600,7 +600,7 @@ class TestCollisionShapeGroup:
         assert col.scene_parent is group
 
         anchor.T = SE3(10, 0, 0)
-        anchor._propogate_scene_tree()
+        anchor._propagate_scene_tree()
 
         probe = cuboid_at(1, 1, 1, x=13)
         d, _, _ = col.closest_point(probe, BIG)

@@ -10,6 +10,7 @@ from spatialmath.base import r2q
 from spatialgeometry.scene import node_init, node_update, scene_graph_children, scene_graph_tree
 from spatialmath import SE3
 from copy import deepcopy
+from warnings import warn
 
 
 class SceneNode:
@@ -54,7 +55,7 @@ class SceneNode:
             scene_parent._update_scene_children(self)
 
         # Update scene tree
-        self._propogate_scene_children()
+        self._propagate_scene_children()
 
     # --------------------------------------------------------------------- #
 
@@ -93,7 +94,7 @@ class SceneNode:
             scene_parent._update_scene_children(self)
 
         # Update scene tree
-        self._propogate_scene_children()
+        self._propagate_scene_children()
 
     # --------------------------------------------------------------------- #
 
@@ -180,7 +181,7 @@ class SceneNode:
         # A node can't become its own ancestor -- walk the new parent's own
         # chain of parents; if self shows up (or parent is self), this
         # reparenting would create a cycle. Nothing downstream checks for
-        # this: _propogate_scene_tree()'s root-finding walk (SceneNode.py,
+        # this: _propagate_scene_tree()'s root-finding walk (SceneNode.py,
         # also mirrored in scene.py and the compiled scene_nb.cpp) has no
         # cycle detection of its own -- a parent-chain cycle makes it spin
         # forever (an infinite loop, not a catchable exception), and
@@ -311,26 +312,52 @@ class SceneNode:
         self._T = T_new
 
     # --------------------------------------------------------------------- #
-    # Scene transform propogation methods
+    # Scene transform propagation methods
     #
     # The scene graph is a Forest -- A disjoint union of Rooted Trees
     # Each tree has a single root, no cycles, and each node has at most one
     # parent but unlimited children.
     # --------------------------------------------------------------------- #
 
-    def _propogate_scene_children(self):
+    def _propagate_scene_children(self) -> None:
         """
-        Propogates the world transform starting from this node going downwards
+        Propagates the world transform starting from this node going downwards
         through the tree (will not go through parents)
         """
         scene_graph_children(self.__scene)
 
-    def _propogate_scene_tree(self):
+    def _propagate_scene_tree(self) -> None:
         """
-        Propogates the world transform starting from this root of the tree in
+        Propagates the world transform starting from this root of the tree in
         which this node lives
         """
         scene_graph_tree(self.__scene)
+
+    # Deprecated aliases -- "propogate" was a straight-up misspelling of
+    # "propagate", not a naming choice. Kept as thin wrappers (rather than a
+    # bare rename) because despite the leading underscore this pair is
+    # called directly, by name, from outside this package -- RTB's
+    # Link.py/Robot.py and Swift's Swift.py both call
+    # `self._propogate_scene_tree()`, and SG's own intro.rst tutorial tells
+    # end users to call it too. Remove once RTB and Swift have migrated to
+    # the correctly-spelled names.
+    def _propogate_scene_children(self) -> None:
+        """Deprecated (misspelled) -- use :meth:`_propagate_scene_children`."""
+        warn(
+            "_propogate_scene_children is deprecated (it was a misspelling), "
+            "use _propagate_scene_children instead",
+            FutureWarning,
+        )
+        self._propagate_scene_children()
+
+    def _propogate_scene_tree(self) -> None:
+        """Deprecated (misspelled) -- use :meth:`_propagate_scene_tree`."""
+        warn(
+            "_propogate_scene_tree is deprecated (it was a misspelling), "
+            "use _propagate_scene_tree instead",
+            FutureWarning,
+        )
+        self._propagate_scene_tree()
 
     # --------------------------------------------------------------------- #
 
@@ -347,7 +374,7 @@ class SceneNode:
         """
         Render this node's own subtree as indented text (one ``repr()`` per
         line), not walking through parents -- the same "not through
-        parents" scope as :meth:`_propogate_scene_children`.
+        parents" scope as :meth:`_propagate_scene_children`.
 
         Nodes have no ``.name`` in this package, so each line is that
         node's own ``repr()`` (type, constructor params, color, pose) --
@@ -363,7 +390,7 @@ class SceneNode:
         """
         Render the whole tree this node lives in as indented text -- walks
         up to the root first (the same root-finding as
-        :meth:`_propogate_scene_tree`), then renders down from there, with
+        :meth:`_propagate_scene_tree`), then renders down from there, with
         this node marked with a trailing ``<==`` so its position in the tree
         is visible.
 
