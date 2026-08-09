@@ -359,7 +359,7 @@ class TestShape(unittest.TestCase):
         # cached after first use (see self._cinit) and never re-runs -- so
         # a setter would silently do nothing after a shape's first
         # closest_point()/iscollided() call. Construct a new Mesh instead.
-        s0 = gm.Mesh("test.stl", y_up=True)
+        s0 = gm.Mesh(self.mesh_path, y_up=True)
         with self.assertRaises(AttributeError):
             s0.filename = "other.stl"
         with self.assertRaises(AttributeError):
