@@ -181,7 +181,7 @@ class SceneNode:
         # A node can't become its own ancestor -- walk the new parent's own
         # chain of parents; if self shows up (or parent is self), this
         # reparenting would create a cycle. Nothing downstream checks for
-        # this: _propagate_scene_tree()'s root-finding walk (SceneNode.py,
+        # this: update()'s root-finding walk (SceneNode.py,
         # also mirrored in scene.py and the compiled scene_nb.cpp) has no
         # cycle detection of its own -- a parent-chain cycle makes it spin
         # forever (an infinite loop, not a catchable exception), and
@@ -326,38 +326,40 @@ class SceneNode:
         """
         scene_graph_children(self.__scene)
 
-    def _propagate_scene_tree(self) -> None:
+    def update(self) -> None:
         """
-        Propagates the world transform starting from this root of the tree in
-        which this node lives
+        Recompute the world transform of every node in the scene graph
+        this node belongs to, starting from the root and working down.
+
+        Call this after changing any node's ``T``/``pose`` (or its
+        ``scene_parent``) -- nothing propagates automatically. It doesn't
+        matter which node in the graph you call it on: this always walks
+        up to the root first, then pushes fresh world transforms down
+        through the whole tree, not just this node's own subtree.
         """
         scene_graph_tree(self.__scene)
 
-    # Deprecated aliases -- "propogate" was a straight-up misspelling of
-    # "propagate", not a naming choice. Kept as thin wrappers (rather than a
-    # bare rename) because despite the leading underscore this pair is
-    # called directly, by name, from outside this package -- RTB's
-    # Link.py/Robot.py and Swift's Swift.py both call
-    # `self._propogate_scene_tree()`, and SG's own intro.rst tutorial tells
-    # end users to call it too. Remove once RTB and Swift have migrated to
-    # the correctly-spelled names.
-    def _propogate_scene_children(self) -> None:
-        """Deprecated (misspelled) -- use :meth:`_propagate_scene_children`."""
-        warn(
-            "_propogate_scene_children is deprecated (it was a misspelling), "
-            "use _propagate_scene_children instead",
-            FutureWarning,
-        )
-        self._propagate_scene_children()
-
+    # Deprecated alias -- "_propogate_scene_tree" was this method's name
+    # before it was renamed to update() (and, before that, was a misspelling
+    # of "propagate"). Kept as a thin wrapper, not a bare rename, because
+    # despite the leading underscore it's called directly, by name, from
+    # outside this package -- RTB's Link.py/Robot.py and Swift's Swift.py
+    # both call `self._propogate_scene_tree()`, and SG's own intro.rst
+    # tutorial told end users to call it too. Remove once RTB and Swift have
+    # migrated to update().
     def _propogate_scene_tree(self) -> None:
-        """Deprecated (misspelled) -- use :meth:`_propagate_scene_tree`."""
+        """Deprecated -- use :meth:`update` instead."""
         warn(
-            "_propogate_scene_tree is deprecated (it was a misspelling), "
-            "use _propagate_scene_tree instead",
+            "_propogate_scene_tree is deprecated, use update() instead",
             FutureWarning,
         )
-        self._propagate_scene_tree()
+        self.update()
+
+    # _propagate_scene_children() has no public equivalent and no known
+    # external callers (unlike the tree-wide version above) -- it's an
+    # internal helper used at construction/attachment time, not something
+    # end users are expected to reach for, so no deprecated alias needed
+    # for its old misspelled name either.
 
     # --------------------------------------------------------------------- #
 
@@ -390,7 +392,7 @@ class SceneNode:
         """
         Render the whole tree this node lives in as indented text -- walks
         up to the root first (the same root-finding as
-        :meth:`_propagate_scene_tree`), then renders down from there, with
+        :meth:`update`), then renders down from there, with
         this node marked with a trailing ``<==`` so its position in the tree
         is visible.
 

@@ -78,10 +78,10 @@ static void r2q(const MapMatrix4dc &r, double *q) {
 }
 
 // parent_wTm == nullptr means "treat node as the root", matching both
-// scene.cpp's propogate_T(node, NULL, NULL) and scene.py's
-// _propogate_T(node, None) -- used by scene_graph_children to propagate
+// scene.cpp's propagate_T(node, NULL, NULL) and scene.py's
+// _propagate_T(node, None) -- used by scene_graph_children to propagate
 // only downward regardless of node's actual parent.
-static void propogate_T(Node *node, const MapMatrix4dc *parent_wTm) {
+static void propagate_T(Node *node, const MapMatrix4dc *parent_wTm) {
     if (parent_wTm == nullptr) {
         node->wTm = node->Tm;
     } else {
@@ -90,7 +90,7 @@ static void propogate_T(Node *node, const MapMatrix4dc *parent_wTm) {
     r2q(node->wTm, node->wq);
 
     for (Node *child : node->children) {
-        propogate_T(child, &node->wTm);
+        propagate_T(child, &node->wTm);
     }
 }
 
@@ -131,12 +131,12 @@ NB_MODULE(scene, m) {
         nb::arg("children"));
 
     m.def("scene_graph_children",
-          [](Node *node) { propogate_T(node, nullptr); });
+          [](Node *node) { propagate_T(node, nullptr); });
 
     m.def("scene_graph_tree", [](Node *node) {
         while (node->parent != nullptr) {
             node = node->parent;
         }
-        propogate_T(node, nullptr);
+        propagate_T(node, nullptr);
     });
 }

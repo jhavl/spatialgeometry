@@ -14,7 +14,7 @@ from typing import Any
 import numpy as np
 from spatialmath.base.argcheck import getvector
 from spatialgeometry.geom import Shape
-from spatialgeometry.geom.Shape import ArrayLike, aabb_corners, update
+from spatialgeometry.geom.Shape import ArrayLike, aabb_corners, mark_changed
 from warnings import warn
 
 # Module-level coal reference — populated on first use, never in Pyodide.
@@ -431,7 +431,7 @@ class Mesh(CollisionShape):
         return self._scale
 
     @scale.setter
-    @update
+    @mark_changed
     def scale(self, value: ArrayLike | float | None) -> None:
         if value is None:
             value = [1, 1, 1]
@@ -444,7 +444,7 @@ class Mesh(CollisionShape):
         return self._filename
 
     @filename.setter
-    @update
+    @mark_changed
     def filename(self, value: str | None) -> None:
         self._filename = value
 
@@ -463,7 +463,7 @@ class Mesh(CollisionShape):
         return self._y_up
 
     @y_up.setter
-    @update
+    @mark_changed
     def y_up(self, value: bool) -> None:
         self._y_up = bool(value)
 
@@ -528,7 +528,7 @@ class Cylinder(CollisionShape):
         return self._radius
 
     @radius.setter
-    @update
+    @mark_changed
     def radius(self, value: float) -> None:
         self._radius = float(value)
 
@@ -537,7 +537,7 @@ class Cylinder(CollisionShape):
         return self._length
 
     @length.setter
-    @update
+    @mark_changed
     def length(self, value: float) -> None:
         self._length = float(value)
 
@@ -579,7 +579,7 @@ class Sphere(CollisionShape):
         return self._radius
 
     @radius.setter
-    @update
+    @mark_changed
     def radius(self, value: float) -> None:
         self._radius = float(value)
 
@@ -623,7 +623,7 @@ class Ellipsoid(CollisionShape):
         return self._radii
 
     @radii.setter
-    @update
+    @mark_changed
     def radii(self, value: ArrayLike) -> None:
         value = getvector(value, 3)
         self._radii = np.array(value)
@@ -663,7 +663,7 @@ class Cuboid(CollisionShape):
         return self._scale
 
     @scale.setter
-    @update
+    @mark_changed
     def scale(self, value: ArrayLike) -> None:
         value = getvector(value if value is not None else [1, 1, 1], 3)
         self._scale = np.array(value)
