@@ -66,6 +66,26 @@ class TestShape(unittest.TestCase):
         self.assertIsInstance(shape.color[3], float)
         json.dumps(shape.to_dict())  # must not raise TypeError
 
+    def test_opacity_property(self):
+        shape = gm.Cuboid([1, 1, 1], color=[0.1, 0.2, 0.3, 0.5])
+        self.assertEqual(shape.opacity, 0.5)
+
+        shape.opacity = 0.25
+        self.assertEqual(shape.opacity, 0.25)
+        # rgb untouched by an opacity-only set
+        self.assertEqual(shape.color[0], 0.1)
+        self.assertEqual(shape.color[1], 0.2)
+        self.assertEqual(shape.color[2], 0.3)
+
+        shape.opacity = 100  # >1 -- auto-normalised as 0-255 input
+        self.assertAlmostEqual(shape.opacity, 100 / 255)
+
+    def test_set_alpha_warns_and_matches_opacity(self):
+        shape = gm.Cuboid([1, 1, 1], color=[0.1, 0.2, 0.3, 1.0])
+        with self.assertWarns(FutureWarning):
+            shape.set_alpha(0.4)
+        self.assertEqual(shape.opacity, 0.4)
+
     def test_to_dict(self):
         s1 = gm.Cylinder(1, 1)
 
