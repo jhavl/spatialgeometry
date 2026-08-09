@@ -138,7 +138,7 @@ class Shape(SceneNode, ABC):
             self.color = color
 
         # Initialise the scene node
-        super().__init__(T=T, **kwargs)
+        super().__init__(pose=T, **kwargs)
 
         self.stype = stype
         self.v = zeros(6)
