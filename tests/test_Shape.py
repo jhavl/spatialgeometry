@@ -6,6 +6,8 @@
 import numpy.testing as nt
 import numpy as np
 import unittest
+import tempfile
+import os
 import spatialmath as sm
 import spatialgeometry as gm
 
@@ -13,6 +15,19 @@ from tests import skip_no_collision_checking
 
 
 class TestShape(unittest.TestCase):
+    # A path that exists on disk but isn't a real mesh file -- Mesh() checks
+    # existence at construction, but none of these tests actually load the
+    # file's content, so a shared empty placeholder is enough for all of them.
+    @classmethod
+    def setUpClass(cls):
+        cls._mesh_tmpdir = tempfile.TemporaryDirectory()
+        cls.mesh_path = os.path.join(cls._mesh_tmpdir.name, "placeholder.stl")
+        open(cls.mesh_path, "w").close()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._mesh_tmpdir.cleanup()
+
     def test_init(self):
         gm.Cuboid([1, 1, 1], base=sm.SE3(0, 0, 0))
         gm.Cylinder(1, 1, base=sm.SE3(2, 0, 0))
@@ -241,26 +256,40 @@ class TestShape(unittest.TestCase):
         self.assertIs(q.scene_parent, p)
 
     def test_mesh_collision_false(self):
-        s0 = gm.Mesh("test.stl", collision=False)
+        s0 = gm.Mesh(self.mesh_path, collision=False)
         with self.assertRaises(ValueError):
             s0._init_coal()
 
+    def test_mesh_missing_file_raises_at_construction(self):
+        # Regression test: a bad filename used to go unnoticed until the
+        # lazy load inside _init_coal()/_local_corners() -- e.g. deep
+        # inside some later bounds() or iscollided() call, far from the
+        # actual mistake. Now checked (existence only, not validity as a
+        # mesh) at construction, so it fails immediately and loudly.
+        bad_path = os.path.join(self._mesh_tmpdir.name, "does_not_exist.stl")
+        with self.assertRaises(FileNotFoundError):
+            gm.Mesh(bad_path)
+
+    def test_mesh_no_filename_is_still_allowed(self):
+        # filename=None is not checked -- there's nothing to check.
+        gm.Mesh(None)
+
     def test_mesh_scalar_scale(self):
-        s0 = gm.Mesh("test.stl", scale=2.0)
+        s0 = gm.Mesh(self.mesh_path, scale=2.0)
         nt.assert_almost_equal(s0.scale, [2.0, 2.0, 2.0])
 
     def test_mesh_list_scale_still_works(self):
-        s0 = gm.Mesh("test.stl", scale=[1.0, 2.0, 3.0])
+        s0 = gm.Mesh(self.mesh_path, scale=[1.0, 2.0, 3.0])
         nt.assert_almost_equal(s0.scale, [1.0, 2.0, 3.0])
 
     def test_mesh2(self):
-        s0 = gm.Mesh("test.stl")
+        s0 = gm.Mesh(self.mesh_path)
 
         ans = {
             "stype": "mesh",
             "scale": [1.0, 1.0, 1.0],
             "y_up": False,
-            "filename": "test.stl",
+            "filename": self.mesh_path,
             "t": [0.0, 0.0, 0.0],
             "q": [0.0, 0.0, 0.0, 1],
             "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -273,15 +302,15 @@ class TestShape(unittest.TestCase):
 
     def test_mesh_use_vertex_colors(self):
         # No explicit color -- defer to whatever's baked into the file.
-        s0 = gm.Mesh("test.stl")
+        s0 = gm.Mesh(self.mesh_path)
         self.assertTrue(s0.to_dict()["use_vertex_colors"])
 
         # Explicit color at construction -- always overrides.
-        s1 = gm.Mesh("test.stl", color=[1.0, 0.0, 0.0, 1.0])
+        s1 = gm.Mesh(self.mesh_path, color=[1.0, 0.0, 0.0, 1.0])
         self.assertFalse(s1.to_dict()["use_vertex_colors"])
 
         # Explicit color set after construction -- also overrides.
-        s2 = gm.Mesh("test.stl")
+        s2 = gm.Mesh(self.mesh_path)
         s2.color = [0.0, 1.0, 0.0, 1.0]
         self.assertFalse(s2.to_dict()["use_vertex_colors"])
 

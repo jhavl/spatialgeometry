@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from abc import abstractmethod
 from collections import UserList
@@ -356,7 +357,12 @@ class Mesh(CollisionShape):
     """
     A mesh object described by an STL, OBJ, or DAE file.
 
-    :param filename: Absolute path to the mesh file.
+    :param filename: Absolute path to the mesh file. Checked for existence
+        at construction (raises :exc:`FileNotFoundError` if missing) --
+        this only confirms the path exists, not that it's a well-formed or
+        readable mesh file, which is still discovered lazily, the first
+        time the file is actually loaded (see :meth:`_init_coal` and
+        :meth:`_local_corners`).
     :param scale: Scale factor(s) along XYZ axes (default [1, 1, 1]). A
         single number applies the same scale to all three axes.
     :param color: Flat colour override, applied to every face/vertex. If
@@ -381,6 +387,9 @@ class Mesh(CollisionShape):
         y_up: bool = False,
         **kwargs,
     ) -> None:
+        if filename is not None and not os.path.isfile(filename):
+            raise FileNotFoundError(f"Mesh file not found: {filename!r}")
+
         super().__init__(stype="mesh", color=color, **kwargs)
         self.filename = filename
         self.scale = scale
