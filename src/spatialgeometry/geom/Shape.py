@@ -290,7 +290,11 @@ class Shape(SceneNode, ABC):
                 try:
                     value = mpc.to_rgba(value)
                 except ValueError:
-                    print(f"{value} is an invalid color name, using default color")
+                    print(
+                        f"{value!r} is not a valid matplotlib color name -- see "
+                        "https://matplotlib.org/stable/gallery/color/named_colors.html "
+                        "for the full list. Using default color."
+                    )
                     value = default_color
             else:  # pragma nocover
                 value = default_color
