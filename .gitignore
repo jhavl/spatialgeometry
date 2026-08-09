@@ -159,6 +159,7 @@ devel_isolated/
 # Ignore generated docs
 *.dox
 *.wikidoc
+docs/source/generated/
 
 # eclipse stuff
 .project

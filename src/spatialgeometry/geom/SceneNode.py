@@ -14,6 +14,14 @@ from warnings import warn
 
 
 class SceneNode:
+    """
+    Base class for a node in a scene graph.
+     
+    Subclassed for particular shapes and provides the shape's pose, a
+    parent/children relationship to other nodes, and the ability to
+    compute its pose in the world frame from the scene graph.
+    """
+
     def __init__(
         self,
         pose: ndarray | SE3 = eye(4),
@@ -166,8 +174,16 @@ class SceneNode:
     @property
     def scene_parent(self) -> SceneNode | None:
         """
-        Returns the parent node of this object
+        Return the parent node of this object in the scene graph.
 
+        Setting a new parent adds this object to the new parent's
+        ``scene_children``.
+
+        This is a read/write property.
+
+        :rtype: SceneNode | None
+
+        :seealso: :meth:`scene_children` :meth:`attach` :meth:`attach_to`
         """
         return self._scene_parent
 
@@ -220,8 +236,17 @@ class SceneNode:
     @property
     def scene_children(self) -> list[SceneNode]:
         """
-        Returns the child nodes of this object
+        Return the child nodes of this object in the scene graph. 
+        
+        Setting a new list of children updates each child's ``scene_parent`` to this
+        object, but does not remove this object from any previous parent's
+        ``scene_children``.
 
+        This is a read/write property.
+
+        :rtype: list(SceneNode)
+
+        :seealso: :meth:`scene_parent` :meth:`attach` :meth:`attach_to`
         """
         return self._scene_children
 
@@ -230,7 +255,6 @@ class SceneNode:
         """
         Sets the child nodes of this object, does not update childs
         parent
-
         """
         # Set our children
         self._scene_children = children
@@ -315,6 +339,24 @@ class SceneNode:
 
     @property
     def T(self) -> ndarray:
+        """
+        Pose of the shape relative to its parent frame in the scene
+        graph (or the world frame if it has no parent), as a 4x4
+        homogeneous transformation matrix. Set via the ``pose``
+        argument of the constructor.
+
+        This is a read/write property. The getter always returns a plain
+        ``ndarray``; the setter also accepts an :class:`~spatialmath.SE3`.
+        
+        
+        .. warning::
+            Because the getter returns an ``ndarray``, in-place operators like
+            ``shape.T *= delta`` do an elementwise multiply, not a pose
+            composition, even when ``delta`` is an ``SE3`` -- use
+            ``shape.T = shape.T * delta`` (or ``shape.T @= delta.A``) instead.
+
+        :rtype: ndarray(4,4)
+        """
         return self._T
 
     @T.setter
@@ -418,9 +460,21 @@ class SceneNode:
     # --------------------------------------------------------------------- #
 
     def attach(self, object: SceneNode) -> None:
+        """Attach a child node
+
+        :param object: the node to attach as a child of this node
+
+        :seealso: :meth:`attach_to` :meth:`scene_children`
+        """
         new_childs = self.scene_children
         new_childs.append(object)
         self.scene_children = new_childs
 
     def attach_to(self, object: SceneNode) -> None:
+        """Attach this node to a parent node
+
+        :param object: the node to attach this node to, this node will become a child of the parent
+
+        :seealso: :meth:`attach` :meth:`scene_parent`
+        """
         self.scene_parent = object
