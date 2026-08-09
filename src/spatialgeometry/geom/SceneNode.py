@@ -15,10 +15,22 @@ from copy import deepcopy
 class SceneNode:
     def __init__(
         self,
-        T: ndarray = eye(4),
+        pose: ndarray | SE3 = eye(4),
         scene_parent: SceneNode | None = None,
         scene_children: list[SceneNode] | None = None,
     ) -> None:
+        """
+        :param pose: Local reference frame of this node relative to its
+            parent in the scene graph (or the world frame if it has no
+            parent), defaults to the identity transform.
+        :param scene_parent: Parent node of this node in the scene graph.
+        :param scene_children: Child nodes of this node in the scene graph.
+        """
+        if isinstance(pose, SE3):
+            T = pose.A
+        else:
+            T = pose
+
         # These three are static attributes which can never be changed
         # If these are directly accessed and re-written, segmentation faults
         # will follow very soon after
@@ -136,7 +148,7 @@ class SceneNode:
 
     def __deepcopy__(self, memo):
         result = SceneNode(
-            T=self._T,
+            pose=self._T,
         )
 
         result._scene_children = self.scene_children.copy()

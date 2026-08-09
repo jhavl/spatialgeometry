@@ -454,6 +454,14 @@ class TestShape(unittest.TestCase):
         self.assertEqual(repr(group), f"SceneGroup([{gm.Sphere(1.0)!r}])")
         self.assertTrue(str(group).startswith("SceneGroup at "))
 
+    def test_scene_group_constructor_accepts_pose(self):
+        T = sm.SE3.Trans(1, 2, 3)
+        group = gm.SceneGroup(pose=T)
+        nt.assert_almost_equal(group._T, T.A)
+
+        group2 = gm.SceneGroup(pose=T.A)
+        nt.assert_almost_equal(group2._T, T.A)
+
     def test_scene_group_constructor_accepts_initial_elements(self):
         cube = gm.Cuboid([1, 1, 1])
         sphere = gm.Sphere(1.0)
