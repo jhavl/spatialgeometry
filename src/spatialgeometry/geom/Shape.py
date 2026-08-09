@@ -393,7 +393,7 @@ class Shape(SceneNode, ABC):
     # corners of the shape's own axis-aligned bounding box, in its local
     # frame (pose ignored). corners()/bounds()/extents() are all derived
     # from it here, generically, once. Not an @abstractmethod: a shape
-    # that hasn't implemented it yet (e.g. Axes/Arrow/Path, currently)
+    # that hasn't implemented it yet (e.g. Axes/Arrow/Polyline, currently)
     # raises NotImplementedError only if corners() is actually called on
     # it, rather than making the class impossible to instantiate.
     # --------------------------------------------------------------------- #
@@ -772,7 +772,7 @@ class Arrow(Shape):
         return shape
 
 
-class Path(Shape):
+class Polyline(Shape):
     """A polyline through a sequence of waypoints defined with respect
     to the local frame of the shape.
 
@@ -802,7 +802,7 @@ class Path(Shape):
         linewidth: float = 1.0,
         **kwargs,
     ) -> None:
-        super(Path, self).__init__(stype="path", **kwargs)
+        super(Polyline, self).__init__(stype="path", **kwargs)
         self.points = points
         self.radius = radius
         self.linewidth = linewidth
@@ -879,3 +879,28 @@ class Path(Shape):
         shape["radius"] = self.radius
         shape["linewidth"] = self.linewidth
         return shape
+
+
+class Path(Polyline):
+    """
+    Deprecated alias for :class:`Polyline` -- a polyline through a
+    sequence of waypoints defined with respect to the local frame of
+    the shape.
+
+    :param points: waypoints defining the polyline
+    :type points: ArrayLike
+    :param radius: tube radius; if 0, rendered as a line instead of a
+        tube -- see linewidth.
+    :param linewidth: Width of the line in pixels. Only used when
+        radius == 0.
+    """
+
+    def __init__(
+        self,
+        points: ArrayLike,
+        radius: float = 0.0,
+        linewidth: float = 1.0,
+        **kwargs,
+    ) -> None:
+        warn("Path is deprecated, use Polyline instead", FutureWarning)
+        super().__init__(points, radius=radius, linewidth=linewidth, **kwargs)

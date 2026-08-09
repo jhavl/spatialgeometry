@@ -1,6 +1,6 @@
 from spatialgeometry.geom.SceneNode import SceneNode
 from spatialgeometry.geom.SceneGroup import SceneGroup
-from spatialgeometry.geom.Shape import Shape, Axes, Arrow, Path
+from spatialgeometry.geom.Shape import Shape, Axes, Arrow, Polyline, Path
 from spatialgeometry.geom.CollisionShape import (
     CollisionShape,
     CollisionShapeGroup,
@@ -25,6 +25,7 @@ __all__ = [
     "Ellipsoid",
     "Axes",
     "Arrow",
+    "Polyline",
     "Path",
     "SceneNode",
     "SceneGroup",

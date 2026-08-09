@@ -24,6 +24,7 @@ The class hierarchy for all Spatial Geometry classes is shown below:
    spatialgeometry.Shape
    spatialgeometry.Axes
    spatialgeometry.Arrow
+   spatialgeometry.Polyline
    spatialgeometry.Path
    spatialgeometry.CollisionShape
    spatialgeometry.CollisionShapeGroup
@@ -130,8 +131,9 @@ be used for collision detection.
 
    Axes
    Arrow
+   Polyline
    Path
-   
+
 They all inherit directly from the :class:`Shape` base class.
 
 .. autoclass:: Axes
@@ -141,6 +143,12 @@ They all inherit directly from the :class:`Shape` base class.
    :inherited-members:
 
 .. autoclass:: Arrow
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
+
+.. autoclass:: Polyline
    :members:
    :undoc-members:
    :show-inheritance:

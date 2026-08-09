@@ -652,13 +652,13 @@ class TestShape(unittest.TestCase):
         nt.assert_almost_equal(group._wT[:3, 3], [5, 0, 0])
         nt.assert_almost_equal(group[0]._wT[:3, 3], [5, 0, 0])
 
-    def test_Path_defaults(self):
+    def test_Polyline_defaults(self):
         # points is accepted/stored as 3xN (this ecosystem's own point-set
         # convention), but the wire format transposes to a flat N x 3 list
         # of [x, y, z] waypoints -- the natural shape for the JS side to
         # build one THREE.Vector3 per point.
         points = np.array([[0.0, 1.0, 2.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
-        s0 = gm.Path(points)
+        s0 = gm.Polyline(points)
 
         ans = {
             "stype": "path",
@@ -674,25 +674,32 @@ class TestShape(unittest.TestCase):
 
         self.assertEqual(s0.to_dict(), ans)
 
-    def test_Path_radius_and_linewidth_are_independent_params(self):
+    def test_Polyline_radius_and_linewidth_are_independent_params(self):
         points = np.array([[0.0, 1.0], [0.0, 0.0], [0.0, 0.0]])
-        s0 = gm.Path(points, radius=0.05, linewidth=3.0)
+        s0 = gm.Polyline(points, radius=0.05, linewidth=3.0)
 
         d = s0.to_dict()
         self.assertEqual(d["radius"], 0.05)
         self.assertEqual(d["linewidth"], 3.0)
 
-    def test_Path_rejects_wrong_shape(self):
+    def test_Polyline_rejects_wrong_shape(self):
         with self.assertRaises(ValueError):
-            gm.Path(np.zeros((2, 3)))  # not 3xN
+            gm.Polyline(np.zeros((2, 3)))  # not 3xN
 
-    def test_Path_rejects_too_few_points(self):
+    def test_Polyline_rejects_too_few_points(self):
         with self.assertRaises(ValueError):
-            gm.Path(np.zeros((3, 1)))  # a single point isn't a polyline
+            gm.Polyline(np.zeros((3, 1)))  # a single point isn't a polyline
 
-    def test_Path_accepts_plain_list_input(self):
+    def test_Polyline_accepts_plain_list_input(self):
         # points is documented as ArrayLike, not just ndarray.
-        s0 = gm.Path([[0, 1], [0, 0], [0, 0]])
+        s0 = gm.Polyline([[0, 1], [0, 0], [0, 0]])
+        self.assertEqual(s0.to_dict()["points"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
+    def test_Path_warns_and_is_a_polyline(self):
+        points = np.array([[0.0, 1.0], [0.0, 0.0], [0.0, 0.0]])
+        with self.assertWarns(FutureWarning):
+            s0 = gm.Path(points)
+        self.assertIsInstance(s0, gm.Polyline)
         self.assertEqual(s0.to_dict()["points"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
 
@@ -805,7 +812,7 @@ class TestBoundingBox(unittest.TestCase):
         self.assertEqual(s0.corners(world=True).shape, (3, 8))
 
     def test_unimplemented_shape_raises_not_implemented(self):
-        # Axes/Arrow/Path don't implement _local_corners() yet -- corners()
+        # Axes/Arrow/Polyline don't implement _local_corners() yet -- corners()
         # must fail loudly, not silently return a wrong value.
         s0 = gm.Axes(1.0)
         with self.assertRaises(NotImplementedError):
