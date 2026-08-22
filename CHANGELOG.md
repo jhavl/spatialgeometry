@@ -3,7 +3,7 @@
 Notable changes to this project are documented in this file. Starts from
 v1.2.0 — earlier releases aren't documented retroactively.
 
-## [1.4.0] - 2026-08-09
+## [1.4.0] - 2026-08-23
 
 ### New
 
