@@ -4,10 +4,10 @@
 # main, then on GitHub go to Releases -> "Draft a new release", pick a
 # tag matching the new version, and click "Publish release". That single
 # click is the only trigger for this workflow -- it builds every wheel
-# (including Pyodide/wasm32), uploads everything to PyPI, and attaches
-# the Pyodide wheel to the release as a downloadable asset. There is no
-# separate manual/workflow_dispatch path, so there's only one way to
-# publish and it always does the full job.
+# (including a pure-Python py3-none-any wheel for Pyodide/JupyterLite)
+# and uploads everything to PyPI. There is no separate manual/
+# workflow_dispatch path, so there's only one way to publish and it
+# always does the full job.
 #
 # Uses OIDC trusted publishing -- no stored PyPI token required.
 
@@ -51,21 +51,31 @@ jobs:
           path: ./wheelhouse/*.whl
 
   build_pyodide:
-    name: Build Pyodide (wasm32) wheel
+    name: Build pure-Python wheel (for Pyodide/JupyterLite)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Pyodide wheel
-        uses: pypa/cibuildwheel@v3.4.1
-        env:
-          CIBW_PLATFORM: pyodide
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build pure-Python wheel
+        run: |
+          pip install build
+          SG_PURE_WHEEL=1 python3 -m build --wheel --outdir wheelhouse
+
+      - name: Verify wheel is genuinely pure Python
+        run: |
+          ls wheelhouse/
+          case "$(ls wheelhouse/)" in
+            *-py3-none-any.whl) echo "OK: py3-none-any" ;;
+            *) echo "ERROR: expected a py3-none-any wheel"; exit 1 ;;
+          esac
 
       - uses: actions/upload-artifact@v4
-        if: success()
         with:
-          name: pyodide-wheel
+          name: wheels-pyodide
           path: ./wheelhouse/*.whl
 
   build_sdist:
@@ -82,33 +92,8 @@ jobs:
           name: sdist
           path: dist/*.tar.gz
 
-  # PyPI rejects the pyodide_* platform tag, so attach it to the GitHub
-  # Release as a downloadable asset instead -- same pattern as RTB's own
-  # release.yml, which is where a future RTB fix for its own JupyterLite
-  # build (it needs a wasm spatialgeometry wheel now that it depends on
-  # the real package instead of vendoring a pure-Python copy) would fetch
-  # this from.
-  upload_pyodide_asset:
-    name: Attach Pyodide wheel to GitHub release
-    needs: build_pyodide
-    if: needs.build_pyodide.result == 'success'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: pyodide-wheel
-          path: pyodide-dist
-
-      - name: Upload Pyodide wheel as release asset
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ github.ref_name }}
-          files: pyodide-dist/*.whl
-
   upload_pypi:
-    needs: [build_wheels, build_sdist]
+    needs: [build_wheels, build_pyodide, build_sdist]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:

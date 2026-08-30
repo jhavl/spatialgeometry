@@ -97,6 +97,27 @@ sdist.include = [
     "LICENSE",
 ]
 
+# Set SG_PURE_WHEEL=1 to build a genuinely pure-Python wheel: skips the
+# compiled nanobind extension (CMakeLists.txt's SG_BUILD_EXTENSIONS option)
+# and forces the wheel tag to py3-none-any (wheel.platlib=false --
+# root_is_purelib forces plats=["any"], abi="none", pyvers=["py3"], per
+# scikit-build-core's wheel_tag.py). Used for the Pyodide/JupyterLite
+# build -- spatialgeometry.scene already has a complete pure-Python
+# fallback (scene.py), so there's nothing missing at runtime. This is the
+# same content the old cibuildwheel-Pyodide cross-compile produced (that
+# path already skipped nanobind_add_module() under Emscripten and fell
+# back to scene.py too) -- the only change here is that the wheel is
+# honestly tagged py3-none-any instead of cp312-cp312-pyodide_wasm32, so
+# `pip`/`micropip` resolve it automatically with no GitHub-Release-asset
+# fetch or CPython-version pinning required downstream. pip always
+# prefers a platform-specific compiled wheel over py3-none-any when both
+# are published -- this wheel is only ever selected where no compiled
+# wheel exists, i.e. Pyodide today.
+[[tool.scikit-build.overrides]]
+if.env.SG_PURE_WHEEL = true
+wheel.platlib = false
+cmake.define.SG_BUILD_EXTENSIONS = "OFF"
+
 
 [tool.black]
 
@@ -162,10 +183,9 @@ archs = ["x86_64", "aarch64"]
 # On an Windows Intel runner build wheels
 archs = ["AMD64", "x86"]
 
-[tool.cibuildwheel.pyodide]
-# Pyodide (wasm32-emscripten) -- used by JupyterLite. cibuildwheel manages
-# the Emscripten SDK; scikit-build-core picks up the toolchain file
-# automatically from the PYODIDE environment. CMakeLists.txt's
-# CMAKE_SYSTEM_NAME == "Emscripten" guard skips nanobind_add_module()
-# entirely here, so this produces a genuine pure-Python wheel that falls
-# back to scene.py -- no manual env var needed to opt out of compiling.
+# No [tool.cibuildwheel.pyodide] section -- the wasm/Pyodide wheel is no
+# longer built via cibuildwheel's Pyodide platform (that meant a full
+# Emscripten SDK cross-compile job just to produce content that was
+# already pure Python underneath). It's built as an ordinary pure-Python
+# wheel on a normal runner instead -- see the SG_PURE_WHEEL override in
+# [tool.scikit-build] above and cibuildwheel.yml's build_pyodide job.
