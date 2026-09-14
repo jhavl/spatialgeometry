@@ -408,7 +408,11 @@ class Mesh(CollisionShape):
             raise FileNotFoundError(f"Mesh file not found: {filename!r}")
 
         super().__init__(stype="mesh", color=color, **kwargs)
-        self._filename = filename
+        # Normalized to forward slashes regardless of the host OS -- this
+        # crosses a JSON/URL boundary to reach swift's JS mesh loader, which
+        # only ever expects '/'-separated paths (see jhavl/swift#152: a raw
+        # Windows path broke the loader's /retrieve/ URL construction).
+        self._filename = filename.replace("\\", "/") if filename is not None else None
         self.scale = scale
         self._use_vertex_colors = color is None
         self._y_up = bool(y_up)

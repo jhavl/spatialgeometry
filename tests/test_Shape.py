@@ -8,6 +8,7 @@ import numpy as np
 import unittest
 import tempfile
 import os
+from unittest import mock
 import spatialmath as sm
 import spatialgeometry as gm
 
@@ -701,6 +702,27 @@ class TestShape(unittest.TestCase):
             s0 = gm.Path(points)
         self.assertIsInstance(s0, gm.Polyline)
         self.assertEqual(s0.to_dict()["points"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
+
+class TestMeshFilename(unittest.TestCase):
+    # Mesh.filename crosses a JSON/URL boundary to reach swift's JS mesh
+    # loader (see jhavl/swift#152) -- a raw Windows path with backslashes
+    # breaks that boundary, so Mesh should normalize to forward slashes at
+    # construction regardless of which OS Python is running on. os.path.isfile
+    # is mocked because a literal Windows-style path is never a real file on
+    # the POSIX runners this test also runs on.
+    def test_windows_backslash_path_normalized_to_forward_slashes(self):
+        windows_path = "C:\\Users\\test\\meshes\\panda_link0.stl"
+        with mock.patch("spatialgeometry.geom.CollisionShape.os.path.isfile", return_value=True):
+            mesh = gm.Mesh(filename=windows_path)
+        self.assertEqual(mesh.filename, "C:/Users/test/meshes/panda_link0.stl")
+        self.assertNotIn("\\", mesh.filename)
+
+    def test_posix_path_unaffected(self):
+        posix_path = "/home/test/meshes/panda_link0.stl"
+        with mock.patch("spatialgeometry.geom.CollisionShape.os.path.isfile", return_value=True):
+            mesh = gm.Mesh(filename=posix_path)
+        self.assertEqual(mesh.filename, posix_path)
 
 
 class TestSceneTreePrint(unittest.TestCase):
