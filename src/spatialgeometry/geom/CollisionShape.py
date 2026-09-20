@@ -503,7 +503,14 @@ class Mesh(CollisionShape):
 
     def to_dict(self) -> dict[str, Any]:
         shape = super().to_dict()
-        shape["filename"] = self.filename
+        # Normalized to forward slashes regardless of the host OS -- this
+        # crosses a JSON/URL boundary to reach swift's JS mesh loader, which
+        # only ever expects '/'-separated paths (see jhavl/swift#152: a raw
+        # Windows path broke the loader's /retrieve/ URL construction).
+        # self.filename itself stays the native path as given.
+        shape["filename"] = (
+            self.filename.replace("\\", "/") if self.filename is not None else None
+        )
         shape["scale"] = self.scale.tolist()
         shape["use_vertex_colors"] = self._use_vertex_colors
         shape["y_up"] = self.y_up

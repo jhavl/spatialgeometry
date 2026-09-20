@@ -8,6 +8,7 @@ import numpy as np
 import unittest
 import tempfile
 import os
+from unittest import mock
 import spatialmath as sm
 import spatialgeometry as gm
 
@@ -343,7 +344,7 @@ class TestShape(unittest.TestCase):
             "stype": "mesh",
             "scale": [1.0, 1.0, 1.0],
             "y_up": False,
-            "filename": self.mesh_path,
+            "filename": self.mesh_path.replace("\\", "/"),
             "t": [0.0, 0.0, 0.0],
             "q": [0.0, 0.0, 0.0, 1],
             "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -701,6 +702,47 @@ class TestShape(unittest.TestCase):
             s0 = gm.Path(points)
         self.assertIsInstance(s0, gm.Polyline)
         self.assertEqual(s0.to_dict()["points"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
+
+class TestMeshFilename(unittest.TestCase):
+    # Mesh.to_dict()["filename"] crosses a JSON/URL boundary to reach swift's
+    # JS mesh loader (see jhavl/swift#152) -- a raw Windows path with
+    # backslashes breaks it, so serialization normalizes to forward slashes on
+    # any host OS, while Mesh.filename keeps the native path as given.
+    # os.path.isfile is mocked because a literal Windows-style path is never a
+    # real file on the POSIX runners this test also runs on.
+    #
+    # Neither mock.patch's string target ("spatialgeometry.geom.CollisionShape
+    # .os...") nor `import spatialgeometry.geom.CollisionShape as x` reliably
+    # gets the module: spatialgeometry/geom/__init__.py's
+    # `from ...CollisionShape import CollisionShape` rebinds that attribute on
+    # the geom package to the class, shadowing the module. sys.modules always
+    # holds the real module.
+
+    @staticmethod
+    def _make_mesh(path):
+        import sys
+        import spatialgeometry.geom.CollisionShape  # noqa: F401 -- ensures it's in sys.modules
+
+        module = sys.modules["spatialgeometry.geom.CollisionShape"]
+        with mock.patch.object(module.os.path, "isfile", return_value=True):
+            return gm.Mesh(filename=path)
+
+    def test_windows_backslash_path_serialized_with_forward_slashes(self):
+        mesh = self._make_mesh("C:\\Users\\test\\meshes\\panda_link0.stl")
+        self.assertEqual(
+            mesh.to_dict()["filename"], "C:/Users/test/meshes/panda_link0.stl"
+        )
+
+    def test_filename_attribute_keeps_native_path(self):
+        windows_path = "C:\\Users\\test\\meshes\\panda_link0.stl"
+        self.assertEqual(self._make_mesh(windows_path).filename, windows_path)
+
+    def test_posix_path_unaffected(self):
+        posix_path = "/home/test/meshes/panda_link0.stl"
+        mesh = self._make_mesh(posix_path)
+        self.assertEqual(mesh.filename, posix_path)
+        self.assertEqual(mesh.to_dict()["filename"], posix_path)
 
 
 class TestSceneTreePrint(unittest.TestCase):

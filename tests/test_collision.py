@@ -727,7 +727,7 @@ class TestToDict:
 
     def test_mesh_filename(self, tmp_path):
         path = _placeholder_mesh_file(tmp_path)
-        assert gm.Mesh(path).to_dict()["filename"] == path
+        assert gm.Mesh(path).to_dict()["filename"] == path.replace("\\", "/")
 
     def test_mesh_scale(self, tmp_path):
         path = _placeholder_mesh_file(tmp_path)
