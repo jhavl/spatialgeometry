@@ -15,19 +15,26 @@ execute_process(
 )
 find_package(nanobind CONFIG REQUIRED HINTS "${NB_DIR}")
 
+# Set -DSG_BUILD_EXTENSIONS=OFF (paired with pyproject.toml's
+# SG_PURE_WHEEL scikit-build-core override) to skip compiling the nanobind
+# extension on an ordinary native runner too, not just under Emscripten --
+# see pyproject.toml for why.
+option(SG_BUILD_EXTENSIONS "Build the compiled nanobind extension(s)" ON)
+
 # ---------------------------------------------------------------------------
 # scene — scene-graph transform propagation
 # Eigen is vendored as header-only (Core module only -- see
 # src/spatialgeometry/cpp-extension/Eigen) in src/spatialgeometry/cpp-extension/Eigen/
 # scene_nb.cpp is the nanobind glue; math lives inline in that file.
 #
-# Skipped entirely under Pyodide/Emscripten: no compiler there worth
-# targeting, and spatialgeometry.scene has a pure-Python fallback
-# (scene.py) for exactly this case -- CPython's import machinery prefers
-# a compiled extension module over a same-named .py file when both are
-# present, so building neither is what makes the fallback take over.
+# Skipped entirely under Pyodide/Emscripten (no compiler there worth
+# targeting) or when SG_BUILD_EXTENSIONS=OFF -- spatialgeometry.scene has a
+# pure-Python fallback (scene.py) for exactly this case -- CPython's import
+# machinery prefers a compiled extension module over a same-named .py file
+# when both are present, so building neither is what makes the fallback
+# take over.
 # ---------------------------------------------------------------------------
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten" AND SG_BUILD_EXTENSIONS)
     nanobind_add_module(scene
         src/spatialgeometry/cpp-extension/scene_nb.cpp
     )
