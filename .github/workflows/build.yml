@@ -1,7 +1,7 @@
 # Run tests and build/deploy docs.
 # Triggers on pushes to main and on PRs targeting main.
 
-name: Run Tests and Build Docs
+name: CI
 
 on:
   push:
