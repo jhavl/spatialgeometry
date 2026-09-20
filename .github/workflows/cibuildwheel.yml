@@ -3,11 +3,14 @@
 # To ship a release: bump the version in pyproject.toml, merge that to
 # main, then on GitHub go to Releases -> "Draft a new release", pick a
 # tag matching the new version, and click "Publish release". That single
-# click is the only trigger for this workflow -- it builds every wheel
-# (including a pure-Python py3-none-any wheel for Pyodide/JupyterLite)
-# and uploads everything to PyPI. There is no separate manual/
-# workflow_dispatch path, so there's only one way to publish and it
-# always does the full job.
+# click is the only way to publish -- it builds every wheel (including a
+# pure-Python py3-none-any wheel for Pyodide/JupyterLite) and uploads
+# everything to PyPI.
+#
+# Pull requests that touch the build configuration run the same builds as a
+# dry run, so a broken wheel build (e.g. a new Python version) is caught
+# before release day. The upload_pypi job is gated on the release event, so
+# a dry run can never publish.
 #
 # Uses OIDC trusted publishing -- no stored PyPI token required.
 
@@ -16,12 +19,21 @@ name: Publish to PyPI
 on:
   release:
     types: [published]
+  pull_request:
+    paths:
+      - pyproject.toml
+      - CMakeLists.txt
+      - .github/workflows/cibuildwheel.yml
 
 jobs:
   build_wheels:
     name: Build compiled wheels on ${{ matrix.os }} (${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
     strategy:
+      # One platform failing shouldn't cancel the others into misleading
+      # "cancelled" results -- especially in a dry run, where seeing every
+      # platform's outcome is the point.
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -94,6 +106,8 @@ jobs:
 
   upload_pypi:
     needs: [build_wheels, build_pyodide, build_sdist]
+    # Publish only for a real release -- a PR is a build-only dry run.
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
