@@ -3,6 +3,46 @@
 Notable changes to this project are documented in this file. Starts from
 v1.2.0 — earlier releases aren't documented retroactively.
 
+## [1.4.1] - 2026-09-20
+
+### New
+
+- **Python 3.14 support**: `cp314` wheels are built, and 3.14 joins the test
+  matrix (3.10 through 3.14 on Linux, macOS and Windows). `requires-python`
+  is unchanged (`>=3.10`).
+
+### Changed
+
+- **A pure-Python `py3-none-any` wheel is now published to PyPI**, built for
+  Pyodide/JupyterLite in place of the cross-compiled
+  `cp312-cp312-pyodide_wasm32` wheel that had to be attached to GitHub
+  releases (PyPI rejects that tag). The content is the same pure-Python
+  `scene.py` fallback the Pyodide build always shipped, now honestly tagged,
+  so `pip`/`micropip` resolve it with no special handling. pip still prefers a
+  compiled wheel wherever one exists; note that on platforms with no compiled
+  wheel (for example Intel macOS, Windows on ARM, or musl Linux) pip will now
+  install this pure-Python wheel rather than building the source
+  distribution, so those installs run the pure-Python scene code instead of
+  the C++ extension.
+- **`Mesh.to_dict()["filename"]` now always uses forward slashes**, on every
+  host OS, since it crosses a JSON/URL boundary to swift's JS mesh loader.
+  `Mesh.filename` itself is unchanged and keeps the native path you gave it.
+
+### Fixed
+
+- **Meshes failed to load in swift's viewer on Windows**: a raw Windows path
+  with backslashes broke the loader's `/retrieve/` URL (jhavl/swift#152).
+  Fixed together with swift 2.0.1's matching change.
+
+### Internal
+
+- Wheel, sdist and Pyodide-wheel builds now run as a dry run on pull requests
+  that touch the build configuration; only a published release uploads to
+  PyPI.
+- README badges reordered into the ecosystem's standard groups (with
+  downloads and powered-by badges added); a PR template was added; the CI
+  workflow was renamed for badge consistency.
+
 ## [1.4.0] - 2026-08-23
 
 ### New
