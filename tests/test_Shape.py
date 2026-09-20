@@ -344,7 +344,7 @@ class TestShape(unittest.TestCase):
             "stype": "mesh",
             "scale": [1.0, 1.0, 1.0],
             "y_up": False,
-            "filename": self.mesh_path,
+            "filename": self.mesh_path.replace("\\", "/"),
             "t": [0.0, 0.0, 0.0],
             "q": [0.0, 0.0, 0.0, 1],
             "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -705,49 +705,44 @@ class TestShape(unittest.TestCase):
 
 
 class TestMeshFilename(unittest.TestCase):
-    # Mesh.filename crosses a JSON/URL boundary to reach swift's JS mesh
-    # loader (see jhavl/swift#152) -- a raw Windows path with backslashes
-    # breaks that boundary, so Mesh should normalize to forward slashes at
-    # construction regardless of which OS Python is running on. os.path.isfile
-    # is mocked because a literal Windows-style path is never a real file on
-    # the POSIX runners this test also runs on.
+    # Mesh.to_dict()["filename"] crosses a JSON/URL boundary to reach swift's
+    # JS mesh loader (see jhavl/swift#152) -- a raw Windows path with
+    # backslashes breaks it, so serialization normalizes to forward slashes on
+    # any host OS, while Mesh.filename keeps the native path as given.
+    # os.path.isfile is mocked because a literal Windows-style path is never a
+    # real file on the POSIX runners this test also runs on.
     #
-    # Neither mock.patch's string-based target
-    # ("spatialgeometry.geom.CollisionShape.os...") nor a plain
-    # `import spatialgeometry.geom.CollisionShape as x` reliably gets the
-    # real module: spatialgeometry/geom/__init__.py does
-    # `from spatialgeometry.geom.CollisionShape import CollisionShape`,
-    # which -- after importing the submodule -- rebinds the *same*
-    # attribute name on the geom package to the class, permanently
-    # shadowing the module there (confirmed: both approaches resolved to
-    # the class in a real interpreter, not just in CI -- the string form
-    # only "worked" by accident in some prior ad-hoc checks depending on
-    # import order, and failed broadly in CI: ubuntu-3.10,
-    # macos-3.10/3.12/3.13, all windows). sys.modules is unaffected by
-    # that rebinding -- it always holds the real module regardless of
-    # what the parent package's namespace points at.
-    def test_windows_backslash_path_normalized_to_forward_slashes(self):
+    # Neither mock.patch's string target ("spatialgeometry.geom.CollisionShape
+    # .os...") nor `import spatialgeometry.geom.CollisionShape as x` reliably
+    # gets the module: spatialgeometry/geom/__init__.py's
+    # `from ...CollisionShape import CollisionShape` rebinds that attribute on
+    # the geom package to the class, shadowing the module. sys.modules always
+    # holds the real module.
+
+    @staticmethod
+    def _make_mesh(path):
         import sys
         import spatialgeometry.geom.CollisionShape  # noqa: F401 -- ensures it's in sys.modules
 
-        collision_shape_module = sys.modules["spatialgeometry.geom.CollisionShape"]
+        module = sys.modules["spatialgeometry.geom.CollisionShape"]
+        with mock.patch.object(module.os.path, "isfile", return_value=True):
+            return gm.Mesh(filename=path)
 
+    def test_windows_backslash_path_serialized_with_forward_slashes(self):
+        mesh = self._make_mesh("C:\\Users\\test\\meshes\\panda_link0.stl")
+        self.assertEqual(
+            mesh.to_dict()["filename"], "C:/Users/test/meshes/panda_link0.stl"
+        )
+
+    def test_filename_attribute_keeps_native_path(self):
         windows_path = "C:\\Users\\test\\meshes\\panda_link0.stl"
-        with mock.patch.object(collision_shape_module.os.path, "isfile", return_value=True):
-            mesh = gm.Mesh(filename=windows_path)
-        self.assertEqual(mesh.filename, "C:/Users/test/meshes/panda_link0.stl")
-        self.assertNotIn("\\", mesh.filename)
+        self.assertEqual(self._make_mesh(windows_path).filename, windows_path)
 
     def test_posix_path_unaffected(self):
-        import sys
-        import spatialgeometry.geom.CollisionShape  # noqa: F401 -- ensures it's in sys.modules
-
-        collision_shape_module = sys.modules["spatialgeometry.geom.CollisionShape"]
-
         posix_path = "/home/test/meshes/panda_link0.stl"
-        with mock.patch.object(collision_shape_module.os.path, "isfile", return_value=True):
-            mesh = gm.Mesh(filename=posix_path)
+        mesh = self._make_mesh(posix_path)
         self.assertEqual(mesh.filename, posix_path)
+        self.assertEqual(mesh.to_dict()["filename"], posix_path)
 
 
 class TestSceneTreePrint(unittest.TestCase):
