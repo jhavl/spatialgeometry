@@ -3,6 +3,19 @@
 Notable changes to this project are documented in this file. Starts from
 v1.2.0 — earlier releases aren't documented retroactively.
 
+## [Unreleased]
+
+### Changed
+
+- **`Axes` `color` now overrides the color of all three axes**, in both the
+  plain-line and `arrows=True` styles, and accepts a matplotlib color name or
+  an (r, g, b) / (r, g, b, a) tuple. Previously `color` was accepted but had
+  no effect on the rendered axes. With no color given the axes are still drawn
+  red/green/blue, and `Axes.to_dict()["color"]` is now `None` in that case
+  rather than the generic grey. Assigning `None` to `Axes.color` reverts to
+  red/green/blue. Needs a swift release that honors the override; older swift
+  keeps drawing red/green/blue.
+
 ## [1.4.1] - 2026-09-20
 
 ### New

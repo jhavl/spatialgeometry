@@ -438,7 +438,7 @@ class TestShape(unittest.TestCase):
             "t": [0.0, 0.0, 0.0],
             "q": [0.0, 0.0, 0.0, 1],
             "v": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "color": 5000268,
+            "color": None,  # no override: renderer draws red/green/blue
             "opacity": 1.0,
             "length": 1.0,
             "arrows": False,
@@ -447,6 +447,48 @@ class TestShape(unittest.TestCase):
         }
 
         self.assertEqual(s0.to_dict(), ans)
+
+    def test_Axes_color_default_is_no_override(self):
+        for arrows in (False, True):
+            self.assertIsNone(gm.Axes(1.0, arrows=arrows).to_dict()["color"])
+
+    def test_Axes_color_override(self):
+        # an override applies whatever the arrows style, and accepts a name,
+        # a 3-tuple or a 4-tuple
+        for arrows in (False, True):
+            s = gm.Axes(1.0, arrows=arrows, color="red")
+            self.assertEqual(s.to_dict()["color"], 0xFF0000)
+
+            s = gm.Axes(1.0, arrows=arrows, color=(0, 0, 1))
+            d = s.to_dict()
+            self.assertEqual(d["color"], 0x0000FF)
+            self.assertEqual(d["opacity"], 1.0)
+
+            s = gm.Axes(1.0, arrows=arrows, color=(0, 1, 0, 0.5))
+            d = s.to_dict()
+            self.assertEqual(d["color"], 0x00FF00)
+            self.assertEqual(d["opacity"], 0.5)
+
+    def test_Axes_color_setter_and_revert(self):
+        s = gm.Axes(1.0)
+        s.color = "blue"
+        self.assertEqual(s.to_dict()["color"], 0x0000FF)
+
+        # assigning None removes the override, unlike other shapes where it
+        # substitutes a default color
+        s.color = None
+        self.assertIsNone(s.to_dict()["color"])
+
+    def test_Axes_color_change_flags_for_swift(self):
+        s = gm.Axes(1.0)
+        s._added_to_swift = True
+        s._changed = False
+        s.color = "green"
+        self.assertTrue(s._changed)
+
+        s._changed = False
+        s.color = None
+        self.assertTrue(s._changed)
 
     def test_Axes_arrows_passes_through_radius_and_linewidth(self):
         s0 = gm.Axes(2.0, arrows=True, radius=0.05, linewidth=3.0)
