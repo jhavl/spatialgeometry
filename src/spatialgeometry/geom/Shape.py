@@ -469,10 +469,26 @@ class Axes(Shape):
         and radius == 0. Passed straight through to each constituent
         Arrow.
     :type linewidth: float
+    :param color: If given, all three axes are drawn in this one color
+        (an (r, g, b) or (r, g, b, a) tuple, or a matplotlib color name),
+        whatever the value of ``arrows``. If omitted (or ``None``) the axes
+        are drawn red/green/blue for X/Y/Z, the usual convention.
+
+    .. note::
+        Unlike every other :class:`Shape`, an ``Axes`` has no single
+        default color. Until a color is set, :attr:`color` returns the
+        generic placeholder grey it inherits from :class:`Shape`, but this
+        is *not* what is rendered -- the per-axis red/green/blue is.
+        Assigning ``None`` to :attr:`color` reverts to red/green/blue.
 
     """
 
     _repr_params = ("length", "arrows", "radius", "linewidth")
+
+    # True once a color has been explicitly given, constructor or setter. A
+    # class attribute so it exists before Shape.__init__() runs, which only
+    # goes through the color setter when a color was passed.
+    _color_set: bool = False
 
     def __init__(
         self,
@@ -487,6 +503,18 @@ class Axes(Shape):
         self.arrows = arrows
         self.radius = radius
         self.linewidth = linewidth
+
+    @Shape.color.setter
+    def color(self, value: ArrayLike | None) -> None:
+        # None means "no override": revert to red/green/blue, rather than
+        # Shape's behaviour of substituting a default color.
+        if value is None:
+            if self._added_to_swift:
+                self._changed = True
+            self._color_set = False
+        else:
+            Shape.color.fset(self, value)  # type: ignore[misc]
+            self._color_set = True
 
     @property
     def length(self) -> float:
@@ -571,6 +599,9 @@ class Axes(Shape):
         """
 
         shape = super().to_dict()
+        # null tells the renderer there is no override: draw red/green/blue
+        if not self._color_set:
+            shape["color"] = None
         shape["length"] = self.length
         shape["arrows"] = self.arrows
         shape["radius"] = self.radius
