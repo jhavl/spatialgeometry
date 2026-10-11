@@ -5,6 +5,8 @@ v1.2.0 — earlier releases aren't documented retroactively.
 
 ## [Unreleased]
 
+## [1.4.2] - 2026-10-12
+
 ### Changed
 
 - **`Axes` `color` now overrides the color of all three axes**, in both the
